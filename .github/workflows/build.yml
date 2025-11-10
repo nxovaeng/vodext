@@ -1,0 +1,116 @@
+name: Build and Deploy
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+env:
+  GRADLE_OPTS: "-Dorg.gradle.jvmargs=-Xmx4g -Dkotlin.daemon.jvm.options=-Xmx2g -Dfile.encoding=UTF-8"
+  ANDROID_NDK_VERSION: "25.2.9519653"
+  BUILD_TOOLS_VERSION: "33.0.2"
+  COMPILE_SDK_VERSION: "33"
+  TARGET_SDK_VERSION: "33"
+  MIN_SDK_VERSION: "21"
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      VERSION_NAME: ${{ github.ref_name }}
+      VERSION_CODE: ${{ github.run_number }}
+      IS_RELEASE: ${{ startsWith(github.ref, 'refs/tags/') }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup JDK 17
+        uses: actions/setup-java@v5
+        with:
+          java-version: 17
+          distribution: adopt
+          cache: gradle
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3.2.2
+
+      # 安装构建工具（例如 MkDocs 或 Pandoc）
+      - name: Install MkDocs
+        run: pip install mkdocs mkdocs-material
+
+      # 构建文档 (docs/*.md → site/)
+      - name: Build Docs
+        run: mkdocs build --clean --site-dir site
+        
+      - name: Setup Properties
+        env:
+          API_KEY: ${{ secrets.API_KEY || 'test_key' }}
+          CDN_URL: ${{ secrets.CDN_URL || 'https://cdn.example.com' }}
+          PROXY_URL: ${{ secrets.PROXY_URL || 'https://proxy.example.com' }}
+          DEBUG_MODE: ${{ vars.DEBUG_MODE || 'false' }}
+          ENABLE_CACHE: ${{ vars.ENABLE_CACHE || 'true' }}
+          USE_LEGACY_PARSER: ${{ vars.USE_LEGACY_PARSER || 'false' }}
+        run: |
+          touch local.properties
+          echo "sdk.dir=$ANDROID_HOME" >> local.properties
+          echo "org.gradle.jvmargs=$GRADLE_OPTS" >> local.properties
+          echo "android.useAndroidX=true" >> local.properties
+          echo "android.enableJetifier=true" >> local.properties
+          echo "kotlin.code.style=official" >> local.properties
+          
+          # API Configuration
+          echo "api.key=${API_KEY}" >> local.properties
+          echo "cdn.url=${CDN_URL}" >> local.properties
+          echo "proxy.url=${PROXY_URL}" >> local.properties
+          
+          # Build Configuration
+          echo "debug.mode=${DEBUG_MODE}" >> local.properties
+          echo "enable.cache=${ENABLE_CACHE}" >> local.properties
+          echo "use.legacy.parser=${USE_LEGACY_PARSER}" >> local.properties
+          echo "version.name=${VERSION_NAME}" >> local.properties
+          echo "version.code=${VERSION_CODE}" >> local.properties
+          
+          # Android Configuration
+          echo "android.compileSdk=${COMPILE_SDK_VERSION}" >> local.properties
+          echo "android.targetSdk=${TARGET_SDK_VERSION}" >> local.properties
+          echo "android.minSdk=${MIN_SDK_VERSION}" >> local.properties
+
+      - name: Build Plugins
+        run: |
+          chmod +x gradlew
+          ./gradlew make makePluginsJson
+          ./gradlew ensureJarCompatibility
+
+      # 收集Build资源到site/
+      - name: Copy Artifacts
+        run: |
+          cp **/build/*.cs3 site/
+          cp **/build/*.jar site/
+          cp build/plugins.json site/
+          cat > site/repo.json <<EOF
+          {
+            "name": "cloudstream-video",
+            "iconUrl": "https://raw.githubusercontent.com/${{ github.repository }}/main/repo_icon.png",
+            "description": "CloudStream extensions",
+            "manifestVersion": 1,
+            "pluginLists": [
+               "https://raw.githubusercontent.com/${{ github.repository }}/builds/plugins.json"
+            ]
+          }
+          EOF
+          
+      - name: Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: site
+          branch: builds
+          token: ${{ secrets.GITHUB_TOKEN }}
+          clean: true
+          single-commit: true
+        
