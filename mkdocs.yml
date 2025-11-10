@@ -1,0 +1,23 @@
+site_name: CloudStream 插件文档
+site_description: 插件说明与下载
+site_url: https://<username>.github.io/<repo>
+
+nav:
+  - 使用指南: index.md
+  - 开发指南: guide.md
+
+theme:
+  name: material
+  language: zh
+
+markdown_extensions:
+  - toc:
+      permalink: true
+  - tables
+  - fenced_code
+  - admonition
+  - footnotes
+  - def_list
+  - pymdownx.tasklist
+  - pymdownx.highlight
+  - pymdownx.superfences
