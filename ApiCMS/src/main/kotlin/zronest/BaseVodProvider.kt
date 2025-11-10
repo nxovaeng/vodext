@@ -75,13 +75,13 @@ open class BaseVodProvider : MainAPI() {
 
     override suspend fun load(url: String): LoadResponse {
         val id = url.split("/").last()
-        val url = "$mainUrl/api.php/provide/vod/?ac=detail&ids=$id"
+        val durl = "$mainUrl/api.php/provide/vod/?ac=detail&ids=$id"
         val detail =
-            app.get(url).parsed<MediaDetail>()
+            app.get(durl).parsed<MediaDetail>()
 
         val media = detail.list.first()
 
-        return media.toLoadResponse(url)
+        return media.toLoadResponse(durl)
     }
 
     override suspend fun loadLinks(
@@ -90,11 +90,27 @@ open class BaseVodProvider : MainAPI() {
         subtitleCallback: (SubtitleFile) -> Unit,
         callback: (ExtractorLink) -> Unit
     ): Boolean {
-        // data usually contains playUrl or m3u8
+        // 如果本身就是 m3u8 地址，直接使用
         if (data.contains(".m3u8")) {
             M3u8Helper.generateM3u8(name, data, mainUrl).forEach(callback)
             return true
         }
+
+        // 如果是yun播放链接，需要提取 m3u8 地址
+        /*
+        if (data.contains("/play/")) {
+            val pageContent = app.get(data).text
+            // 使用正则表达式提取 m3u8 地址
+            val m3u8Regex = Regex("url: '(https?://[^']+\\.m3u8)'")
+            val m3u8Match = m3u8Regex.find(pageContent)
+            
+            if (m3u8Match != null) {
+                val m3u8Url = m3u8Match.groupValues[1]
+                M3u8Helper.generateM3u8(name, m3u8Url, data).forEach(callback)
+                return true
+            }
+        }
+        */
 
         // fallback: try loadExtractor
         loadExtractor(
@@ -195,7 +211,15 @@ open class BaseVodProvider : MainAPI() {
                 this.tags = vod_class?.split(",")
             }
         } else {
-            val episodes = getEpisodes().values.flatten()
+            val episodeList = getEpisodes()
+            // 为每个剧集添加线路信息到 name 中，格式: [线路名] 第XX集
+            val episodes = episodeList.flatMap { (source, eps) ->
+                eps.map { episode ->
+                    episode.apply {
+                        this.name = "[$source] ${this.name}"
+                    }
+                }
+            }
             this@BaseVodProvider.newTvSeriesLoadResponse(vod_name, url, type, episodes) {
                 this.posterUrl = vod_pic
                 this.plot = vod_content
@@ -208,14 +232,14 @@ open class BaseVodProvider : MainAPI() {
     fun MediaDetailVideo.getEpisodes(): Map<String, List<Episode>> {
         if (vod_play_url.isNullOrEmpty()) return emptyMap()
 
-        // 播放源名称，比如 "bfzym3u8" 或 "modum3u8"
-        val source = vod_play_from ?: "默认线路"
+        // 分割多个播放源
+        val sources = vod_play_from?.split("$$$") ?: listOf("默认线路")
+        val playLists = vod_play_url.split("$$$")
 
-        // 每条地址用 # 分隔
-        val playUrls = vod_play_url.split("#")
-
-        val episodes =
-            playUrls.mapIndexed { index, item ->
+        // 创建线路和剧集的映射
+        return sources.zip(playLists).associate { (source, playList) ->
+            // 每个线路内的剧集用 # 分隔
+            val episodes = playList.split("#").mapIndexed { index, item ->
                 val parts = item.split("$", limit = 2)
                 val name = parts.getOrNull(0) ?: "第 ${index + 1} 集"
                 val url = parts.getOrNull(1) ?: parts.getOrNull(0) ?: ""
@@ -224,9 +248,8 @@ open class BaseVodProvider : MainAPI() {
                     this.episode = index + 1
                 }
             }
-
-        // 返回 Map，key 是线路名，value 是该线路的所有 Episode
-        return mapOf(source to episodes)
+            source to episodes
+        }
     }
 
 

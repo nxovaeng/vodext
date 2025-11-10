@@ -5,6 +5,7 @@ site_url: https://<username>.github.io/<repo>
 nav:
   - 使用指南: index.md
   - 开发指南: guide.md
+  - API知识: dev.md
 
 theme:
   name: material
