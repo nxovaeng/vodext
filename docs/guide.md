@@ -35,8 +35,8 @@
 1. 克隆项目
 
    ```bash
-   git clone https://github.com/nxovaeng/cloudstream-video.git
-   cd cloudstream-video
+   git clone https://github.com/nxovaeng/vodext.git
+   cd vodext
    ```
 
 2. 本地打包测试

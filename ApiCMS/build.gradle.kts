@@ -22,7 +22,7 @@ cloudstream {
     //  Movie, AnimeMovie, TvSeries, Cartoon, Anime, OVA, Torrent, Documentary, AsianDrama,
     //  Live, NSFW, Others, Music, AudioBook, CustomMedia, Audio, Podcast
     tvTypes = listOf("Movie", "TvSeries","AnimeMovie","Anime")
-    iconUrl="https://www.moduzy1.com/favicon.ico"
+    iconUrl="https://vod.zrocf.qzz.io/static/fflogo.png"
 
     isCrossPlatform = true
 }

@@ -37,12 +37,12 @@ subprojects {
     apply(plugin = "com.lagradost.cloudstream3.gradle")
 
     cloudstream {
-        setRepo(System.getenv("GITHUB_REPOSITORY") ?: "https://github.com/nxovaeng/cloudstream-video")
+        setRepo(System.getenv("GITHUB_REPOSITORY") ?: "https://github.com/nxovaeng/vodext")
         authors = listOf("nxovaeng")
     }
 
     android {
-        namespace = "com.nxovaeng"
+        namespace = "nxovaeng"
 
         defaultConfig {
             minSdk = 21

@@ -2,6 +2,14 @@
 
 CloudStream 中文影视扩展为您提供优质的中文影视资源支持。
 
+⚖️ DMCA 免责声明
+我们特此发布此通知，以澄清这些扩展程序的功能类似于标准网络浏览器，通过从互联网获取视频文件。
+
+此存储库或 Cloudstream 3 应用程序不托管任何内容。
+访问的任何内容均由第三方网站托管。
+用户对其使用负全部责任，并且必须遵守当地法律。
+如果您认为内容违反了版权法，请联系实际的文件托管商，而不是此存储库或 Cloudstream 3 应用程序的开发人员。
+
 ## 快速开始
 
 ### 添加扩展仓库
@@ -11,8 +19,8 @@ CloudStream 中文影视扩展为您提供优质的中文影视资源支持。
 3. 点击"添加仓库"
 4. 输入以下地址之一：
 
-   - `https://raw.githubusercontent.com/nxovaeng/vodext/builds/repo.json`
-   - `https://nxovaeng.github.io/vodext/builds/repo.json`
+- `https://raw.githubusercontent.com/nxovaeng/vodext/builds/repo.json`
+- `https://vod.zrocf.qzz.io/vodext.json`
 
 ### 安装扩展
 
@@ -25,11 +33,10 @@ CloudStream 中文影视扩展为您提供优质的中文影视资源支持。
 
 ## 支持的视频源
 
-| 扩展名称 | 支持的网站 | 视频类型 | 特点 |
-|---------|------------|----------|------|
-| ApiCMS | bfzyapi.com, mdzyapi.com | 影视、动漫 | 高清资源，更新快 |
-| MacCMS | zjkrmv.com | 影视、动漫 | 资源丰富，稳定 |
-| Animekhor | animekhor.org | 动漫 | 专注动漫资源(phisher的扩展库) |
+| 扩展名称 |          支持的网站                 | 视频类型 |
+|---------|----------------------------------- |----------|
+| ApiCMS  | bfzyapi.com, mdzyapi.com           | 影视、动漫 |
+| Animekhor | animekhor.org, donghuaworld.com  | 动漫 (phisher的扩展库) |
 
 ## 常见问题
 
