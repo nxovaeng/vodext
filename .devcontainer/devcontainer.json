@@ -11,8 +11,6 @@
         "vscode": {
             "extensions": [
                 "mathiasfrohlich.Kotlin", // Kotlin Language 支持
-                "vscjava.vscode-java-pack", // Java 支持（Gradle/Maven 项目解析）
-                "redhat.java", // Java Language Server
                 "vscjava.vscode-gradle", // Gradle 插件
                 "DavidAnson.vscode-markdownlint"
             ],
