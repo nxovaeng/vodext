@@ -1,0 +1,25 @@
+{
+    "name": "Kotlin Dev",
+    "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+    "features": {
+        "ghcr.io/devcontainers/features/java:1": {
+            "version": "17"
+        }
+    },
+    "postCreateCommand": "curl -s https://get.sdkman.io | bash && source $HOME/.sdkman/bin/sdkman-init.sh && sdk install kotlin 2.2.0 && sdk install gradle 8.13",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "mathiasfrohlich.Kotlin", // Kotlin Language 支持
+                "vscjava.vscode-java-pack", // Java 支持（Gradle/Maven 项目解析）
+                "redhat.java", // Java Language Server
+                "vscjava.vscode-gradle", // Gradle 插件
+                "DavidAnson.vscode-markdownlint"
+            ],
+            "settings": {
+                "editor.parameterHints.enabled": true,
+                "kotlin.languageServer.enabled": true
+            }
+        }
+    }
+}

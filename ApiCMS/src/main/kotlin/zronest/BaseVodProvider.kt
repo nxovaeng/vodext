@@ -34,6 +34,10 @@ open class BaseVodProvider : MainAPI() {
 
     override val supportedTypes = setOf(TvType.Movie, TvType.TvSeries, TvType.Anime)
 
+    val lineSeparator: String = "$$$"
+    val episodeSeparator: String = "#"
+    val nameUrlSeparator: String = "$"
+
     override val mainPage =
             mainPageOf(
                     "vod/?ac=list" to "最新更新",
@@ -88,41 +92,37 @@ open class BaseVodProvider : MainAPI() {
             subtitleCallback: (SubtitleFile) -> Unit,
             callback: (ExtractorLink) -> Unit
     ): Boolean {
-        // 使用 CoroutineScope 来并行处理所有来源（如果需要解析的话）
-        coroutineScope {
-            if (data.contains("||")) {
-                // 2. 剧集 [新格式] 多线路数据包 ("线路1||url1@@@线路2||url2")
-                data.split("@@@").forEach { sourcePair ->
-                    // launch { // 如果需要并行解析，请取消注释 launch
-                    try {
-                        val parts = sourcePair.split("||", limit = 2)
-                        val sourceName = parts.getOrNull(0)?.trim()
-                        val playUrl = parts.getOrNull(1)?.trim()
 
-                        if (!sourceName.isNullOrEmpty() && !playUrl.isNullOrEmpty()) {
-                            // 如果本身就是 m3u8 地址，直接使用
-                            if (data.contains(".m3u8")) {
-                                M3u8Helper.generateM3u8(sourceName, playUrl, mainUrl)
-                                        .forEach(callback)
-                            } else {
-                                extractPlayUrl(playUrl, sourceName, subtitleCallback, callback)
-                            }
+        if (data.contains(nameUrlSeparator)) {
+            // 剧集 多线路数据包 ("线路1$url1#线路2$url2")
+            // 电影 ("正片$url1#花絮$url2")
+            data.split(episodeSeparator).forEach { sourcePair ->
+                try {
+                    val parts = sourcePair.split(nameUrlSeparator, limit = 2)
+                    val sourceName = parts.getOrNull(0)?.trim()
+                    val playUrl = parts.getOrNull(1)?.trim()
+
+                    if (!sourceName.isNullOrEmpty() && !playUrl.isNullOrEmpty()) {
+                        // 如果本身就是 m3u8 地址，直接使用
+                        if (playUrl.contains(".m3u8")) {
+                            M3u8Helper.generateM3u8(sourceName, playUrl, mainUrl).forEach(callback)
+                        } else {
+                            extractPlayUrl(playUrl, sourceName, subtitleCallback, callback)
                         }
-                    } catch (e: Exception) {
+                    }
+                } catch (e: Exception) {
                         // 捕获单个来源的解析异常，防止Sentry崩溃
                         // e.printStackTrace()
-                    }
-                    // } // 对应 launch
-                }
-            } else if (data.isNotBlank()) {
-                // 1. 电影只有一个 URL
-                if (data.contains(".m3u8")) {
-                    M3u8Helper.generateM3u8(name, data, mainUrl).forEach(callback)
-                } else {
-                    extractPlayUrl(data, name, subtitleCallback, callback)
                 }
             }
-        } // 结束 coroutineScope
+        } else if (data.isNotBlank()) {
+            // 1. 电影只有一个 URL
+            if (data.contains(".m3u8")) {
+                M3u8Helper.generateM3u8(name, data, mainUrl).forEach(callback)
+            } else {
+                extractPlayUrl(data, name, subtitleCallback, callback)
+            }
+        }
 
         return true // 始终返回 true
     }
@@ -255,8 +255,8 @@ open class BaseVodProvider : MainAPI() {
      * * 原始数据: 线路: "线路1$$$线路2" 剧集: "第1集$url_A1#第2集$url_A2$$$第1集$url_B1#第2集$url_B2"
      *
      * * 目标 (转置后): 只显示一个列表 "剧集":
-     * - 第1集 (data: "线路1||url_A1@@@线路2||url_B1")
-     * - 第2集 (data: "线路1||url_A2@@@线路2||url_B2")
+     * - 第1集 (data: "线路1$url_A1#线路2$url_B1")
+     * - 第2集 (data: "线路1$url_A2#线路2$url_B2")
      * * 这样，当 loadLinks 接收到 data 时，它就能解析出所有来源。
      */
     fun VideoItem.getEpisodes(): List<Episode> {
@@ -264,7 +264,7 @@ open class BaseVodProvider : MainAPI() {
 
         // 1. 解析原始数据
         val sources =
-                vod_play_from?.split("$$$")?.map { it.trim() }?.filter { it.isNotEmpty() }
+                vod_play_from?.split(lineSeparator)?.map { it.trim() }?.filter { it.isNotEmpty() }
                         ?: listOf("默认线路")
         val playLists = vod_play_url.split("$$$")
 
@@ -280,25 +280,6 @@ open class BaseVodProvider : MainAPI() {
         // Pair: (剧集名称, 剧集URL)
         val allEpisodeData =
                 playLists.map { playList ->
-                    // 自动检测分隔符 (兼容 #$ 和 ,$ 或 #, 等)
-                    val episodeSeparator: String
-                    val nameUrlSeparator: String
-
-                    if (playList.contains("#") && playList.contains("$")) {
-                        episodeSeparator = "#"
-                        nameUrlSeparator = "$"
-                    } else if (playList.contains("$") && playList.contains(",")) {
-                        episodeSeparator = "$"
-                        nameUrlSeparator = ","
-                    } else if (playList.contains("#") && playList.contains(",")) {
-                        episodeSeparator = "#"
-                        nameUrlSeparator = ","
-                    } else {
-                        // 默认或回退
-                        episodeSeparator = "#"
-                        nameUrlSeparator = "$"
-                    }
-
                     // 解析这条线路上的所有剧集
                     playList.split(episodeSeparator).mapNotNull { item ->
                         val parts = item.split(nameUrlSeparator, limit = 2)
@@ -336,9 +317,9 @@ open class BaseVodProvider : MainAPI() {
                                     .firstOrNull() // 取第一个有效的
                              ?: "第 ${episodeIndex + 1} 集" // 实在没有就用索引
 
-                    // 3b. 组合所有线路的 URL
-                    // 使用 "@@@" 作为线路分隔符, "||" 作为线路名和URL的分隔符
-                    // 格式: "线路1||url1@@@线路2||url2"
+                    // 3b. 组合所有线路的 URL, 保持与原来一致，与电影返回兼容, 方便统一解析
+                    // 使用 "#" 作为线路分隔符, "$" 作为线路名和URL的分隔符
+                    // 格式: "线路1$url_A1#线路2$url_B1" 
                     val dataString =
                             sources.indices
                                     .mapNotNull { sourceIndex ->
@@ -349,10 +330,10 @@ open class BaseVodProvider : MainAPI() {
                                                 ?.second
                                                 ?.let { url ->
                                                     val sourceName = sources[sourceIndex]
-                                                    "$sourceName||$url" // 组合
+                                                    "$sourceName$nameUrlSeparator$url" // 组合
                                                 }
                                     }
-                                    .joinToString("@@@")
+                                    .joinToString(episodeSeparator)
 
                     // 3c. 创建 Episode 对象
                     this@BaseVodProvider.newEpisode(dataString) {

@@ -49,6 +49,17 @@
    ./gradlew make makePluginsJson
    ```
 
+3. Linux环境安装
+
+   ```bash
+   sudo apt-get update
+   sudo apt-get install -y openjdk-17-jdk
+   curl -s https://get.sdkman.io | bash
+   source "$HOME/.sdkman/bin/sdkman-init.sh"
+   sdk install kotlin 2.2.0
+   sdk use kotlin 2.2.0
+   ```
+
 ### 自动发布流程
 
 本项目可使用 GitHub Actions 自动构建和发布。

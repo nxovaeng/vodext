@@ -19,8 +19,9 @@ CloudStream 中文影视扩展为您提供优质的中文影视资源支持。
 3. 点击"添加仓库"
 4. 输入以下地址之一：
 
-- `https://raw.githubusercontent.com/nxovaeng/vodext/builds/repo.json`
-- `https://vod.zrocf.qzz.io/vodext.json`
+   - `https://raw.githubusercontent.com/nxovaeng/vodext/builds/repo.json`
+
+   - `https://vod.zrocf.qzz.io/vodext.json`
 
 ### 安装扩展
 
