@@ -100,15 +100,15 @@ open class BaseVodProvider : MainAPI() {
             data.split(episodeSeparator).forEach { sourcePair ->
                 try {
                     val parts = sourcePair.split(nameUrlSeparator, limit = 2)
-                    val sourceName = parts.getOrNull(0)?.trim()
+                    val lineName = parts.getOrNull(0)?.trim()
                     val playUrl = parts.getOrNull(1)?.trim()
 
-                    if (!sourceName.isNullOrEmpty() && !playUrl.isNullOrEmpty()) {
+                    if (!lineName.isNullOrEmpty() && !playUrl.isNullOrEmpty()) {
                         // 如果本身就是 m3u8 地址，直接使用
                         if (playUrl.contains(".m3u8")) {
-                            M3u8Helper.generateM3u8(sourceName, playUrl, mainUrl).forEach(callback)
+                            M3u8Helper.generateM3u8(name, playUrl, mainUrl, name = lineName).forEach(callback)
                         } else {
-                            extractPlayUrl(playUrl, sourceName, subtitleCallback, callback)
+                            extractPlayUrl(playUrl, lineName, subtitleCallback, callback)
                         }
                     }
                 } catch (e: Exception) {
@@ -130,7 +130,7 @@ open class BaseVodProvider : MainAPI() {
 
     private suspend fun extractPlayUrl(
         playUrl: String,
-        sourceName: String,
+        lineName: String,
         subtitleCallback: (SubtitleFile) -> Unit,
         callback: (ExtractorLink) -> Unit
     ) {
@@ -141,7 +141,7 @@ open class BaseVodProvider : MainAPI() {
         val m3u8Match = m3u8Regex.find(pageContent)
         val m3u8Url = m3u8Match?.groupValues?.get(1)
         if (m3u8Url != null) {
-            M3u8Helper.generateM3u8(sourceName, m3u8Url, mainUrl).forEach(callback)
+            M3u8Helper.generateM3u8(name, m3u8Url, mainUrl, name = lineName).forEach(callback)
         } else {
             // fallback: try loadExtractor
             loadExtractor(

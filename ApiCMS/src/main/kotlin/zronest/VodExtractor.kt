@@ -8,7 +8,7 @@ import com.lagradost.cloudstream3.utils.ExtractorLinkType
 import com.lagradost.cloudstream3.utils.getQualityFromName
 import com.lagradost.cloudstream3.utils.newExtractorLink
 
-// JisuExtractor.kt
+/** 解析极速云播放地址 */
 class JisuExtractor : ExtractorApi() {
     override val name = "Jisu云"
     override val mainUrl = "https://vv.jisuzyv.com"

@@ -11,6 +11,7 @@ class ApiCMSPlugin: BasePlugin() {
         registerMainAPI(BaseVodProvider())
         registerMainAPI(BfzyProvider())
         registerMainAPI(MdzyProvider())
+        registerMainAPI(WolongProvider())
         // 注册 extractor
         registerExtractorAPI(JisuExtractor())
     }

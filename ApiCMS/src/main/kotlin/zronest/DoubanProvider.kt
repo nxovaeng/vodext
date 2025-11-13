@@ -17,6 +17,7 @@ import com.lagradost.cloudstream3.newTvSeriesSearchResponse
 import java.net.URLEncoder
 import kotlin.math.min
 
+/**豆瓣热播 */
 class DoubanProvider : MainAPI() {
     override var mainUrl = "https://m.douban.com"
     override var name = "豆瓣热播"

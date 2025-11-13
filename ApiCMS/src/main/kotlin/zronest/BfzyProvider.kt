@@ -3,7 +3,7 @@ package nxovaeng
 import com.lagradost.cloudstream3.TvType
 import com.lagradost.cloudstream3.mainPageOf
 
-/** 简单的 TVBox 类型采集站点提供者示例（例如 bfzyapi.com） 基于简单的 TVBox API 风格：请求 JSON 或简单的接口返回 list -> media */
+/** 暴风资源，会屏蔽非中国ip访问 */
 class BfzyProvider : BaseVodProvider() {
     override var mainUrl = "https://bfzyapi.com"
     override var name = "暴风资源"
