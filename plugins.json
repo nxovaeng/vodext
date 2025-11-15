@@ -1,0 +1,72 @@
+[
+    {
+        "iconUrl": "https://i3.wp.com/animekhor.org/wp-content/uploads/2022/02/cropped-logo-180x180.png",
+        "jarFileSize": 83060,
+        "apiVersion": 1,
+        "repositoryUrl": "https://github.com/nxovaeng/vodext",
+        "fileSize": 21537,
+        "status": 1,
+        "language": "zh",
+        "authors": [
+            "Phisher98"
+        ],
+        "tvTypes": [
+            "AnimeMovie",
+            "Anime"
+        ],
+        "version": 9,
+        "internalName": "Animekhor",
+        "jarUrl": "https://raw.githubusercontent.com/nxovaeng/vodext/builds/Animekhor.jar",
+        "description": "Anime and Movies",
+        "url": "https://raw.githubusercontent.com/nxovaeng/vodext/builds/Animekhor.cs3",
+        "name": "Animekhor"
+    },
+    {
+        "iconUrl": "https://vod.zrocf.qzz.io/static/fflogo.png",
+        "jarFileSize": 172576,
+        "apiVersion": 1,
+        "repositoryUrl": "https://github.com/nxovaeng/vodext",
+        "fileSize": 42312,
+        "status": 1,
+        "language": "zh",
+        "authors": [
+            "nxovaeng"
+        ],
+        "tvTypes": [
+            "Movie",
+            "TvSeries",
+            "AnimeMovie",
+            "Anime"
+        ],
+        "version": 9,
+        "internalName": "ApiCMS",
+        "jarUrl": "https://raw.githubusercontent.com/nxovaeng/vodext/builds/ApiCMS.jar",
+        "description": "TvSeries Anime and Movies",
+        "url": "https://raw.githubusercontent.com/nxovaeng/vodext/builds/ApiCMS.cs3",
+        "name": "ApiCMS"
+    },
+    {
+        "iconUrl": "https://vod.zrocf.qzz.io/static/mtlogo.png",
+        "jarFileSize": 75011,
+        "apiVersion": 1,
+        "repositoryUrl": "https://github.com/nxovaeng/vodext",
+        "fileSize": 17949,
+        "status": 1,
+        "language": "zh",
+        "authors": [
+            "nxovaeng"
+        ],
+        "tvTypes": [
+            "Movie",
+            "TvSeries",
+            "AnimeMovie",
+            "Anime"
+        ],
+        "version": 9,
+        "internalName": "MacCMS",
+        "jarUrl": "https://raw.githubusercontent.com/nxovaeng/vodext/builds/MacCMS.jar",
+        "description": "TvSeries Anime and Movies",
+        "url": "https://raw.githubusercontent.com/nxovaeng/vodext/builds/MacCMS.cs3",
+        "name": "MacCMS"
+    }
+]
