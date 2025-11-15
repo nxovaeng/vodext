@@ -106,7 +106,7 @@ open class BaseVodProvider : MainAPI() {
                     if (!lineName.isNullOrEmpty() && !playUrl.isNullOrEmpty()) {
                         // 如果本身就是 m3u8 地址，直接使用
                         if (playUrl.contains(".m3u8")) {
-                            M3u8Helper.generateM3u8(name, playUrl, mainUrl, name = lineName).forEach(callback)
+                            M3u8Helper.generateM3u8(lineName, playUrl, mainUrl, name = name).forEach(callback)
                         } else {
                             extractPlayUrl(playUrl, lineName, subtitleCallback, callback)
                         }
@@ -141,7 +141,7 @@ open class BaseVodProvider : MainAPI() {
         val m3u8Match = m3u8Regex.find(pageContent)
         val m3u8Url = m3u8Match?.groupValues?.get(1)
         if (m3u8Url != null) {
-            M3u8Helper.generateM3u8(name, m3u8Url, mainUrl, name = lineName).forEach(callback)
+            M3u8Helper.generateM3u8(lineName, m3u8Url, mainUrl, name = name).forEach(callback)
         } else {
             // fallback: try loadExtractor
             loadExtractor(

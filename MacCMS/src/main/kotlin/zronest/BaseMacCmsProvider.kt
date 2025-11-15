@@ -93,27 +93,20 @@ open class BaseMacCmsProvider : MainAPI() {
 
         // 尝试找剧集列表
         val episodeEls = doc.select(".play-list li a, .stui-content__playlist a, .playfrom a")
-        if (episodeEls.isNotEmpty()) {
-            val episodes = episodeEls.mapIndexed { idx, el ->
-                val href = fixUrl(el.attr("href"))
-                val name = el.text().ifEmpty { "第 ${idx + 1} 集" }
-                newEpisode(href) {
-                    this.name = name
-                    this.episode = idx + 1
-                }
-            }
-            return newTvSeriesLoadResponse(title, url, TvType.TvSeries, episodes) {
-                this.posterUrl = poster
-                this.plot = plot
+
+        val episodes = episodeEls.mapIndexed { idx, el ->
+            val href = fixUrl(el.attr("href"))
+            val name = el.text().ifEmpty { "第 ${idx + 1} 集" }
+            newEpisode(href) {
+                this.name = name
+                this.episode = idx + 1
             }
         }
-
-        // fallback: 尝试从页面上找到第一个播放链接
-        val firstPlay = doc.selectFirst("iframe")?.attr("src") ?: doc.selectFirst("video source[src]")?.attr("src")
-        return newMovieLoadResponse(title, url, TvType.Movie, firstPlay ?: url) {
+        return newTvSeriesLoadResponse(title, playLink, TvType.TvSeries, episodes) {
             this.posterUrl = poster
             this.plot = plot
         }
+
     }
 
     override suspend fun loadLinks(
