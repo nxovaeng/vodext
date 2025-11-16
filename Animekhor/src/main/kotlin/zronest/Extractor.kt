@@ -77,11 +77,14 @@ open class Rumble : ExtractorApi() {
                         this.quality = getQualityFromName("")
                     }
                 )
-            } else M3u8Helper.generateM3u8(name, fileUrl, mainUrl).forEach(callback)
-            val fallback = "${mainUrl}/hls-vod/${
-                url.substringAfter("/embed/v").substringBefore("/")
-            }/playlist.m3u8?u=0&b=0"
-            M3u8Helper.generateM3u8(name, fallback, mainUrl).forEach(callback)
+            } else if(fileUrl.endsWith(".m3u8")) {
+                M3u8Helper.generateM3u8(name, fileUrl, mainUrl).forEach(callback)
+            } else {
+                val fallback = "${mainUrl}/hls-vod/${
+                    url.substringAfter("/embed/v").substringBefore("/")
+                }/playlist.m3u8?u=0&b=0"
+                M3u8Helper.generateM3u8(name, fallback, mainUrl).forEach(callback)
+            }
         }
 
 

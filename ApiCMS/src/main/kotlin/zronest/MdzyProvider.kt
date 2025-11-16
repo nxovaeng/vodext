@@ -12,10 +12,10 @@ class MdzyProvider : BaseVodProvider() {
 
     override val mainPage =
         mainPageOf(
-            "vod/?ac=list" to "最新更新",
-            "vod/?ac=list&t=7" to "电影",
-            "vod/?ac=list&t=8" to "电视剧",
-            "vod/?ac=list&t=1" to "动漫"
+            "" to "最新更新",
+            "t=7" to "电影",
+            "t=8" to "电视剧",
+            "t=1" to "动漫"
         )
 
     // 分类映射函数 暂时未使用

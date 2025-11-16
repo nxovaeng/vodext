@@ -41,40 +41,31 @@ open class BaseVodProvider : MainAPI() {
     val nameUrlSeparator: String = "$"
 
     override val mainPage = mainPageOf(
-        "vod/?ac=list" to "最新更新",
-        "vod/?ac=list&t=2" to "电影",
-        "vod/?ac=list&t=1" to "电视剧",
-        "vod/?ac=list&t=17" to "动漫"
+        "" to "最新更新",
+        "t=2" to "电影",
+        "t=1" to "电视剧",
+        "t=17" to "动漫"
     )
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
         // 调用 api json 风格的 list 接口
-        val url = "$mainUrl/api.php/provide/${request.data}&pg=$page"
-        val api = app.get(url).parsed<VideoList>()
+        var url = "$mainUrl/api.php/provide/vod/?ac=detail&pg=$page"
+        if (request.data.isNotBlank()) {
+            url = "$mainUrl/api.php/provide/vod/?ac=detail&${request.data}&pg=$page"
+        }
 
-        val ids = api.list.joinToString(",") { it.vod_id.toString() }
-
-        val detailUri = "$mainUrl/api.php/provide/vod/?ac=detail&ids=$ids"
-
-        // 批量请求详情, 获取封面地址
-        val detailApi = app.get(detailUri).parsed<VideoDetail>()
-
-        val list = detailApi.list.mapNotNull { it.toSearchResponse() }
+        val detail = app.get(url).parsed<VideoDetail>()
+        val list = detail.list.mapNotNull { it.toSearchResponse() }
 
         return newHomePageResponse(listOf(HomePageList(request.name, list)), hasNext = true)
     }
 
     override suspend fun search(query: String): List<SearchResponse> {
         val encoded = URLEncoder.encode(query, "UTF-8")
-        val url = "$mainUrl/api.php/provide/vod/?ac=search&wd=$encoded"
-        val api = app.get(url).parsed<VideoList>()
+        val url = "$mainUrl/api.php/provide/vod/?ac=detail&wd=$encoded"
+        val result = app.get(url).parsed<VideoDetail>()
 
-        val ids = api.list.joinToString(",") { it.vod_id.toString() }
-        val detailUrl = "$mainUrl/api.php/provide/vod/?ac=detail&ids=$ids"
-
-        // 批量请求详情, 获取封面及详情介绍
-        val detailApi = app.get(detailUrl).parsed<VideoDetail>()
-        return detailApi.list.mapNotNull { it.toSearchResponse() }
+        return result.list.mapNotNull { it.toSearchResponse() }
     }
 
     override suspend fun load(url: String): LoadResponse {
