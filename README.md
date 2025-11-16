@@ -45,3 +45,4 @@
 - [Kotlin](https://kotlinlang.org/) - 现代化的编程语言
 - [Jsoup](https://jsoup.org/) - HTML 解析库
 - [phisher](https://github.com/phisher98/cloudstream-extensions-phisher) - CloudStream插件扩展库
+- [SaurabhKaperwan](https://github.com/SaurabhKaperwan/CSX) - NetflixMirrorProvider
