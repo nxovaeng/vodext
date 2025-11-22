@@ -16,12 +16,12 @@ import org.jsoup.Jsoup
 
 
 open class SeaTV : Donghuastream() {
-    override var mainUrl              = "https://seatv-24.xyz"
-    override var name                 = "SeaTV"
-    override val hasMainPage          = true
-    override var lang                 = "zh"
-    override val hasDownloadSupport   = true
-    override val supportedTypes       = setOf(TvType.Anime)
+    override var mainUrl = "https://seatv-24.xyz"
+    override var name = "SeaTV"
+    override val hasMainPage = true
+    override var lang = "zh"
+    override val hasDownloadSupport = true
+    override val supportedTypes = setOf(TvType.Anime)
 
     override val mainPage = mainPageOf(
         "anime/?status=&type=&order=update&page=" to "Recently Updated",
@@ -29,7 +29,12 @@ open class SeaTV : Donghuastream() {
         "anime/?status=upcoming&type=&sub=&order=" to "Upcoming",
     )
 
-    override suspend fun loadLinks(data: String, isCasting: Boolean, subtitleCallback: (SubtitleFile) -> Unit, callback: (ExtractorLink) -> Unit): Boolean {
+    override suspend fun loadLinks(
+        data: String,
+        isCasting: Boolean,
+        subtitleCallback: (SubtitleFile) -> Unit,
+        callback: (ExtractorLink) -> Unit
+    ): Boolean {
         val document = app.get(data).document
         document.select(".mobius option").amap { server ->
             val base64 = server.attr("value").takeIf { it.isNotEmpty() }
@@ -42,8 +47,14 @@ open class SeaTV : Donghuastream() {
                     url.contains("vidmoly") -> {
                         val newUrl = url.substringAfter("=\"").substringBefore("\"")
                         val link = "http:$newUrl"
-                        loadExtractor(link, referer = url, subtitleCallback, callback)
+                        loadExtractor(link, referer = url, subtitleCallback) { link ->
+                            // Filter for quality >= 720p or unknown
+                            if (link.quality !in 1..<720) {
+                                callback(link)
+                            }
+                        }
                     }
+
                     url.endsWith("mp4") -> {
                         callback.invoke(
                             newExtractorLink(
@@ -57,8 +68,14 @@ open class SeaTV : Donghuastream() {
                             }
                         )
                     }
+
                     else -> {
-                        loadExtractor(url, referer = url, subtitleCallback, callback)
+                        loadExtractor(url, referer = url, subtitleCallback) { link ->
+                            // Filter for quality >= 720p or unknown
+                            if (link.quality !in 1..<720) {
+                                callback(link)
+                            }
+                        }
                     }
                 }
             }

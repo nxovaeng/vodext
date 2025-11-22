@@ -213,7 +213,7 @@ open class Animekhor : MainAPI() {
 
                     loadExtractor(url, referer = mainUrl, subtitleCallback) { link ->
                         // Filter for quality >= 720p or unknown
-                        if (link.quality >= 720 || link.quality <= 0) {
+                        if (link.quality !in 1..<720) {
                             callback(link)
                         }
                     }

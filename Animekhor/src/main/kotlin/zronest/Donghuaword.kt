@@ -29,7 +29,13 @@ class Donghuaword  : Animekhor() {
             val regex = Regex("""src=["']([^"']+)["']""", RegexOption.IGNORE_CASE)
             val matchResult = regex.find(decodedUrl)
             val url = matchResult?.groups?.get(1)?.value ?: "Not found"
-            loadExtractor(url, referer = mainUrl, subtitleCallback, callback)
+            loadExtractor(url, referer = mainUrl, subtitleCallback) { link ->
+                // Filter for quality >= 720p or unknown
+                if (link.quality !in 1..<720) {
+                    callback(link)
+                }
+
+            }
 
         }
         return true

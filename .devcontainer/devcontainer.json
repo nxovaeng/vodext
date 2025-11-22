@@ -10,7 +10,7 @@
     "customizations": {
         "vscode": {
             "extensions": [
-                "mathiasfrohlich.Kotlin", // Kotlin Language 支持
+                "fwcd.kotlin", // Kotlin Language 支持
                 "vscjava.vscode-gradle", // Gradle 插件
                 "DavidAnson.vscode-markdownlint"
             ],

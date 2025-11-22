@@ -6,7 +6,7 @@ import com.lagradost.cloudstream3.extractors.Dailymotion
 import com.lagradost.cloudstream3.extractors.Geodailymotion
 
 @CloudstreamPlugin
-class DonghuastreamProvider: BasePlugin() {
+class DonghuastreamPlugin: BasePlugin() {
     override fun load() {
         registerMainAPI(Donghuastream())
         registerMainAPI(SeaTV())

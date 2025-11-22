@@ -1,7 +1,8 @@
-package nxovaeng
+package zronest
 
 import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.utils.ExtractorLink
+import com.lagradost.cloudstream3.utils.ExtractorLinkType.M3U8
 import com.lagradost.cloudstream3.utils.loadExtractor
 import com.lagradost.cloudstream3.utils.newExtractorLink
 import org.jsoup.nodes.Element
@@ -52,8 +53,8 @@ class DadaquProvider : MainAPI() {
     private fun Element.toSearchResult(): SearchResponse? {
         val title = this.selectFirst("div")?.text()?.trim() ?: return null
         val href = fixUrl(this.attr("href"))
-        val posterUrl = this.selectFirst("img")?.attr("data-src")
-            ?: this.selectFirst("img")?.attr("src")
+        val posterUrl = fixUrlNull(this.selectFirst("img")?.attr("data-src")
+            ?: this.selectFirst("img")?.attr("src"))
         
         // 根据 URL 判断类型
         val type = when {
@@ -78,8 +79,8 @@ class DadaquProvider : MainAPI() {
     private fun Element.toCardSearchResult(): SearchResponse? {
         val title = this.selectFirst("strong")?.text()?.trim() ?: return null
         val href = fixUrl(this.attr("href"))
-        val posterUrl = this.selectFirst("img")?.attr("data-src")
-            ?: this.selectFirst("img")?.attr("src")
+        val posterUrl = fixUrlNull(this.selectFirst("img")?.attr("data-src")
+            ?: this.selectFirst("img")?.attr("src"))
         
         // 从详情页判断类型，这里先默认为电影
         return newMovieSearchResponse(title, href, TvType.Movie) {
@@ -103,8 +104,8 @@ class DadaquProvider : MainAPI() {
         
         val title = document.selectFirst("h1")?.text()?.trim() ?: return null
         
-        val poster = document.selectFirst("div.module-info-poster img")?.attr("data-src")
-            ?: document.selectFirst("div.module-info-poster img")?.attr("src")
+        val poster = fixUrlNull(document.selectFirst("div.module-info-poster img")?.attr("data-src")
+            ?: document.selectFirst("div.module-info-poster img")?.attr("src"))
         
         val description = document.selectFirst("div.module-info-introduction-content")?.text()?.trim()
         
@@ -208,45 +209,29 @@ class DadaquProvider : MainAPI() {
         subtitleCallback: (SubtitleFile) -> Unit,
         callback: (ExtractorLink) -> Unit
     ): Boolean {
+        // First, fetch the page HTML and extract video src (blob URL)
         val document = app.get(data).document
         
-        // 提取播放器中的 iframe
-        val iframeSrc = document.select("iframe").attr("src")
+        // Extract blob URL from video tag (for reference, though we'll sniff the actual URL)
+        val blobUrl = document.selectFirst("video.art-video")?.attr("src")
         
-        if (iframeSrc.isNotEmpty()) {
-            val fullIframeUrl = fixUrl(iframeSrc)
-            loadExtractor(fullIframeUrl, subtitleCallback, callback)
-        }
-        
-        // 尝试提取直接的视频链接
-        val scriptContent = document.select("script").joinToString("\n") { it.html() }
-        
-        // 常见的视频链接模式
-        val urlPatterns = listOf(
-            Regex("\"url\"\\s*:\\s*\"([^\"]+)\""),
-            Regex("player_aaaa=\\{[^}]*url:\"([^\"]+)\""),
-            Regex("var\\s+url\\s*=\\s*['\"]([^'\"]+)['\"]"),
-            Regex("src\\s*:\\s*['\"]([^'\"]+\\.m3u8[^'\"]*)"),
-            Regex("src\\s*:\\s*['\"]([^'\"]+\\.mp4[^'\"]*)")
-        )
-        
-        for (pattern in urlPatterns) {
-            val match = pattern.find(scriptContent)
-            if (match != null) {
-                val videoUrl = match.groupValues[1]
-                if (videoUrl.startsWith("http")) {
-                    callback.invoke(
-                        newExtractorLink(
-                            this.name,
-                            this.name,
-                            videoUrl,
-                        )
-                    )
-                    return true
+        // Now use WebView to sniff the actual M3U8 URL from network requests
+        // The page will load the video player and make network requests for the real video
+        val videoUrl = Utils.sniffVideoWithWebView(data, mainUrl)
+
+        if (videoUrl.isNotEmpty()) {
+            callback.invoke(
+                newExtractorLink(
+                    name = this.name,
+                    source = this.name,
+                    url = videoUrl,
+                    type = M3U8
+                ) {
+                    this.referer = mainUrl
                 }
-            }
+            )
         }
-        
+
         return true
     }
 }
