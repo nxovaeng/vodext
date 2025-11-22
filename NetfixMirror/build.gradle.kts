@@ -27,5 +27,4 @@ cloudstream {
     iconUrl =
         "https://github.com/SaurabhKaperwan/CSX/raw/refs/heads/master/NetflixMirrorProvider/icon.png"
 
-    isCrossPlatform = true
 }

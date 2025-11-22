@@ -4,6 +4,7 @@ import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.utils.ExtractorLink
 import com.lagradost.cloudstream3.utils.loadExtractor
 import org.jsoup.nodes.Element
+import java.net.URLEncoder
 
 /**豆瓣热播 - 直接解析 HTML */
 class DoubanProvider : MainAPI() {
@@ -15,6 +16,8 @@ class DoubanProvider : MainAPI() {
         TvType.Movie,
         TvType.TvSeries
     )
+
+    var searchUrl = "https://search.douban.com"
 
     override val mainPage = mainPageOf(
         "$mainUrl/" to "热门电影",
@@ -83,8 +86,9 @@ class DoubanProvider : MainAPI() {
     }
 
     override suspend fun search(query: String): List<SearchResponse> {
-        val searchUrl = "$mainUrl/search?q=$query"
-        val document = app.get(searchUrl).document
+        val encodedQuery = URLEncoder.encode(query, "UTF-8")
+        val url = "$searchUrl/movie/subject_search?search_text=$encodedQuery"
+        val document = app.get(url).document
         
         return document.select("div.item-root").mapNotNull {
             val title = it.selectFirst("a.title-text")?.text()?.trim() ?: return@mapNotNull null

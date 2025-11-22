@@ -14,6 +14,7 @@ class ApiCMSPlugin: BasePlugin() {
         registerMainAPI(WolongProvider())
         registerMainAPI(IKunProvider())
         registerMainAPI(MaotaiProvider())
+        registerMainAPI(DadaquProvider())
         // 注册 extractor
         registerExtractorAPI(JisuExtractor())
     }
