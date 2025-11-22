@@ -1,0 +1,133 @@
+[
+    {
+        "iconUrl": "https://i3.wp.com/animekhor.org/wp-content/uploads/2022/02/cropped-logo-180x180.png",
+        "jarFileSize": 97076,
+        "apiVersion": 1,
+        "repositoryUrl": "https://github.com/nxovaeng/vodext",
+        "fileSize": 23234,
+        "status": 1,
+        "language": "zh",
+        "authors": [
+            "Phisher98"
+        ],
+        "tvTypes": [
+            "AnimeMovie",
+            "Anime"
+        ],
+        "version": 9,
+        "internalName": "Animekhor",
+        "jarUrl": "https://vod.zrocf.qzz.io/Animekhor.jar",
+        "description": "Anime and Movies",
+        "url": "https://vod.zrocf.qzz.io/Animekhor.cs3",
+        "name": "Animekhor"
+    },
+    {
+        "iconUrl": "https://vod.zrocf.qzz.io/static/fflogo.png",
+        "jarFileSize": 126459,
+        "apiVersion": 1,
+        "repositoryUrl": "https://github.com/nxovaeng/vodext",
+        "fileSize": 31243,
+        "status": 1,
+        "language": "zh",
+        "authors": [
+            "nxovaeng"
+        ],
+        "tvTypes": [
+            "Movie",
+            "TvSeries",
+            "AnimeMovie",
+            "Anime"
+        ],
+        "version": 9,
+        "internalName": "ApiCMS",
+        "jarUrl": "https://vod.zrocf.qzz.io/ApiCMS.jar",
+        "description": "TvSeries Anime and Movies",
+        "url": "https://vod.zrocf.qzz.io/ApiCMS.cs3",
+        "name": "ApiCMS"
+    },
+    {
+        "iconUrl": "https://raw.githubusercontent.com/Kohi-den/extensions-source/927f9c68fd64ce52f6212ae633d0f0585eca3545/src/en/donghuastream/res/mipmap-xxxhdpi/ic_launcher.png",
+        "jarFileSize": 192240,
+        "apiVersion": 1,
+        "repositoryUrl": "https://github.com/nxovaeng/vodext",
+        "fileSize": 38447,
+        "status": 1,
+        "language": "zh",
+        "authors": [
+            "Phisher98"
+        ],
+        "tvTypes": [
+            "Anime"
+        ],
+        "version": 14,
+        "internalName": "Donghuastream",
+        "jarUrl": "https://vod.zrocf.qzz.io/Donghuastream.jar",
+        "description": "Contains SeaTV (Chinese)",
+        "url": "https://vod.zrocf.qzz.io/Donghuastream.cs3",
+        "name": "Donghuastream"
+    },
+    {
+        "iconUrl": "https://vod.zrocf.qzz.io/static/tvlogo.png",
+        "apiVersion": 1,
+        "repositoryUrl": "https://github.com/nxovaeng/vodext",
+        "fileSize": 16703,
+        "status": 1,
+        "language": "zh",
+        "authors": [
+            "nxovaeng"
+        ],
+        "tvTypes": [
+            "Live"
+        ],
+        "version": 1,
+        "internalName": "IPTV",
+        "description": "\u4e2d\u56fdIPTV\u76f4\u64ad\u6e90 - \u652f\u6301\u592e\u89c6\u3001\u536b\u89c6\u7b49\u9891\u9053",
+        "url": "https://vod.zrocf.qzz.io/IPTV.cs3",
+        "name": "IPTV"
+    },
+    {
+        "iconUrl": "https://vod.zrocf.qzz.io/static/mtlogo.png",
+        "jarFileSize": 181343,
+        "apiVersion": 1,
+        "repositoryUrl": "https://github.com/nxovaeng/vodext",
+        "fileSize": 38046,
+        "status": 1,
+        "language": "zh",
+        "authors": [
+            "nxovaeng"
+        ],
+        "tvTypes": [
+            "Movie",
+            "TvSeries",
+            "AnimeMovie",
+            "Anime"
+        ],
+        "version": 9,
+        "internalName": "MovieSite",
+        "jarUrl": "https://vod.zrocf.qzz.io/MovieSite.jar",
+        "description": "TvSeries Anime and Movies",
+        "url": "https://vod.zrocf.qzz.io/MovieSite.cs3",
+        "name": "MovieSite"
+    },
+    {
+        "iconUrl": "https://github.com/SaurabhKaperwan/CSX/raw/refs/heads/master/NetflixMirrorProvider/icon.png",
+        "apiVersion": 1,
+        "repositoryUrl": "https://github.com/nxovaeng/vodext",
+        "fileSize": 49002,
+        "status": 1,
+        "authors": [
+            "megix"
+        ],
+        "tvTypes": [
+            "Movie",
+            "TvSeries",
+            "AsianDrama",
+            "Anime"
+        ],
+        "version": 34,
+        "internalName": "NetfixMirror",
+        "description": "Netflix, PrimeVideo, JioHotstar(Hotstar, Disney, Paramount, HBO, Peacock) Content in Multiple Languages",
+        "url": "https://vod.zrocf.qzz.io/NetfixMirror.cs3",
+        "name": "NetfixMirror"
+    }
+]
