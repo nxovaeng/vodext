@@ -1,7 +1,7 @@
 package com.horis.cloudstreamplugins
 
 // Episode
-data class Episode(
+data class MyEpisode(
     val complate: String,
     val ep: String,
     val id: String,
@@ -12,7 +12,7 @@ data class Episode(
 
 // EpisodesData
 data class EpisodesData(
-    val episodes: List<Episode>?,
+    val episodes: List<MyEpisode>?,
     val nextPage: Int,
     val nextPageSeason: String,
     val nextPageShow: Int,
@@ -45,7 +45,7 @@ data class PostData(
     val desc: String?,
     val director: String?,
     val ua: String?,
-    val episodes: List<Episode?>,
+    val episodes: List<MyEpisode?>,
     val genre: String?,
     val nextPage: Int?,
     val nextPageSeason: String?,
