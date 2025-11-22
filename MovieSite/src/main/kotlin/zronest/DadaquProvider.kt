@@ -38,7 +38,10 @@ class DadaquProvider : MainAPI() {
             request.data.replace(".html", "-$page.html")
         }
         
-        val document = app.get(pageUrl).document
+        val document = app.get(
+            pageUrl,
+            referer = mainUrl
+        ).document
         
         val home = document.select("a.module-poster-item").mapNotNull {
             it.toSearchResult()
@@ -92,7 +95,10 @@ class DadaquProvider : MainAPI() {
         val encodedQuery = URLEncoder.encode(query, "UTF-8")
         val searchUrl = "$mainUrl/search/${encodedQuery}-------------.html"
         
-        val document = app.get(searchUrl).document
+        val document = app.get(
+            searchUrl,
+            referer = mainUrl
+        ).document
         
         return document.select("a.module-card-item-poster").mapNotNull {
             it.toCardSearchResult()
@@ -100,7 +106,10 @@ class DadaquProvider : MainAPI() {
     }
 
     override suspend fun load(url: String): LoadResponse? {
-        val document = app.get(url).document
+        val document = app.get(
+            url,
+            referer = mainUrl
+        ).document
         
         val title = document.selectFirst("h1")?.text()?.trim() ?: return null
         
@@ -210,7 +219,10 @@ class DadaquProvider : MainAPI() {
         callback: (ExtractorLink) -> Unit
     ): Boolean {
         // First, fetch the page HTML and extract video src (blob URL)
-        val document = app.get(data).document
+        val document = app.get(
+            data,
+            referer = mainUrl
+        ).document
         
         // Extract blob URL from video tag (for reference, though we'll sniff the actual URL)
         val blobUrl = document.selectFirst("video.art-video")?.attr("src")

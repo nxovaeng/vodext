@@ -53,7 +53,10 @@ class ChinaIPTVProvider : MainAPI() {
         val channels = mutableListOf<Channel>()
 
         try {
-            val m3uContent = app.get(playlistUrl).text
+            val m3uContent = app.get(
+                playlistUrl,
+                headers = mapOf("User-Agent" to USER_AGENT)
+            ).text
             val lines = m3uContent.lines()
 
             var currentName = ""
@@ -334,16 +337,68 @@ class ChinaIPTVProvider : MainAPI() {
     }
 
     override suspend fun load(url: String): LoadResponse {
-        // URL 就是直播流地址
-        var channelName = url.substringAfterLast("/").substringBefore(".")
-
-        return newMovieLoadResponse(
-            channelName,
+        // URL 就是直播流地址，我们需要找到它所属的频道组
+        val allChannels = parseM3U()
+        
+        // 根据 URL 找到当前频道
+        val currentChannel = allChannels.find { it.url == url }
+        
+        if (currentChannel == null) {
+            // 如果找不到，返回单个频道
+            return newMovieLoadResponse(
+                "直播频道",
+                url,
+                TvType.Live,
+                url
+            ) {
+                this.posterUrl = "https://www.google.com/s2/favicons?domain=tv.cctv.com&sz=128"
+            }
+        }
+        
+        // 获取同组的所有频道
+        val groupChannels = if (currentChannel.group.isNotEmpty()) {
+            allChannels.filter { it.group == currentChannel.group }
+        } else {
+            // 如果没有分组信息，尝试智能分组
+            when {
+                currentChannel.name.startsWith("CCTV") -> 
+                    allChannels.filter { it.name.startsWith("CCTV") }
+                currentChannel.name.contains("卫视") -> 
+                    allChannels.filter { it.name.contains("卫视") }
+                else -> listOf(currentChannel)
+            }
+        }
+        
+        // 将同组频道转换为剧集列表
+        val episodes = groupChannels.mapIndexed { index, channel ->
+            newEpisode(channel.url) {
+                this.name = channel.name
+                this.episode = index + 1
+                this.posterUrl = channel.logo.ifEmpty {
+                    "https://www.google.com/s2/favicons?domain=tv.cctv.com&sz=128"
+                }
+            }
+        }
+        
+        // 确定分组名称
+        val groupName = currentChannel.group.ifEmpty {
+            when {
+                currentChannel.name.startsWith("CCTV") -> "央视频道"
+                currentChannel.name.contains("卫视") -> "卫视频道"
+                else -> "直播频道"
+            }
+        }
+        
+        return newTvSeriesLoadResponse(
+            currentChannel.name,
             url,
             TvType.Live,
-            url
+            episodes
         ) {
-            this.posterUrl = "https://www.google.com/s2/favicons?domain=tv.cctv.com&sz=128"
+            this.posterUrl = currentChannel.logo.ifEmpty {
+                "https://www.google.com/s2/favicons?domain=tv.cctv.com&sz=128"
+            }
+            this.plot = "📺 $groupName - 共 ${episodes.size} 个频道\n\n点击下方频道列表快速换台"
         }
     }
 
@@ -358,7 +413,7 @@ class ChinaIPTVProvider : MainAPI() {
             M3u8Helper.generateM3u8(
                 this.name,
                 data,
-                referer = ""
+                referer = mainUrl
             ).forEach(callback)
         } else {
             // 直接返回链接

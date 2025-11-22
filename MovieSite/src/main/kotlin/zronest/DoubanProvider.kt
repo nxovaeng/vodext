@@ -28,7 +28,10 @@ class DoubanProvider : MainAPI() {
         page: Int,
         request: MainPageRequest
     ): HomePageResponse {
-        val document = app.get(request.data).document
+        val document = app.get(
+            request.data,
+            referer = mainUrl
+        ).document
         
         val home = if (request.data.contains("/tv/")) {
             // 解析电视剧页面
@@ -88,7 +91,10 @@ class DoubanProvider : MainAPI() {
     override suspend fun search(query: String): List<SearchResponse> {
         val encodedQuery = URLEncoder.encode(query, "UTF-8")
         val url = "$searchUrl/movie/subject_search?search_text=$encodedQuery"
-        val document = app.get(url).document
+        val document = app.get(
+            url,
+            referer = searchUrl
+        ).document
         
         return document.select("div.item-root").mapNotNull {
             val title = it.selectFirst("a.title-text")?.text()?.trim() ?: return@mapNotNull null
@@ -117,7 +123,10 @@ class DoubanProvider : MainAPI() {
     }
 
     override suspend fun load(url: String): LoadResponse? {
-        val document = app.get(url).document
+        val document = app.get(
+            url,
+            referer = mainUrl
+        ).document
         
         val title = document.selectFirst("h1 span")?.text()?.trim() 
             ?: document.selectFirst("h1")?.text()?.trim() 

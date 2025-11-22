@@ -49,7 +49,10 @@ open class PipishiProvider : MainAPI() {
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
         val pageUrl = "$mainUrl/${request.data}"
-        val doc = app.get(pageUrl).document
+        val doc = app.get(
+            pageUrl,
+            referer = mainUrl
+        ).document
         var tvType = TvType.TvSeries
         if (request.name.contains("电影")) {
             tvType = TvType.Movie
@@ -68,7 +71,10 @@ open class PipishiProvider : MainAPI() {
         val searchUrl = "$mainUrl/search/${URLEncoder.encode(query, "UTF-8")}-------------.html"
 
         try {
-            val doc = app.get(searchUrl).document
+            val doc = app.get(
+                searchUrl,
+                referer = mainUrl
+            ).document
             val results = doc.select(searchSelector).flatMap {
                 it.select(cardSelector)
             }.mapNotNull { info ->
@@ -84,7 +90,10 @@ open class PipishiProvider : MainAPI() {
     }
 
     override suspend fun load(url: String): LoadResponse {
-        val doc = app.get(url).document
+        val doc = app.get(
+            url,
+            referer = mainUrl
+        ).document
         val playLink = doc.select("div.module-info-footer a.main-btn").attr("href")
         val title = doc.select("div.module-info-heading h1").attr("title")
         val poster = fixUrlNull(doc.selectFirst("div.module-item-pic img")?.attr("src"))
@@ -115,7 +124,10 @@ open class PipishiProvider : MainAPI() {
         callback: (ExtractorLink) -> Unit
     ): Boolean {
         // data is episode url -> load and extract
-        val doc = app.get(data).document
+        val doc = app.get(
+            data,
+            referer = mainUrl
+        ).document
         // try iframe src
         val iframe = doc.selectFirst("iframe")?.attr("src")
         if (!iframe.isNullOrEmpty()) {
