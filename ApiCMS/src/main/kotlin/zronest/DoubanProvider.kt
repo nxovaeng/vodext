@@ -1,139 +1,219 @@
 package nxovaeng
 
-import com.lagradost.cloudstream3.HomePageList
-import com.lagradost.cloudstream3.HomePageResponse
-import com.lagradost.cloudstream3.LoadResponse
-import com.lagradost.cloudstream3.MainAPI
-import com.lagradost.cloudstream3.MainPageRequest
-import com.lagradost.cloudstream3.SearchResponse
-import com.lagradost.cloudstream3.TvType
-import com.lagradost.cloudstream3.app
-import com.lagradost.cloudstream3.mainPageOf
-import com.lagradost.cloudstream3.newEpisode
-import com.lagradost.cloudstream3.newHomePageResponse
-import com.lagradost.cloudstream3.newMovieSearchResponse
-import com.lagradost.cloudstream3.newTvSeriesLoadResponse
-import com.lagradost.cloudstream3.newTvSeriesSearchResponse
-import java.net.URLEncoder
-import kotlin.math.min
+import com.lagradost.cloudstream3.*
+import com.lagradost.cloudstream3.utils.ExtractorLink
+import com.lagradost.cloudstream3.utils.loadExtractor
+import org.jsoup.nodes.Element
 
-/**豆瓣热播 */
+/**豆瓣热播 - 直接解析 HTML */
 class DoubanProvider : MainAPI() {
-    override var mainUrl = "https://m.douban.com"
+    override var mainUrl = "https://movie.douban.com"
     override var name = "豆瓣热播"
     override var lang = "zh"
     override val hasMainPage = true
+    override val supportedTypes = setOf(
+        TvType.Movie,
+        TvType.TvSeries
+    )
 
-    override val mainPage =
-        mainPageOf(
-            "movie_real_time_hotest" to "热播电影",
-            "tv_real_time_hotest" to "热播电视剧",
-        )
+    override val mainPage = mainPageOf(
+        "$mainUrl/" to "热门电影",
+        "$mainUrl/tv/" to "热门剧集"
+    )
 
-    suspend inline fun <reified T : Any> doubanGet(url: String): T? {
-        val headers = mapOf(
-            "User-Agent" to "Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X) " +
-                    "AppleWebKit/605.1.15 (KHTML, like Gecko) " +
-                    "Version/14.0 Mobile/15E148 Safari/604.1",
-            "Referer" to "https://m.douban.com/",
-            "Accept" to "application/json, text/plain, */*",
-            "Accept-Language" to "zh-CN,zh;q=0.9,en;q=0.8",
-            "Accept-Encoding" to "gzip, deflate, br",
-            "Connection" to "keep-alive"
-        )
-
-        return runCatching { app.get(url, headers = headers).parsed<T>() }.getOrNull()
-    }
-
-    // 首页：豆瓣热播榜单
-    override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
-        val limit = 20
-        val start = (page - 1) * limit
-        val url =
-            "$mainUrl/rexxar/api/v2/subject_collection/${request.data}/items?start=$start&count=$limit"
-
-        val resp = doubanGet<DoubanHotResponse>(url) ?: DoubanHotResponse()
-        val list = if (request.data.contains("movie")) {
-            resp.subject_collection_items.map {
-                newMovieSearchResponse(it.title, it.url, TvType.Movie) {
-                    posterUrl = it.cover?.url
-                }
+    override suspend fun getMainPage(
+        page: Int,
+        request: MainPageRequest
+    ): HomePageResponse {
+        val document = app.get(request.data).document
+        
+        val home = if (request.data.contains("/tv/")) {
+            // 解析电视剧页面
+            document.select("div.slide-page a").mapNotNull {
+                it.toTvSearchResult()
             }
         } else {
-            resp.subject_collection_items.map {
-                newTvSeriesSearchResponse(it.title, it.url, TvType.TvSeries) {
-                    posterUrl = it.cover?.url
+            // 解析电影页面 - 正在热映
+            val nowPlaying = document.select("div.screening-bd ul li").mapNotNull {
+                it.toMovieSearchResult()
+            }
+            
+            // 解析电影页面 - 热门推荐
+            val popular = document.select("div.ui-slide-content a").mapNotNull {
+                it.toPopularMovieSearchResult()
+            }
+            
+            nowPlaying + popular
+        }
+        
+        return newHomePageResponse(
+            listOf(HomePageList(request.name, home.take(20))),
+            hasNext = false
+        )
+    }
+
+    private fun Element.toMovieSearchResult(): SearchResponse? {
+        val title = this.selectFirst("a")?.attr("title") ?: return null
+        val href = fixUrl(this.selectFirst("a")?.attr("href") ?: return null)
+        val posterUrl = this.selectFirst("img")?.attr("src")
+        
+        return newMovieSearchResponse(title, href, TvType.Movie) {
+            this.posterUrl = posterUrl
+        }
+    }
+
+    private fun Element.toPopularMovieSearchResult(): SearchResponse? {
+        val title = this.selectFirst("span")?.text()?.trim() ?: return null
+        val href = fixUrl(this.attr("href"))
+        val posterUrl = this.selectFirst("img")?.attr("src")
+        
+        return newMovieSearchResponse(title, href, TvType.Movie) {
+            this.posterUrl = posterUrl
+        }
+    }
+
+    private fun Element.toTvSearchResult(): SearchResponse? {
+        val title = this.selectFirst("span")?.text()?.trim() ?: return null
+        val href = fixUrl(this.attr("href"))
+        val posterUrl = this.selectFirst("img")?.attr("src")
+        
+        return newTvSeriesSearchResponse(title, href, TvType.TvSeries) {
+            this.posterUrl = posterUrl
+        }
+    }
+
+    override suspend fun search(query: String): List<SearchResponse> {
+        val searchUrl = "$mainUrl/search?q=$query"
+        val document = app.get(searchUrl).document
+        
+        return document.select("div.item-root").mapNotNull {
+            val title = it.selectFirst("a.title-text")?.text()?.trim() ?: return@mapNotNull null
+            val href = fixUrl(it.selectFirst("a.cover-link")?.attr("href") ?: return@mapNotNull null)
+            val posterUrl = it.selectFirst("img")?.attr("src")
+            
+            // 判断是电影还是电视剧
+            val typeText = it.selectFirst("span.subject-cast")?.text() ?: ""
+            val type = if (typeText.contains("集数", ignoreCase = true) || 
+                          typeText.contains("季", ignoreCase = true)) {
+                TvType.TvSeries
+            } else {
+                TvType.Movie
+            }
+            
+            if (type == TvType.Movie) {
+                newMovieSearchResponse(title, href, TvType.Movie) {
+                    this.posterUrl = posterUrl
+                }
+            } else {
+                newTvSeriesSearchResponse(title, href, TvType.TvSeries) {
+                    this.posterUrl = posterUrl
                 }
             }
         }
-
-        return newHomePageResponse(
-            listOf(
-                HomePageList(request.name, list),
-            ),
-            hasNext = true
-        )
     }
 
-    // 详情页：聚合搜索 + 多候选结果展示
     override suspend fun load(url: String): LoadResponse? {
-        val title = extractTitleFromDoubanUrl(url)
-
-        // 定义要调用的 Provider 列表
+        val document = app.get(url).document
+        
+        val title = document.selectFirst("h1 span")?.text()?.trim() 
+            ?: document.selectFirst("h1")?.text()?.trim() 
+            ?: return null
+        
+        val poster = document.selectFirst("div#mainpic img")?.attr("src")
+            ?: document.selectFirst("img[rel=v:image]")?.attr("src")
+        
+        val year = document.selectFirst("span.year")?.text()?.trim()
+            ?.replace(Regex("[()]"), "")?.toIntOrNull()
+        
+        val description = document.selectFirst("span[property=v:summary]")?.text()?.trim()
+            ?: document.selectFirst("div.related-info span.all.hidden")?.text()?.trim()
+        
+        val rating = document.selectFirst("strong.rating_num")?.text()?.trim()
+        
+        val tags = document.select("span[property=v:genre]").map { it.text() }
+        
+        val actors = document.select("div.celebrities-list a.celebrity").mapNotNull { 
+            val name = it.selectFirst("span.name")?.text()?.trim()
+            name?.let { ActorData(Actor(it)) }
+        }
+        
+        // 判断类型
+        val infoText = document.select("div#info").text()
+        val isTvSeries = infoText.contains("集数", ignoreCase = true) || 
+                        infoText.contains("季数", ignoreCase = true) ||
+                        infoText.contains("单集片长", ignoreCase = true)
+        
+        // 聚合搜索其他源
         val providers = listOf(
             BfzyProvider(),
             MdzyProvider(),
             BaseVodProvider()
         )
-
-        // 聚合搜索结果
-        val results = providers.flatMap { provider ->
+        
+        val searchResults = providers.flatMap { provider ->
             runCatching { provider.search(title) }.getOrElse { emptyList() }
         }
-
-        if (results.isEmpty()) return null
-
-        // 按相似度排序，取前 5 个候选
-        val sorted = results.sortedByDescending { similarity(title, it.name) }.take(5)
-
+        
+        if (searchResults.isEmpty()) {
+            // 如果没有找到播放源，返回基本信息
+            return if (isTvSeries) {
+                newTvSeriesLoadResponse(title, url, TvType.TvSeries, emptyList()) {
+                    this.posterUrl = poster
+                    this.year = year
+                    this.plot = description
+                    this.tags = tags
+                    this.actors = actors
+                    this.score = rating?.toDoubleOrNull()?.let { Score.from10(it.toInt()) }
+                }
+            } else {
+                newMovieLoadResponse(title, url, TvType.Movie, "") {
+                    this.posterUrl = poster
+                    this.year = year
+                    this.plot = description
+                    this.tags = tags
+                    this.actors = actors
+                    this.score = rating?.toDoubleOrNull()?.let { Score.from10(it.toInt()) }
+                }
+            }
+        }
+        
+        // 按相似度排序
+        val sorted = searchResults.sortedByDescending { similarity(title, it.name) }.take(5)
+        
         // 构造候选播放源列表
         val episodes = sorted.map { result ->
             newEpisode(result.url) {
                 name = "${result.name} [${result.apiName}]"
-                score = result.score
                 posterUrl = result.posterUrl
             }
         }
-
+        
         return newTvSeriesLoadResponse(title, url, TvType.TvSeries, episodes) {
-            posterUrl = results.first().posterUrl
-            plot = "聚合搜索结果，选择一个播放源进入"
+            this.posterUrl = poster ?: sorted.firstOrNull()?.posterUrl
+            this.year = year
+            this.plot = description ?: "聚合搜索结果，选择一个播放源进入"
+            this.tags = tags
+            this.actors = actors
+            this.score = rating?.toDoubleOrNull()?.let { Score.from10(it.toInt()) }
         }
     }
 
-    // 搜索：直接用豆瓣搜索接口（可选）
-    override suspend fun search(query: String): List<SearchResponse> {
-        val encoded = URLEncoder.encode(query, "UTF-8")
-        val url = "$mainUrl/rexxar/api/v2/search?q=$encoded"
-        val resp = app.get(url).parsed<DoubanSearchResponse>()
-
-        return resp.items.map {
-            newMovieSearchResponse(it.title, it.url, TvType.Movie) {
-                posterUrl = it.cover?.url
-            }
-        }
+    override suspend fun loadLinks(
+        data: String,
+        isCasting: Boolean,
+        subtitleCallback: (SubtitleFile) -> Unit,
+        callback: (ExtractorLink) -> Unit
+    ): Boolean {
+        // 由于是聚合其他源，这里直接加载对应源的链接
+        loadExtractor(data, subtitleCallback, callback)
+        return true
     }
 
-    // 提取标题（简单示例：直接用 URL 最后部分）
-    private fun extractTitleFromDoubanUrl(url: String): String {
-        return url.substringAfterLast("/").substringBefore("?")
-    }
-
-    // 相似度函数
+    // 相似度计算函数
     private fun similarity(a: String, b: String): Double {
         val distance = levenshtein(a, b)
         val maxLen = maxOf(a.length, b.length)
-        return 1.0 - (distance.toDouble() / maxLen)
+        return if (maxLen == 0) 1.0 else 1.0 - (distance.toDouble() / maxLen)
     }
 
     private fun levenshtein(a: String, b: String): Int {
@@ -144,31 +224,13 @@ class DoubanProvider : MainAPI() {
         for (i in 1..a.length) {
             for (j in 1..b.length) {
                 val cost = if (a[i - 1] == b[j - 1]) 0 else 1
-                dp[i][j] = min(
-                    min(dp[i - 1][j] + 1, dp[i][j - 1] + 1),
+                dp[i][j] = minOf(
+                    dp[i - 1][j] + 1,
+                    dp[i][j - 1] + 1,
                     dp[i - 1][j - 1] + cost
                 )
             }
         }
         return dp[a.length][b.length]
     }
-
-    data class DoubanHotResponse(
-        val subject_collection_items: List<DoubanItem> = emptyList()
-    )
-
-    data class DoubanItem(
-        val title: String = "",
-        val cover: DoubanCover? = null,
-        val info: String = "",
-        val url: String = ""
-    )
-
-    data class DoubanCover(
-        val url: String = ""
-    )
-
-    data class DoubanSearchResponse(
-        val items: List<DoubanItem> = emptyList()
-    )
 }
