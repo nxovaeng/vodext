@@ -1,4 +1,4 @@
-package nxovaeng
+package zronest
 
 import com.lagradost.api.Log
 import com.lagradost.cloudstream3.HomePageList
@@ -22,8 +22,14 @@ import com.lagradost.cloudstream3.newTvSeriesLoadResponse
 import com.lagradost.cloudstream3.utils.ExtractorLink
 import com.lagradost.cloudstream3.utils.httpsify
 import com.lagradost.cloudstream3.utils.loadExtractor
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import org.jsoup.nodes.Element
 
+/**
+ * Animekhor provider
+ */
 open class Animekhor : MainAPI() {
     override var mainUrl = "https://animekhor.org"
     override var name = "Animekhor"
@@ -43,6 +49,13 @@ open class Animekhor : MainAPI() {
         "anime/?status=completed&order=update" to "Completed",
     )
 
+    /**
+     * Retrieves the main page content.
+     *
+     * @param page The page number to retrieve.
+     * @param request The main page request.
+     * @return The home page response.
+     */
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
         val document = app.get("$mainUrl/${request.data}&page=$page").document
         val home = document.select("div.listupd > article").mapNotNull { it.toSearchResult() }
@@ -57,6 +70,11 @@ open class Animekhor : MainAPI() {
         )
     }
 
+    /**
+     * Converts an HTML element to a search response.
+     *
+     * @return The search response.
+     */
     private fun Element.toSearchResult(): SearchResponse {
         val title = this.select("div.bsx > a").attr("title")
         val href = fixUrl(this.select("div.bsx > a").attr("href"))
@@ -66,6 +84,11 @@ open class Animekhor : MainAPI() {
         }
     }
 
+    /**
+     * Converts an HTML element to a search response for a search query.
+     *
+     * @return The search response.
+     */
     private fun Element.toSearchquery(): SearchResponse {
         val title = this.select("div.bsx > a").attr("title")
         val href = fixUrl(this.select("div.bsx > a").attr("href"))
@@ -76,6 +99,12 @@ open class Animekhor : MainAPI() {
     }
 
 
+    /**
+     * Searches for content.
+     *
+     * @param query The search query.
+     * @return A list of search responses.
+     */
     override suspend fun search(query: String): List<SearchResponse> {
         val searchResponse = mutableListOf<SearchResponse>()
 
@@ -96,6 +125,12 @@ open class Animekhor : MainAPI() {
         return searchResponse
     }
 
+    /**
+     * Loads content details.
+     *
+     * @param url The URL of the content to load.
+     * @return The load response.
+     */
     override suspend fun load(url: String): LoadResponse {
         val document = app.get(url).document
         val title = document.selectFirst("h1.entry-title")?.text()?.trim().toString()
@@ -134,6 +169,15 @@ open class Animekhor : MainAPI() {
         }
     }
 
+    /**
+     * Loads extractor links for streaming.
+     *
+     * @param data The data to load links from.
+     * @param isCasting Whether the content is being cast.
+     * @param subtitleCallback A callback for subtitle files.
+     * @param callback A callback for extractor links.
+     * @return `true` if links were loaded successfully, `false` otherwise.
+     */
     override suspend fun loadLinks(
         data: String,
         isCasting: Boolean,
@@ -141,22 +185,49 @@ open class Animekhor : MainAPI() {
         callback: (ExtractorLink) -> Unit
     ): Boolean {
         val document = app.get(data).document
-        document.select(".mobius option").forEach { server ->
-            val base64 = server.attr("value")
-            val regex = Regex("""src=["']([^"']+)["']""", RegexOption.IGNORE_CASE)
-            val decodedUrl = base64Decode(base64)
-            val matchResult = regex.find(decodedUrl)
-            var url = matchResult?.groups?.get(1)?.value ?: "Not found"
-            if (url.startsWith("//")) {
-                url = httpsify(url)
-            }
-            Log.d("Phisher", url)
-            loadExtractor(url, referer = mainUrl, subtitleCallback, callback)
+        coroutineScope {
+            document.select(".mobius option").map { server ->
+                async {
+                    val base64 = server.attr("value")
+                    if (base64.isEmpty()) return@async
 
+                    val decodedUrl = base64Decode(base64)
+                    val regex = Regex("""src=["']([^"']+)["']""", RegexOption.IGNORE_CASE)
+                    val matchResult = regex.find(decodedUrl)
+                    var url = matchResult?.groups?.get(1)?.value ?: return@async
+                    if (url.startsWith("//")) {
+                        url = httpsify(url)
+                    }
+
+                    // Filter out known bad hosts
+                    val blacklistedHosts = listOf("short.icu", "upns.live", "p2pstream.vip")
+                    try {
+                        val host = java.net.URI(url).host
+                        if (host != null && blacklistedHosts.any { host.contains(it) }) {
+                            return@async
+                        }
+                    } catch (e: Exception) {
+                        // Invalid URL
+                        return@async
+                    }
+
+                    loadExtractor(url, referer = mainUrl, subtitleCallback) { link ->
+                        // Filter for quality >= 720p or unknown
+                        if (link.quality >= 720 || link.quality <= 0) {
+                            callback(link)
+                        }
+                    }
+                }
+            }.awaitAll()
         }
         return true
     }
 
+    /**
+     * Gets the source attribute from an element, preferring "data-src" over "src".
+     *
+     * @return The source URL.
+     */
     private fun Element.getsrcAttribute(): String {
         val src = this.attr("src")
         val dataSrc = this.attr("data-src")

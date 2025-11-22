@@ -14,7 +14,6 @@ import com.lagradost.cloudstream3.fixUrlNull
 import com.lagradost.cloudstream3.mainPageOf
 import com.lagradost.cloudstream3.newEpisode
 import com.lagradost.cloudstream3.newHomePageResponse
-import com.lagradost.cloudstream3.newMovieLoadResponse
 import com.lagradost.cloudstream3.newMovieSearchResponse
 import com.lagradost.cloudstream3.newTvSeriesLoadResponse
 import com.lagradost.cloudstream3.utils.ExtractorLink
@@ -27,7 +26,7 @@ import java.net.URLEncoder
  * Base provider for MacCMS 风格站点（页面渲染站点，通常有列表页和详情页）
  * 该基类实现常见的 list/search/load 模式，子类只需覆盖选择器或路径
  */
-open class BaseMacCmsProvider : MainAPI() {
+open class PipishiProvider : MainAPI() {
     override var mainUrl = "https://www.pipishi.cc"
     override var name = "皮皮师"
 

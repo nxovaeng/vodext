@@ -149,9 +149,7 @@ class DoubanProvider : MainAPI() {
         
         // 聚合搜索其他源
         val providers = listOf(
-            BfzyProvider(),
-            MdzyProvider(),
-            BaseVodProvider()
+            DadaquProvider(),
         )
         
         val searchResults = providers.flatMap { provider ->

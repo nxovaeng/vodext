@@ -1,4 +1,4 @@
-package com.horis.cloudstreamplugins
+package zronest
 
 // Episode
 data class MyEpisode(

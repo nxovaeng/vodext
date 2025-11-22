@@ -1,4 +1,4 @@
-package com.horis.cloudstreamplugins
+package zronest
 
 import android.content.Context
 import android.content.SharedPreferences

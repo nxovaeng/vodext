@@ -1,7 +1,5 @@
-package com.horis.cloudstreamplugins
+package zronest
 
-import com.lagradost.cloudstream3.*
-import com.lagradost.cloudstream3.utils.*
 import com.fasterxml.jackson.core.json.JsonReadFeature
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -10,11 +8,7 @@ import com.lagradost.cloudstream3.USER_AGENT
 import com.lagradost.nicehttp.Requests
 import com.lagradost.nicehttp.ResponseParser
 import kotlin.reflect.KClass
-import okhttp3.FormBody
 import com.lagradost.nicehttp.NiceResponse
-import kotlinx.coroutines.delay
-import android.content.Context
-import com.lagradost.api.Log
 
 val JSONParser = object : ResponseParser {
     val mapper: ObjectMapper = jacksonObjectMapper().configure(

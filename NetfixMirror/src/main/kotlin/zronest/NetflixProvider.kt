@@ -1,4 +1,4 @@
-package com.horis.cloudstreamplugins
+package zronest
 
 import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.utils.*
