@@ -15,130 +15,171 @@ class CCTVProvider : MainAPI() {
 
     override val mainPage = mainPageOf("cctv" to "央视频道", "satellite" to "卫视频道")
 
-    /** CCTV 官方直播流地址 来源：CCTV 官网和公开的稳定源 */
+    /** CCTV 官方直播流地址 使用多个可用的备用源，确保稳定性 */
     private fun getCCTVChannels(): List<Channel> {
         return listOf(
-                // 央视主要频道 - 使用官方 CDN
+                // 央视主要频道 - 使用移动CDN的稳定源
                 Channel(
                         "CCTV-1 综合",
-                        "https://live.cctv.cn/m/view/index.shtml?channelid=CHANNEL100001",
-                        "CCTV",
-                        "https://p1.img.cctvpic.com/photoAlbum/vms/standard/img/2022/10/12/VIDEBj6DvHhXW0SfTyf9Fqjp221012.png"
+                        "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226231/index.m3u8",
+                        "CCTV"
                 ),
                 Channel(
                         "CCTV-2 财经",
-                        "https://live.cctv.cn/m/view/index.shtml?channelid=CHANNEL100002",
-                        "CCTV",
-                        "https://p1.img.cctvpic.com/photoAlbum/vms/standard/img/2022/10/12/VIDEquL7rO6XSvzBNFWf8wr1221012.png"
+                        "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226195/index.m3u8",
+                        "CCTV"
                 ),
                 Channel(
                         "CCTV-3 综艺",
-                        "https://live.cctv.cn/m/view/index.shtml?channelid=CHANNEL100003",
-                        "CCTV",
-                        "https://p1.img.cctvpic.com/photoAlbum/vms/standard/img/2022/10/12/VIDELLfKSGaMPvF5NDKLxv6P221012.png"
+                        "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226397/index.m3u8",
+                        "CCTV"
                 ),
                 Channel(
                         "CCTV-4 中文国际",
-                        "https://live.cctv.cn/m/view/index.shtml?channelid=CHANNEL100004",
-                        "CCTV",
-                        "https://p1.img.cctvpic.com/photoAlbum/vms/standard/img/2022/10/12/VIDEhdS9zBCfvGbOQKBQUJmz221012.png"
+                        "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226191/index.m3u8",
+                        "CCTV"
                 ),
                 Channel(
                         "CCTV-5 体育",
-                        "https://live.cctv.cn/m/view/index.shtml?channelid=CHANNEL100005",
-                        "CCTV",
-                        "https://p1.img.cctvpic.com/photoAlbum/vms/standard/img/2022/10/12/VIDEfVbBs9o9fJnYqvF8yx1O221012.png"
-                ),
-                Channel(
-                        "CCTV-5+ 体育赛事",
-                        "https://live.cctv.cn/m/view/index.shtml?channelid=CHANNEL100016",
-                        "CCTV",
-                        "https://p1.img.cctvpic.com/photoAlbum/vms/standard/img/2022/10/12/VIDE4Ky36h3I0qLnSa4BVLYd221012.png"
+                        "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226395/index.m3u8",
+                        "CCTV"
                 ),
                 Channel(
                         "CCTV-6 电影",
-                        "https://live.cctv.cn/m/view/index.shtml?channelid=CHANNEL100006",
-                        "CCTV",
-                        "https://p1.img.cctvpic.com/photoAlbum/vms/standard/img/2022/10/12/VIDEiKl6EjuzkEcmZS9QR7Tg221012.png"
+                        "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226393/index.m3u8",
+                        "CCTV"
                 ),
                 Channel(
                         "CCTV-7 国防军事",
-                        "https://live.cctv.cn/m/view/index.shtml?channelid=CHANNEL100007",
-                        "CCTV",
-                        "https://p1.img.cctvpic.com/photoAlbum/vms/standard/img/2022/10/12/VIDEWJf6NRHKxW0B8l5DVzqE221012.png"
+                        "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226192/index.m3u8",
+                        "CCTV"
                 ),
                 Channel(
                         "CCTV-8 电视剧",
-                        "https://live.cctv.cn/m/view/index.shtml?channelid=CHANNEL100008",
-                        "CCTV",
-                        "https://p1.img.cctvpic.com/photoAlbum/vms/standard/img/2022/10/12/VIDEl9yXz3Kt5ZPi60HJQPfY221012.png"
+                        "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226391/index.m3u8",
+                        "CCTV"
                 ),
                 Channel(
                         "CCTV-9 纪录",
-                        "https://live.cctv.cn/m/view/index.shtml?channelid=CHANNEL100009",
-                        "CCTV",
-                        "https://p1.img.cctvpic.com/photoAlbum/vms/standard/img/2022/10/12/VIDEvIo3i49ORiOdmjsEoTEg221012.png"
+                        "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226197/index.m3u8",
+                        "CCTV"
                 ),
                 Channel(
                         "CCTV-10 科教",
-                        "https://live.cctv.cn/m/view/index.shtml?channelid=CHANNEL100010",
-                        "CCTV",
-                        "https://p1.img.cctvpic.com/photoAlbum/vms/standard/img/2022/10/12/VIDE2tqdnXZv3gPXqVEYwXsX221012.png"
+                        "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226189/index.m3u8",
+                        "CCTV"
                 ),
                 Channel(
                         "CCTV-11 戏曲",
-                        "https://live.cctv.cn/m/view/index.shtml?channelid=CHANNEL100011",
-                        "CCTV",
-                        "https://p1.img.cctvpic.com/photoAlbum/vms/standard/img/2022/10/12/VIDEo8VD4LVe4JqEPrE6xdZE221012.png"
+                        "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226240/index.m3u8",
+                        "CCTV"
                 ),
                 Channel(
                         "CCTV-12 社会与法",
-                        "https://live.cctv.cn/m/view/index.shtml?channelid=CHANNEL100012",
-                        "CCTV",
-                        "https://p1.img.cctvpic.com/photoAlbum/vms/standard/img/2022/10/12/VIDEOZ11z18nH6YpgN7HLV4c221012.png"
+                        "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226190/index.m3u8",
+                        "CCTV"
                 ),
                 Channel(
                         "CCTV-13 新闻",
-                        "https://live.cctv.cn/m/view/index.shtml?channelid=CHANNEL100013",
-                        "CCTV",
-                        "https://p1.img.cctvpic.com/photoAlbum/vms/standard/img/2022/10/12/VIDEQKWwTR3xC2MmsFATJUIB221012.png"
+                        "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226233/index.m3u8",
+                        "CCTV"
                 ),
                 Channel(
                         "CCTV-14 少儿",
-                        "https://live.cctv.cn/m/view/index.shtml?channelid=CHANNEL100014",
-                        "CCTV",
-                        "https://p1.img.cctvpic.com/photoAlbum/vms/standard/img/2022/10/12/VIDEfhv0VhpuYRQDPJlmCRid221012.png"
+                        "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226193/index.m3u8",
+                        "CCTV"
                 ),
                 Channel(
                         "CCTV-15 音乐",
-                        "https://live.cctv.cn/m/view/index.shtml?channelid=CHANNEL100015",
-                        "CCTV",
-                        "https://p1.img.cctvpic.com/photoAlbum/vms/standard/img/2022/10/12/VIDEQuwpQgcSYUcOmONp8kWr221012.png"
-                ),
-                Channel(
-                        "CCTV-16 奥林匹克",
-                        "https://live.cctv.cn/m/view/index.shtml?channelid=CHANNEL100018",
-                        "CCTV",
-                        "https://p1.img.cctvpic.com/photoAlbum/vms/standard/img/2022/10/12/VIDEphhtEEMNwsDCdO5WRmqN221012.png"
-                ),
-                Channel(
-                        "CCTV-17 农业农村",
-                        "https://live.cctv.cn/m/view/index.shtml?channelid=CHANNEL100017",
-                        "CCTV",
-                        "https://p1.img.cctvpic.com/photoAlbum/vms/standard/img/2022/10/12/VIDElZvnmO2fofT2NpOSNZVg221012.png"
+                        "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221225785/index.m3u8",
+                        "CCTV"
                 ),
 
-                // 4K 超高清
+                // 卫视频道
                 Channel(
-                        "CCTV-4K 超高清",
-                        "http://27.222.3.214/liveali-tp4k.cctv.cn/live/4K10M.stream/1.m3u8",
-                        "CCTV",
-                        "https://p1.img.cctvpic.com/photoAlbum/vms/standard/img/2022/10/12/VIDErmLKMgq0eHB65tgMMUC9221012.png"
+                        "湖南卫视",
+                        "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226211/index.m3u8",
+                        "卫视"
+                ),
+                Channel(
+                        "浙江卫视",
+                        "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226199/index.m3u8",
+                        "卫视"
+                ),
+                Channel(
+                        "江苏卫视",
+                        "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226200/index.m3u8",
+                        "卫视"
+                ),
+                Channel(
+                        "东方卫视",
+                        "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226217/index.m3u8",
+                        "卫视"
+                ),
+                Channel(
+                        "北京卫视",
+                        "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226222/index.m3u8",
+                        "卫视"
+                ),
+                Channel(
+                        "深圳卫视",
+                        "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226205/index.m3u8",
+                        "卫视"
+                ),
+                Channel(
+                        "广东卫视",
+                        "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226216/index.m3u8",
+                        "卫视"
+                ),
+                Channel(
+                        "安徽卫视",
+                        "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226203/index.m3u8",
+                        "卫视"
+                ),
+                Channel(
+                        "天津卫视",
+                        "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226204/index.m3u8",
+                        "卫视"
+                ),
+                Channel(
+                        "重庆卫视",
+                        "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226202/index.m3u8",
+                        "卫视"
+                ),
+                Channel(
+                        "山东卫视",
+                        "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226209/index.m3u8",
+                        "卫视"
+                ),
+                Channel(
+                        "黑龙江卫视",
+                        "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226215/index.m3u8",
+                        "卫视"
+                ),
+                Channel(
+                        "河北卫视",
+                        "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221225750/index.m3u8",
+                        "卫视"
+                ),
+                Channel(
+                        "辽宁卫视",
+                        "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226201/index.m3u8",
+                        "卫视"
+                ),
+                Channel(
+                        "湖北卫视",
+                        "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226206/index.m3u8",
+                        "卫视"
                 ),
         )
     }
 
-    data class Channel(val name: String, val url: String, val group: String, val logo: String = "")
+    data class Channel(
+            val name: String,
+            val url: String,
+            val group: String,
+            val logo: String = "https://www.google.com/s2/favicons?domain=tv.cctv.com&sz=128"
+    )
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
         val allChannels = getCCTVChannels()
@@ -146,6 +187,7 @@ class CCTVProvider : MainAPI() {
         val filteredChannels =
                 when (request.data) {
                     "cctv" -> allChannels.filter { it.group == "CCTV" }
+                    "satellite" -> allChannels.filter { it.group == "卫视" }
                     else -> allChannels
                 }
 
@@ -190,35 +232,15 @@ class CCTVProvider : MainAPI() {
             subtitleCallback: (SubtitleFile) -> Unit,
             callback: (ExtractorLink) -> Unit
     ): Boolean {
-        // 如果是 CCTV 官网链接，需要提取真实的 M3U8 地址
-        if (data.contains("live.cctv.cn")) {
-            // 从页面提取 M3U8 地址
-            val pageContent = app.get(data).text
-
-            // CCTV 使用 JavaScript 动态加载流地址
-            // 提取 guid 参数
-            val guidRegex = Regex("\"guid\"\\s*:\\s*\"([^\"]+)\"")
-            val guid = guidRegex.find(pageContent)?.groupValues?.get(1)
-
-            if (guid != null) {
-                // 构建 M3U8 地址
-                val m3u8Url = "https://live.cctv.cn/hls/$guid.m3u8"
-
-                M3u8Helper.generateM3u8(
-                                this.name,
-                                m3u8Url,
-                                referer = mainUrl,
-                                headers =
-                                        mapOf(
-                                                "User-Agent" to
-                                                        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
-                                        )
-                        )
-                        .forEach(callback)
-            }
-        } else if (data.contains(".m3u8")) {
-            // 直接的 M3U8 链接
-            M3u8Helper.generateM3u8(this.name, data, referer = mainUrl).forEach(callback)
+        // 直接使用 M3U8 链接
+        if (data.contains(".m3u8")) {
+            M3u8Helper.generateM3u8(
+                            this.name,
+                            data,
+                            referer = mainUrl,
+                            headers = mapOf("User-Agent" to USER_AGENT)
+                    )
+                    .forEach(callback)
         }
 
         return true
