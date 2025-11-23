@@ -1,8 +1,6 @@
 package nxovaeng
 
 import com.lagradost.cloudstream3.TvType
-import com.lagradost.cloudstream3.mainPageOf
-import kotlinx.coroutines.runBlocking
 
 /** 茅台资源站 - 支持动态获取分类 */
 class MaotaiProvider : BaseVodProvider() {
@@ -11,18 +9,14 @@ class MaotaiProvider : BaseVodProvider() {
 
     override val supportedTypes = setOf(TvType.Movie, TvType.TvSeries, TvType.Anime)
 
-    /** 动态生成主页分类 可以选择从 API 获取分类，或使用默认配置 */
-    override val mainPage = runBlocking {
-        // 方案1: 从 API 动态获取（推荐，但第一次加载可能稍慢）
-        val categoryNames = listOf("最新更新", "国产剧", "国产动漫", "动作片")
-        val dynamicPages = buildMainPageList(categoryNames)
+    /** 动态生成主页分类 使用 lazy 延迟加载，避免阻塞应用启动 第一次访问时才从 API 获取分类，失败时使用默认配置 */
+    private val mainPageDelegate by
+            buildMainPageLazy(
+                    categoryNames = listOf("最新更新", "国产剧", "国产动漫", "动作片"),
+                    fallbackPages =
+                            listOf("" to "最新更新", "t=6" to "电影", "t=13" to "国产剧", "t=30" to "国产动漫")
+            )
 
-        // 如果 API 获取失败，使用默认配置
-        if (dynamicPages.isNotEmpty()) {
-            mainPageOf(*dynamicPages.toTypedArray())
-        } else {
-            // 方案2: 使用默认硬编码配置（作为后备）
-            mainPageOf("" to "最新更新", "t=6" to "电影", "t=13" to "国产剧", "t=30" to "国产动漫")
-        }
-    }
+    override val mainPage
+        get() = mainPageDelegate
 }

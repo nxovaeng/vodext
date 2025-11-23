@@ -14,6 +14,7 @@ import com.lagradost.cloudstream3.SearchResponse
 import com.lagradost.cloudstream3.SubtitleFile
 import com.lagradost.cloudstream3.TvType
 import com.lagradost.cloudstream3.app
+import com.lagradost.cloudstream3.mainPageOf
 import com.lagradost.cloudstream3.newEpisode
 import com.lagradost.cloudstream3.newHomePageResponse
 import com.lagradost.cloudstream3.newMovieLoadResponse
@@ -24,6 +25,7 @@ import com.lagradost.cloudstream3.utils.ExtractorLink
 import com.lagradost.cloudstream3.utils.M3u8Helper
 import com.lagradost.cloudstream3.utils.loadExtractor
 import java.net.URLEncoder
+import kotlinx.coroutines.runBlocking
 
 /** 基于 api 类型采集站点提供者（例如 bfzyapi.com） 基于 JSON 的接口返回 list -> media */
 abstract class BaseVodProvider : MainAPI() {
@@ -377,19 +379,51 @@ abstract class BaseVodProvider : MainAPI() {
         return matches.maxByOrNull { it.priority }?.type ?: TvType.Others
     }
 
+    /** 分类缓存，避免重复请求 */
+    private var categoryCache: Map<Int, String>? = null
+
     /**
-     * 从 API 获取分类列表
+     * 从 API 获取分类列表（带缓存）
+     * @param forceRefresh 是否强制刷新缓存
      * @return Map<分类ID, 分类名称>
      */
-    suspend fun fetchCategories(): Map<Int, String> {
+    suspend fun fetchCategories(forceRefresh: Boolean = false): Map<Int, String> {
+        // 如果有缓存且不强制刷新，直接返回
+        if (!forceRefresh && categoryCache != null) {
+            return categoryCache!!
+        }
+
         return try {
             val url = "$mainUrl/api.php/provide/vod/?ac=list"
             val response = app.get(url).parsed<VideoList>()
-            response.classData?.associate { it.type_id to it.type_name } ?: emptyMap()
+            val categories =
+                    response.classData?.associate { it.type_id to it.type_name } ?: emptyMap()
+            // 更新缓存
+            categoryCache = categories
+            categories
         } catch (e: Exception) {
-            emptyMap()
+            // 如果请求失败但有缓存，返回缓存
+            categoryCache ?: emptyMap()
         }
     }
+
+    /**
+     * 构建 mainPage 的辅助函数，使用延迟加载和默认值
+     * @param categoryNames 分类名称列表
+     * @param fallbackPages 默认的 fallback 分类配置
+     * @return Lazy<MainPageData>
+     */
+    fun buildMainPageLazy(categoryNames: List<String>, fallbackPages: List<Pair<String, String>>) =
+            lazy {
+                runBlocking {
+                    val dynamicPages = buildMainPageList(categoryNames)
+                    if (dynamicPages.isNotEmpty()) {
+                        mainPageOf(*dynamicPages.toTypedArray())
+                    } else {
+                        mainPageOf(*fallbackPages.toTypedArray())
+                    }
+                }
+            }
 
     /**
      * 根据分类名称列表动态构建 mainPageOf 参数
@@ -403,10 +437,13 @@ abstract class BaseVodProvider : MainAPI() {
     ): List<Pair<String, String>> {
         val categoryMap = categories ?: fetchCategories()
 
-        return categoryNames.mapNotNull { name ->
-            when {
-                name == "最新更新" -> "" to "最新更新"
-                else -> {
+        // 分离处理："最新更新"和其他分类
+        val latestUpdate = categoryNames.firstOrNull { it == "最新更新" }
+        val otherCategories = categoryNames.filter { it != "最新更新" }
+
+        // 构建其他分类列表（从 API 获取）
+        val mappedCategories =
+                otherCategories.mapNotNull { name ->
                     // 从分类映射中查找对应的 ID
                     val typeId = categoryMap.entries.firstOrNull { it.value == name }?.key
                     if (typeId != null) {
@@ -415,7 +452,18 @@ abstract class BaseVodProvider : MainAPI() {
                         null
                     }
                 }
-            }
+
+        // 如果其他分类为空（API 调用失败），返回空列表
+        // 这样调用方可以使用 fallback 逻辑
+        if (mappedCategories.isEmpty() && otherCategories.isNotEmpty()) {
+            return emptyList()
+        }
+
+        // 将"最新更新"放在首位（如果存在）
+        return if (latestUpdate != null) {
+            listOf("" to "最新更新") + mappedCategories
+        } else {
+            mappedCategories
         }
     }
 }
