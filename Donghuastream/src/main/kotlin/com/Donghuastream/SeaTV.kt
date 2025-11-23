@@ -1,11 +1,15 @@
 package com.Donghuastream
 
+import com.lagradost.cloudstream3.SearchResponse
 import com.lagradost.cloudstream3.SubtitleFile
 import com.lagradost.cloudstream3.TvType
 import com.lagradost.cloudstream3.amap
 import com.lagradost.cloudstream3.app
 import com.lagradost.cloudstream3.base64Decode
+import com.lagradost.cloudstream3.fixUrl
+import com.lagradost.cloudstream3.fixUrlNull
 import com.lagradost.cloudstream3.mainPageOf
+import com.lagradost.cloudstream3.newMovieSearchResponse
 import com.lagradost.cloudstream3.utils.ExtractorLink
 import com.lagradost.cloudstream3.utils.INFER_TYPE
 import com.lagradost.cloudstream3.utils.getQualityFromName
@@ -13,6 +17,7 @@ import com.lagradost.cloudstream3.utils.httpsify
 import com.lagradost.cloudstream3.utils.loadExtractor
 import com.lagradost.cloudstream3.utils.newExtractorLink
 import org.jsoup.Jsoup
+import org.jsoup.nodes.Element
 
 open class SeaTV : Donghuastream() {
     override var mainUrl = "https://seatv-24.xyz"
@@ -28,6 +33,27 @@ open class SeaTV : Donghuastream() {
                     "anime/?status=completed&type=&order=update" to "Completed",
                     "anime/?status=upcoming&type=&sub=&order=" to "Upcoming",
             )
+
+    private fun Element.toSearch2Result(): SearchResponse {
+        val title = this.select("div.bsx > a").attr("title")
+        val href = fixUrl(this.select("div.bsx > a").attr("href"))
+        val posterUrl = fixUrlNull(this.select("div.bsx a img").attr("data-src"))
+        return newMovieSearchResponse(title, href, TvType.Movie) { this.posterUrl = posterUrl }
+    }
+
+    /**
+     * Searches for content.
+     *
+     * @param query The search query.
+     * @return A list of search results.
+     */
+    override suspend fun search(query: String): List<SearchResponse> {
+        val document = app.get("${mainUrl}/?s=$query").document
+
+        val results = document.select("div.listupd > article").mapNotNull { it.toSearch2Result() }
+
+        return results
+    }
 
     override suspend fun loadLinks(
             data: String,

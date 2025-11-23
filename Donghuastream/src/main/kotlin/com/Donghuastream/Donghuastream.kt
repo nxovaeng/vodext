@@ -66,17 +66,14 @@ open class Donghuastream : MainAPI() {
     private fun Element.toSearchResult(): SearchResponse {
         val title = this.select("div.bsx > a").attr("title")
         val href = fixUrl(this.select("div.bsx > a").attr("href"))
+        val posterUrl = fixUrlNull(this.select("div.bsx a img").attr("data-src"))
+        return newMovieSearchResponse(title, href, TvType.Movie) { this.posterUrl = posterUrl }
+    }
 
-        // 安全获取图片URL：先获取属性值，如果为空则尝试下一个
-        val imgElement = this.selectFirst("div.bsx a img")
-        val posterUrl =
-                imgElement?.let { img ->
-                    val srcAttr =
-                            img.attr("src").takeIf { it.isNotEmpty() }
-                                    ?: img.attr("data-src").takeIf { it.isNotEmpty() }
-                    srcAttr?.let { fixUrlNull(it) }
-                }
-
+    private fun Element.toSearch2Result(): SearchResponse {
+        val title = this.select("div.bsx > a").attr("title")
+        val href = fixUrl(this.select("div.bsx > a").attr("href"))
+        val posterUrl = fixUrlNull(this.select("div.bsx a img").attr("src"))
         return newMovieSearchResponse(title, href, TvType.Movie) { this.posterUrl = posterUrl }
     }
 
@@ -89,7 +86,7 @@ open class Donghuastream : MainAPI() {
     override suspend fun search(query: String): List<SearchResponse> {
         val document = app.get("${mainUrl}/?s=$query").document
 
-        val results = document.select("div.listupd > article").mapNotNull { it.toSearchResult() }
+        val results = document.select("div.listupd > article").mapNotNull { it.toSearch2Result() }
 
         return results
     }
