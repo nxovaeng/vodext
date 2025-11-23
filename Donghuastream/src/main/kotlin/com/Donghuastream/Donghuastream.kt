@@ -1,6 +1,5 @@
 package com.Donghuastream
 
-
 import com.lagradost.api.Log
 import com.lagradost.cloudstream3.HomePageList
 import com.lagradost.cloudstream3.HomePageResponse
@@ -31,9 +30,7 @@ import kotlinx.coroutines.launch
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 
-/**
- * Donghuastream provider
- */
+/** Donghuastream provider */
 open class Donghuastream : MainAPI() {
     override var mainUrl = "https://donghuastream.org"
     override var name = "Donghuastream"
@@ -42,11 +39,12 @@ open class Donghuastream : MainAPI() {
     override val hasDownloadSupport = true
     override val supportedTypes = setOf(TvType.Anime)
 
-    override val mainPage = mainPageOf(
-        "anime/?status=&type=&order=update&page=" to "Recently Updated",
-        "anime/?status=completed&type=&order=update" to "Completed",
-        "anime/?status=&type=special&sub=&order=update" to "Special Anime",
-    )
+    override val mainPage =
+            mainPageOf(
+                    "anime/?status=&type=&order=update&page=" to "Recently Updated",
+                    "anime/?status=completed&type=&order=update" to "Completed",
+                    "anime/?status=&type=special&sub=&order=update" to "Special Anime",
+            )
 
     /**
      * Retrieves the main page content.
@@ -60,24 +58,20 @@ open class Donghuastream : MainAPI() {
         val home = document.select("div.listupd > article").mapNotNull { it.toSearchResult() }
 
         return newHomePageResponse(
-            list = HomePageList(
-                name = request.name,
-                list = home,
-                isHorizontalImages = false
-            ),
-            hasNext = true
+                list = HomePageList(name = request.name, list = home, isHorizontalImages = false),
+                hasNext = true
         )
     }
 
     private fun Element.toSearchResult(): SearchResponse {
         val title = this.select("div.bsx > a").attr("title")
         val href = fixUrl(this.select("div.bsx > a").attr("href"))
-        val posterUrl = fixUrlNull(this.select("div.bsx a img").attr("data-src"))
-        return newMovieSearchResponse(title, href, TvType.Movie) {
-            this.posterUrl = posterUrl
-        }
-    }
+        val posterUrl =
+                fixUrlNull(this.select("div.bsx a img").attr("src"))
+                        ?: fixUrlNull(this.select("div.bsx a img").attr("data-src"))
 
+        return newMovieSearchResponse(title, href, TvType.Movie) { this.posterUrl = posterUrl }
+    }
 
     /**
      * Searches for content.
@@ -88,8 +82,7 @@ open class Donghuastream : MainAPI() {
     override suspend fun search(query: String): List<SearchResponse> {
         val document = app.get("${mainUrl}/?s=$query").document
 
-        val results =
-            document.select("div.listupd > article").mapNotNull { it.toSearchResult() }
+        val results = document.select("div.listupd > article").mapNotNull { it.toSearchResult() }
 
         return results
     }
@@ -111,21 +104,27 @@ open class Donghuastream : MainAPI() {
         return if (tvtag == TvType.TvSeries) {
             val Eppage = document.selectFirst(".eplister li > a")?.attr("href") ?: ""
             val doc = app.get(Eppage).document
-            val episodes = doc.select("div.episodelist > ul > li").map { info ->
-                val href1 = info.select("a").attr("href")
-                val episode =
-                    info.select("a span").text().substringAfter("-").substringBeforeLast("-")
-                val posterr = info.selectFirst("a img")?.attr("data-src") ?: ""
-                newEpisode(href1)
-                {
-                    this.name = episode.replace(title, "", ignoreCase = true)
-                    this.episode = episode.toIntOrNull()
-                    this.posterUrl = posterr
-                }
-            }
+            val episodes =
+                    doc.select("div.episodelist > ul > li").map { info ->
+                        val href1 = info.select("a").attr("href")
+                        val episode =
+                                info.select("a span")
+                                        .text()
+                                        .substringAfter("-")
+                                        .substringBeforeLast("-")
+                        val posterr = info.selectFirst("a img")?.attr("data-src") ?: ""
+                        newEpisode(href1) {
+                            this.name = episode.replace(title, "", ignoreCase = true)
+                            this.episode = episode.toIntOrNull()
+                            this.posterUrl = posterr
+                        }
+                    }
             if (poster.isEmpty()) {
-                poster = document.selectFirst("meta[property=og:image]")?.attr("content")?.trim()
-                    .toString()
+                poster =
+                        document.selectFirst("meta[property=og:image]")
+                                ?.attr("content")
+                                ?.trim()
+                                .toString()
             }
             newTvSeriesLoadResponse(title, url, TvType.Anime, episodes.reversed()) {
                 this.posterUrl = poster
@@ -133,8 +132,11 @@ open class Donghuastream : MainAPI() {
             }
         } else {
             if (poster.isEmpty()) {
-                poster = document.selectFirst("meta[property=og:image]")?.attr("content")?.trim()
-                    .toString()
+                poster =
+                        document.selectFirst("meta[property=og:image]")
+                                ?.attr("content")
+                                ?.trim()
+                                .toString()
             }
             newMovieLoadResponse(title, url, TvType.Movie, href) {
                 this.posterUrl = poster
@@ -153,10 +155,10 @@ open class Donghuastream : MainAPI() {
      * @return Whether the links were loaded successfully.
      */
     override suspend fun loadLinks(
-        data: String,
-        isCasting: Boolean,
-        subtitleCallback: (SubtitleFile) -> Unit,
-        callback: (ExtractorLink) -> Unit
+            data: String,
+            isCasting: Boolean,
+            subtitleCallback: (SubtitleFile) -> Unit,
+            callback: (ExtractorLink) -> Unit
     ): Boolean {
         val html = app.get(data).document
 
@@ -168,45 +170,43 @@ open class Donghuastream : MainAPI() {
                     val base64 = option.attr("value")
                     if (base64.isBlank()) return@launch
                     val label = option.text().trim()
-                    val decodedHtml = try {
-                        base64Decode(base64)
-                    } catch (_: Exception) {
-                        Log.w("Error", "Base64 decode failed: $base64")
-                        return@launch
-                    }
+                    val decodedHtml =
+                            try {
+                                base64Decode(base64)
+                            } catch (_: Exception) {
+                                Log.w("Error", "Base64 decode failed: $base64")
+                                return@launch
+                            }
 
                     val iframeUrl =
-                        Jsoup.parse(decodedHtml).selectFirst("iframe")?.attr("src")
-                            ?.let(::httpsify)
+                            Jsoup.parse(decodedHtml)
+                                    .selectFirst("iframe")
+                                    ?.attr("src")
+                                    ?.let(::httpsify)
                     if (iframeUrl.isNullOrEmpty()) return@launch
                     when {
                         "vidmoly" in iframeUrl -> {
                             val cleanedUrl =
-                                "http:" + iframeUrl.substringAfter("=\"").substringBefore("\"")
-                            loadExtractor(cleanedUrl, referer = iframeUrl, subtitleCallback) { link ->
+                                    "http:" + iframeUrl.substringAfter("=\"").substringBefore("\"")
+                            loadExtractor(cleanedUrl, referer = iframeUrl, subtitleCallback) { link
+                                ->
                                 // Filter for quality >= 720p or unknown
                                 if (link.quality >= 720 || link.quality <= 0) {
                                     callback(link)
                                 }
                             }
                         }
-
                         iframeUrl.endsWith(".mp4") -> {
                             callback(
-                                newExtractorLink(
-                                    label,
-                                    label,
-                                    url = iframeUrl,
-                                    INFER_TYPE
-                                ) {
-                                    this.referer = ""
-                                    this.quality = getQualityFromName(label)
-                                }
+                                    newExtractorLink(label, label, url = iframeUrl, INFER_TYPE) {
+                                        this.referer = ""
+                                        this.quality = getQualityFromName(label)
+                                    }
                             )
                         }
-
                         else -> {
-                            loadExtractor(iframeUrl, referer = iframeUrl, subtitleCallback) { link ->
+                            loadExtractor(iframeUrl, referer = iframeUrl, subtitleCallback) { link
+                                ->
                                 // Filter for quality >= 720p or unknown
                                 if (link.quality >= 720 || link.quality <= 0) {
                                     callback(link)

@@ -4,10 +4,10 @@ import com.lagradost.cloudstream3.plugins.BasePlugin
 import com.lagradost.cloudstream3.plugins.CloudstreamPlugin
 
 @CloudstreamPlugin
-class ApiCMSPlugin: BasePlugin() {
+class ApiCMSPlugin : BasePlugin() {
     override fun load() {
         // 注册所有 API CMS 风格的资源站
-        registerMainAPI(BaseVodProvider())
+        registerMainAPI(JisuProvider())
         registerMainAPI(BfzyProvider())
         registerMainAPI(MdzyProvider())
         registerMainAPI(WolongProvider())

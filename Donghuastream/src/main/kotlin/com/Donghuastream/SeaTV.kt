@@ -14,7 +14,6 @@ import com.lagradost.cloudstream3.utils.loadExtractor
 import com.lagradost.cloudstream3.utils.newExtractorLink
 import org.jsoup.Jsoup
 
-
 open class SeaTV : Donghuastream() {
     override var mainUrl = "https://seatv-24.xyz"
     override var name = "SeaTV"
@@ -23,17 +22,18 @@ open class SeaTV : Donghuastream() {
     override val hasDownloadSupport = true
     override val supportedTypes = setOf(TvType.Anime)
 
-    override val mainPage = mainPageOf(
-        "anime/?status=&type=&order=update&page=" to "Recently Updated",
-        "anime/?status=completed&type=&order=update" to "Completed",
-        "anime/?status=upcoming&type=&sub=&order=" to "Upcoming",
-    )
+    override val mainPage =
+            mainPageOf(
+                    "anime/?status=&type=&order=update&page=" to "Recently Updated",
+                    "anime/?status=completed&type=&order=update" to "Completed",
+                    "anime/?status=upcoming&type=&sub=&order=" to "Upcoming",
+            )
 
     override suspend fun loadLinks(
-        data: String,
-        isCasting: Boolean,
-        subtitleCallback: (SubtitleFile) -> Unit,
-        callback: (ExtractorLink) -> Unit
+            data: String,
+            isCasting: Boolean,
+            subtitleCallback: (SubtitleFile) -> Unit,
+            callback: (ExtractorLink) -> Unit
     ): Boolean {
         val document = app.get(data).document
         document.select(".mobius option").amap { server ->
@@ -46,33 +46,31 @@ open class SeaTV : Donghuastream() {
                 when {
                     url.contains("vidmoly") -> {
                         val newUrl = url.substringAfter("=\"").substringBefore("\"")
-                        val link = "http:$newUrl"
-                        loadExtractor(link, referer = url, subtitleCallback) { link ->
+                        val loadUrl = "http:$newUrl"
+                        loadExtractor(loadUrl, referer = url, subtitleCallback) { link ->
                             // Filter for quality >= 720p or unknown
-                            if (link.quality !in 1..<720) {
+                            if (link.quality >= 720 || link.quality <= 0) {
                                 callback(link)
                             }
                         }
                     }
-
                     url.endsWith("mp4") -> {
                         callback.invoke(
-                            newExtractorLink(
-                                "All Sub Player",
-                                "All Sub Player",
-                                url = url,
-                                INFER_TYPE
-                            ) {
-                                this.referer = ""
-                                this.quality = getQualityFromName("")
-                            }
+                                newExtractorLink(
+                                        "All Sub Player",
+                                        "All Sub Player",
+                                        url = url,
+                                        INFER_TYPE
+                                ) {
+                                    this.referer = ""
+                                    this.quality = getQualityFromName("")
+                                }
                         )
                     }
-
                     else -> {
                         loadExtractor(url, referer = url, subtitleCallback) { link ->
                             // Filter for quality >= 720p or unknown
-                            if (link.quality !in 1..<720) {
+                            if (link.quality >= 720 || link.quality <= 0) {
                                 callback(link)
                             }
                         }

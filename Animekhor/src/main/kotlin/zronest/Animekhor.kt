@@ -1,6 +1,5 @@
 package zronest
 
-import com.lagradost.api.Log
 import com.lagradost.cloudstream3.HomePageList
 import com.lagradost.cloudstream3.HomePageResponse
 import com.lagradost.cloudstream3.LoadResponse
@@ -27,9 +26,7 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import org.jsoup.nodes.Element
 
-/**
- * Animekhor provider
- */
+/** Animekhor provider */
 open class Animekhor : MainAPI() {
     override var mainUrl = "https://animekhor.org"
     override var name = "Animekhor"
@@ -38,16 +35,17 @@ open class Animekhor : MainAPI() {
     override val hasDownloadSupport = true
     override val supportedTypes = setOf(TvType.Movie, TvType.Anime)
 
-    override val mainPage = mainPageOf(
-        "anime/?status=ongoing&type=&order=update" to "Recently Updated",
-        "anime/?type=comic&order=update" to "Comic Recently Updated",
-        "anime/?type=comic" to "Comic Series",
-        "anime/?status=&type=ona&sub=&order=update" to "Donghua Recently Updated",
-        "anime/?status=&type=ona" to "Donghua Series",
-        "anime/?status=&sub=&order=latest" to "Latest Added",
-        "anime/?status=&type=&order=popular" to "Popular",
-        "anime/?status=completed&order=update" to "Completed",
-    )
+    override val mainPage =
+            mainPageOf(
+                    "anime/?status=ongoing&type=&order=update" to "Recently Updated",
+                    "anime/?type=comic&order=update" to "Comic Recently Updated",
+                    "anime/?type=comic" to "Comic Series",
+                    "anime/?status=&type=ona&sub=&order=update" to "Donghua Recently Updated",
+                    "anime/?status=&type=ona" to "Donghua Series",
+                    "anime/?status=&sub=&order=latest" to "Latest Added",
+                    "anime/?status=&type=&order=popular" to "Popular",
+                    "anime/?status=completed&order=update" to "Completed",
+            )
 
     /**
      * Retrieves the main page content.
@@ -61,12 +59,8 @@ open class Animekhor : MainAPI() {
         val home = document.select("div.listupd > article").mapNotNull { it.toSearchResult() }
 
         return newHomePageResponse(
-            list = HomePageList(
-                name = request.name,
-                list = home,
-                isHorizontalImages = false
-            ),
-            hasNext = true
+                list = HomePageList(name = request.name, list = home, isHorizontalImages = false),
+                hasNext = true
         )
     }
 
@@ -79,9 +73,7 @@ open class Animekhor : MainAPI() {
         val title = this.select("div.bsx > a").attr("title")
         val href = fixUrl(this.select("div.bsx > a").attr("href"))
         val posterUrl = fixUrlNull(this.selectFirst("div.bsx > a img")?.getsrcAttribute())
-        return newMovieSearchResponse(title, href, TvType.Movie) {
-            this.posterUrl = posterUrl
-        }
+        return newMovieSearchResponse(title, href, TvType.Movie) { this.posterUrl = posterUrl }
     }
 
     /**
@@ -93,11 +85,8 @@ open class Animekhor : MainAPI() {
         val title = this.select("div.bsx > a").attr("title")
         val href = fixUrl(this.select("div.bsx > a").attr("href"))
         val posterUrl = fixUrlNull(this.selectFirst("div.bsx > a img")?.getsrcAttribute())
-        return newMovieSearchResponse(title, href, TvType.Movie) {
-            this.posterUrl = posterUrl
-        }
+        return newMovieSearchResponse(title, href, TvType.Movie) { this.posterUrl = posterUrl }
     }
-
 
     /**
      * Searches for content.
@@ -143,24 +132,30 @@ open class Animekhor : MainAPI() {
             val Eppage = document.selectFirst(".eplister li > a")?.attr("href") ?: ""
             val doc = app.get(Eppage).document
             val epposter = doc.select("meta[property=og:image]").attr("content")
-            val episodes = doc.select("div.episodelist > ul > li").map { info ->
-                val href1 = info.select("a").attr("href")
-                val episode =
-                    info.select("a span").text().substringAfter("-").substringBeforeLast("-")
-                newEpisode(href1)
-                {
-                    this.name = episode
-                    this.posterUrl = epposter
-                }
-            }
+            val episodes =
+                    doc.select("div.episodelist > ul > li").map { info ->
+                        val href1 = info.select("a").attr("href")
+                        val episode =
+                                info.select("a span")
+                                        .text()
+                                        .substringAfter("-")
+                                        .substringBeforeLast("-")
+                        newEpisode(href1) {
+                            this.name = episode
+                            this.posterUrl = epposter
+                        }
+                    }
             newTvSeriesLoadResponse(title, url, TvType.Anime, episodes.reversed()) {
                 this.posterUrl = poster
                 this.plot = description
             }
         } else {
             if (poster.isEmpty()) {
-                poster = document.selectFirst("meta[property=og:image]")?.attr("content")?.trim()
-                    .toString()
+                poster =
+                        document.selectFirst("meta[property=og:image]")
+                                ?.attr("content")
+                                ?.trim()
+                                .toString()
             }
             newMovieLoadResponse(title, url, TvType.Movie, href) {
                 this.posterUrl = poster
@@ -179,46 +174,48 @@ open class Animekhor : MainAPI() {
      * @return `true` if links were loaded successfully, `false` otherwise.
      */
     override suspend fun loadLinks(
-        data: String,
-        isCasting: Boolean,
-        subtitleCallback: (SubtitleFile) -> Unit,
-        callback: (ExtractorLink) -> Unit
+            data: String,
+            isCasting: Boolean,
+            subtitleCallback: (SubtitleFile) -> Unit,
+            callback: (ExtractorLink) -> Unit
     ): Boolean {
         val document = app.get(data).document
         coroutineScope {
-            document.select(".mobius option").map { server ->
-                async {
-                    val base64 = server.attr("value")
-                    if (base64.isEmpty()) return@async
+            document.select(".mobius option")
+                    .map { server ->
+                        async {
+                            val base64 = server.attr("value")
+                            if (base64.isEmpty()) return@async
 
-                    val decodedUrl = base64Decode(base64)
-                    val regex = Regex("""src=["']([^"']+)["']""", RegexOption.IGNORE_CASE)
-                    val matchResult = regex.find(decodedUrl)
-                    var url = matchResult?.groups?.get(1)?.value ?: return@async
-                    if (url.startsWith("//")) {
-                        url = httpsify(url)
-                    }
+                            val decodedUrl = base64Decode(base64)
+                            val regex = Regex("""src=["']([^"']+)["']""", RegexOption.IGNORE_CASE)
+                            val matchResult = regex.find(decodedUrl)
+                            var url = matchResult?.groups?.get(1)?.value ?: return@async
+                            if (url.startsWith("//")) {
+                                url = httpsify(url)
+                            }
 
-                    // Filter out known bad hosts
-                    val blacklistedHosts = listOf("short.icu", "upns.live", "p2pstream.vip")
-                    try {
-                        val host = java.net.URI(url).host
-                        if (host != null && blacklistedHosts.any { host.contains(it) }) {
-                            return@async
+                            // Filter out known bad hosts
+                            val blacklistedHosts = listOf("short.icu", "upns.live", "p2pstream.vip")
+                            try {
+                                val host = java.net.URI(url).host
+                                if (host != null && blacklistedHosts.any { host.contains(it) }) {
+                                    return@async
+                                }
+                            } catch (e: Exception) {
+                                // Invalid URL
+                                return@async
+                            }
+
+                            loadExtractor(url, referer = mainUrl, subtitleCallback) { link ->
+                                // Filter for quality >= 720p or unknown
+                                if (link.quality >= 720 || link.quality <= 0) {
+                                    callback(link)
+                                }
+                            }
                         }
-                    } catch (e: Exception) {
-                        // Invalid URL
-                        return@async
                     }
-
-                    loadExtractor(url, referer = mainUrl, subtitleCallback) { link ->
-                        // Filter for quality >= 720p or unknown
-                        if (link.quality !in 1..<720) {
-                            callback(link)
-                        }
-                    }
-                }
-            }.awaitAll()
+                    .awaitAll()
         }
         return true
     }
@@ -238,5 +235,4 @@ open class Animekhor : MainAPI() {
             else -> ""
         }
     }
-
 }

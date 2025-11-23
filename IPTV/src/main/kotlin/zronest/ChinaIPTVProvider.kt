@@ -392,7 +392,7 @@ class ChinaIPTVProvider : MainAPI() {
         return newTvSeriesLoadResponse(
             currentChannel.name,
             url,
-            TvType.Live,
+            TvType.TvSeries,
             episodes
         ) {
             this.posterUrl = currentChannel.logo.ifEmpty {

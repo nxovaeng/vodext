@@ -7,8 +7,7 @@ import com.lagradost.cloudstream3.base64Decode
 import com.lagradost.cloudstream3.utils.ExtractorLink
 import com.lagradost.cloudstream3.utils.loadExtractor
 
-
-class Donghuaword  : Animekhor() {
+class Donghuaword : Animekhor() {
     override var mainUrl = "https://donghuaworld.com"
     override var name = "Donghuaword"
     override val hasMainPage = true
@@ -17,10 +16,10 @@ class Donghuaword  : Animekhor() {
     override val supportedTypes = setOf(TvType.Movie, TvType.Anime)
 
     override suspend fun loadLinks(
-        data: String,
-        isCasting: Boolean,
-        subtitleCallback: (SubtitleFile) -> Unit,
-        callback: (ExtractorLink) -> Unit
+            data: String,
+            isCasting: Boolean,
+            subtitleCallback: (SubtitleFile) -> Unit,
+            callback: (ExtractorLink) -> Unit
     ): Boolean {
         val document = app.get(data).document
         document.select("div.server-item a").map {
@@ -31,12 +30,10 @@ class Donghuaword  : Animekhor() {
             val url = matchResult?.groups?.get(1)?.value ?: "Not found"
             loadExtractor(url, referer = mainUrl, subtitleCallback) { link ->
                 // Filter for quality >= 720p or unknown
-                if (link.quality !in 1..<720) {
+                if (link.quality >= 720 || link.quality <= 0) {
                     callback(link)
                 }
-
             }
-
         }
         return true
     }
