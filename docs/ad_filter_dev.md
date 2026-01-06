@@ -1,6 +1,6 @@
 # 广告过滤
 
-基于 CloudStream 的架构，过滤 m3u8 中的广告 ts 切片的几个可行方案：
+基于 CloudStream 过滤 m3u8 中广告 ts 切片的几个可行方案：
 
 ## 🎯 方案对比
 
@@ -278,22 +278,12 @@ AD_FILTER_CONFIG = {
 }
 ```
 
-
 ---
 
 ## CloudStream 网络拦截机制详解
 
-### 架构层次对比
-
 ```mermaid
 graph TB
-    subgraph "TVBox架构"
-        A1[Spider/Provider] -->|返回 m3u8 URL| B1[播放器]
-        B1 -->|加载 m3u8| C1[IJKPlayer/ExoPlayer]
-        C1 -->|应用 rules 过滤| D1[正则匹配广告]
-        D1 --> E1[播放清洗后的流]
-    end
-    
     subgraph "CloudStream架构"
         A2[Provider] -->|loadLinks| B2[ExtractorLink]
         B2 -->|可选: Interceptor| C2[okhttp3.Interceptor]
@@ -484,6 +474,48 @@ sequenceDiagram
 
 ### 概念
 CloudStream 可以在应用内启动一个**本地 HTTP 代理服务器**，拦截和修改所有经过它的请求。这比 Interceptor 更强大，可以处理任意请求。
+
+### 1. 原始设计意图
+
+[localProxy] 最初的设计目的是解决以下问题：
+
+#### 问题场景
+```mermaid
+graph LR
+    A[播放器] -->|需要特殊 Headers| B[视频服务器]
+    B -->|403/401 拒绝| A
+    
+    style B fill:#f96
+```
+
+**典型问题**：
+- 视频服务器需要特定的 `Referer` 才允许播放
+- 需要特定的 `User-Agent`
+- 需要动态生成的 `Authorization` token
+- 播放器无法直接设置这些复杂的 headers
+
+#### 解决方案
+```mermaid
+graph LR
+    A[播放器] -->|简单请求| B[localProxy]
+    B -->|添加正确 Headers| C[视频服务器]
+    C -->|返回流| B
+    B -->|转发流| A
+    
+    style B fill:#9f6
+```
+
+### 2. 核心用途总结
+
+| 用途 | 说明 | 示例 |
+|------|------|------|
+| **Headers 注入** | 为请求添加必需的 headers | Referer, User-Agent, Cookie |
+| **内容过滤** | 过滤 m3u8 广告切片 | 移除 DISCONTINUITY 块 |
+| **URL 重写** | 修改视频链接格式 | 相对路径转绝对路径 |
+| **内容解密** | 解密加密的播放列表 | AES 解密 |
+| **协议转换** | 转换不支持的协议 | RTMP → HLS |
+
+---
 
 ### 实现方式
 
@@ -1138,52 +1170,4 @@ class SeaTVProvider : MainAPI() {
 - 在 `loadLinks` 中构造本地代理 URL
 - 实现你的内容处理逻辑（过滤、重写等）
 
-
 ---
-
-
-## CloudStream localProxy 的设计用途
-
-### 1. 原始设计意图
-
-[localProxy] 最初的设计目的是解决以下问题：
-
-#### 问题场景
-```mermaid
-graph LR
-    A[播放器] -->|需要特殊 Headers| B[视频服务器]
-    B -->|403/401 拒绝| A
-    
-    style B fill:#f96
-```
-
-**典型问题**：
-- 视频服务器需要特定的 `Referer` 才允许播放
-- 需要特定的 `User-Agent`
-- 需要动态生成的 `Authorization` token
-- 播放器无法直接设置这些复杂的 headers
-
-#### 解决方案
-```mermaid
-graph LR
-    A[播放器] -->|简单请求| B[localProxy]
-    B -->|添加正确 Headers| C[视频服务器]
-    C -->|返回流| B
-    B -->|转发流| A
-    
-    style B fill:#9f6
-```
-
-### 2. 核心用途总结
-
-| 用途 | 说明 | 示例 |
-|------|------|------|
-| **Headers 注入** | 为请求添加必需的 headers | Referer, User-Agent, Cookie |
-| **内容过滤** | 过滤 m3u8 广告切片 | 移除 DISCONTINUITY 块 |
-| **URL 重写** | 修改视频链接格式 | 相对路径转绝对路径 |
-| **内容解密** | 解密加密的播放列表 | AES 解密 |
-| **协议转换** | 转换不支持的协议 | RTMP → HLS |
-
----
-
-

@@ -21,6 +21,7 @@ StreamSB           // streamsb.net
 
 - 通过查看网页源码中的播放器特
 
+```kotlin
 // StreamWish 特征
 player = jwplayer("vplayer");
 player.setup({
@@ -36,6 +37,7 @@ const player = new Player({
     src: "...",
     ...
 });
+```
 
 - 通过 URL 模式匹配：
 
@@ -45,6 +47,7 @@ VidStack: vidstack.*/embed/*
 
 - 举例说明如何复用：
 
+```kotlin
 // 1. 如果你的站点使用 StreamWish 播放器
 class MyExtractor : StreamWishExtractor() {
     override var mainUrl = "<https://my-video-site.com>"
@@ -61,23 +64,21 @@ class MyVidHide : VidhideExtractor() {
 class MyVidStack : VidStack() {
     override var mainUrl = "<https://my-vidstack.com>"
 }
+```
 
-如何选择合适的 Extractor：
+### 如何选择合适的 Extractor
 
-检查视频页面源码
+- 检查视频页面源码
+- 寻找播放器特征
+- 测试 URL 模式是否匹配
+- 观察请求头和参数是否相似
+- 测试是否能够正确提取视频地址
 
-寻找播放器特征
+### 示例代码
 
-测试 URL 模式是否匹配
+针对 DPlayer，可以尝试使用通用的解析方式:
 
-观察请求头和参数是否相似
-
-测试是否能够正确提取视频地址
-
-- 示例代码
-
- 针对 DPlayer，可以尝试使用通用的解析方式:
-
+```kotlin
 class JisuExtractor : ExtractorApi() {
     override var name = "Jisu"
     override var mainUrl = "<https://vv.jisuzyv.com>"
@@ -109,3 +110,4 @@ class JisuExtractor : ExtractorApi() {
         ).forEach(callback)
     }
 }
+```
