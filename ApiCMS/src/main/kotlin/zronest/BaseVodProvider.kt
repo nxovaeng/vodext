@@ -24,6 +24,8 @@ import com.lagradost.cloudstream3.newTvSeriesSearchResponse
 import com.lagradost.cloudstream3.utils.ExtractorLink
 import com.lagradost.cloudstream3.utils.M3u8Helper
 import com.lagradost.cloudstream3.utils.loadExtractor
+import com.lagradost.cloudstream3.utils.VideoExtractor
+import okhttp3.Interceptor
 import java.net.URLEncoder
 import kotlinx.coroutines.runBlocking
 
@@ -33,6 +35,14 @@ abstract class BaseVodProvider : MainAPI() {
     override var lang = "zh"
 
     override val hasMainPage = true
+    
+    /**
+     * 启用广告过滤拦截器
+     * 子类可以重写此方法来自定义拦截器行为
+     */
+    override fun getVideoInterceptor(extractor: VideoExtractor): Interceptor {
+        return AdFilterInterceptor()
+    }
 
     val lineSeparator: String = "$$$"
     val episodeSeparator: String = "#"
