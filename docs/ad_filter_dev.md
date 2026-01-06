@@ -126,7 +126,7 @@ private fun extractDuration(line: String): Double {
 
 ```kotlin
 // 在 Provider 中实现本地代理
-override fun getVideoInterceptor(extractor: VideoExtractor): Interceptor {
+override fun getVideoInterceptor(extractorLink: ExtractorLink): Interceptor {
     return Interceptor { chain ->
         val request = chain.request()
         val url = request.url.toString()

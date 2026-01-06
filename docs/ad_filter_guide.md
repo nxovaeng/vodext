@@ -105,7 +105,7 @@ class MyProvider : MainAPI() {
     override var mainUrl = "https://example.com"
     
     // 重写此方法以启用广告过滤
-    override fun getVideoInterceptor(extractor: VideoExtractor): Interceptor {
+    override fun getVideoInterceptor(extractorLink: ExtractorLink): Interceptor {
         return AdFilterInterceptor()
     }
     

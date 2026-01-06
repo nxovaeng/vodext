@@ -24,10 +24,9 @@ import com.lagradost.cloudstream3.newTvSeriesSearchResponse
 import com.lagradost.cloudstream3.utils.ExtractorLink
 import com.lagradost.cloudstream3.utils.M3u8Helper
 import com.lagradost.cloudstream3.utils.loadExtractor
-import com.lagradost.cloudstream3.utils.VideoExtractor
-import okhttp3.Interceptor
 import java.net.URLEncoder
 import kotlinx.coroutines.runBlocking
+import okhttp3.Interceptor
 
 /** 基于 api 类型采集站点提供者（例如 bfzyapi.com） 基于 JSON 的接口返回 list -> media */
 abstract class BaseVodProvider : MainAPI() {
@@ -35,12 +34,9 @@ abstract class BaseVodProvider : MainAPI() {
     override var lang = "zh"
 
     override val hasMainPage = true
-    
-    /**
-     * 启用广告过滤拦截器
-     * 子类可以重写此方法来自定义拦截器行为
-     */
-    override fun getVideoInterceptor(extractor: VideoExtractor): Interceptor {
+
+    /** 启用广告过滤拦截器 子类可以重写此方法来自定义拦截器行为 */
+    override fun getVideoInterceptor(extractorLink: ExtractorLink): Interceptor {
         return AdFilterInterceptor()
     }
 
