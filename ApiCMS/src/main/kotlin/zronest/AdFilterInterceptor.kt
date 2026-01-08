@@ -65,7 +65,7 @@ class AdFilterInterceptor : Interceptor {
                     .body(cleanedBody.toResponseBody(response.body?.contentType()))
                     .build()
         } catch (e: Exception) {
-            Log.e(TAG, "Error filtering m3u8: ${e.message}", e)
+            Log.e(TAG, "Error filtering m3u8: ${e.message}")
             return response
         }
     }

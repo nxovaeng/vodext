@@ -22,10 +22,7 @@ import com.lagradost.cloudstream3.utils.loadExtractor
 import com.lagradost.cloudstream3.utils.newExtractorLink
 import java.net.URLEncoder
 
-/**
- * Base provider for MacCMS 风格站点（页面渲染站点，通常有列表页和详情页）
- * 该基类实现常见的 list/search/load 模式，子类只需覆盖选择器或路径
- */
+/** Base provider for MacCMS 风格站点（页面渲染站点，通常有列表页和详情页） 该基类实现常见的 list/search/load 模式，子类只需覆盖选择器或路径 */
 open class PipishiProvider : MainAPI() {
     override var mainUrl = "https://www.pipishi.cc"
     override var name = "皮皮师"
@@ -34,12 +31,13 @@ open class PipishiProvider : MainAPI() {
     override var lang = "zh"
     override val supportedTypes = setOf(TvType.Movie, TvType.TvSeries, TvType.Anime)
 
-    override val mainPage = mainPageOf(
-        "label/hot.html" to "热榜",
-        "type/1.html" to "电影",
-        "type/2.html" to "剧集",
-        "type/4.html" to "动漫"
-    )
+    override val mainPage =
+            mainPageOf(
+                    "label/hot.html" to "热榜",
+                    "type/1.html" to "电影",
+                    "type/2.html" to "剧集",
+                    "type/4.html" to "动漫"
+            )
 
     protected open val listSelector = "div.module-items.module-poster-items-base"
     protected open val searchSelector = "div.module-items.module-card-items"
@@ -49,20 +47,18 @@ open class PipishiProvider : MainAPI() {
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
         val pageUrl = "$mainUrl/${request.data}"
-        val doc = app.get(
-            pageUrl,
-            referer = mainUrl
-        ).document
+        val doc = app.get(pageUrl, referer = mainUrl).document
         var tvType = TvType.TvSeries
         if (request.name.contains("电影")) {
             tvType = TvType.Movie
         }
-        val items = doc.select(listSelector).flatMap { it.select(itemTitleSelector) }.mapNotNull { el ->
-            val href = fixUrl(el.attr("href"))
-            val title = el.attr("title").ifEmpty { el.text().trim() }
-            val poster = fixUrlNull(el.selectFirst(itemPosterSelector)?.attr("src"))
-            newMovieSearchResponse(title, href, tvType) { this.posterUrl = poster }
-        }
+        val items =
+                doc.select(listSelector).flatMap { it.select(itemTitleSelector) }.mapNotNull { el ->
+                    val href = fixUrl(el.attr("href"))
+                    val title = el.attr("title").ifEmpty { el.text().trim() }
+                    val poster = fixUrlNull(el.selectFirst(itemPosterSelector)?.attr("src"))
+                    newMovieSearchResponse(title, href, tvType) { this.posterUrl = poster }
+                }
         return newHomePageResponse(listOf(HomePageList(request.name, items)), hasNext = false)
     }
 
@@ -70,75 +66,103 @@ open class PipishiProvider : MainAPI() {
         // 尝试站点自带搜索表单
         val searchUrl = "$mainUrl/search/${URLEncoder.encode(query, "UTF-8")}-------------.html"
 
-        try {
-            val doc = app.get(
-                searchUrl,
-                referer = mainUrl
-            ).document
-            val results = doc.select(searchSelector).flatMap {
-                it.select(cardSelector)
-            }.mapNotNull { info ->
+        return try {
+            val doc = app.get(searchUrl, referer = mainUrl).document
+            doc.select(searchSelector).flatMap { it.select(cardSelector) }.mapNotNull { info ->
                 val title = info.select("div.module-card-item-title strong").text()
-                val href = fixUrl(info.select(itemTitleSelector).text())
-                newMovieSearchResponse(title, href, TvType.Movie)
+                val href = fixUrl(info.selectFirst("a")?.attr("href") ?: return@mapNotNull null)
+                val poster =
+                        fixUrlNull(
+                                info.selectFirst("img")?.let {
+                                    it.attr("data-original").ifEmpty { it.attr("src") }
+                                }
+                        )
+                newMovieSearchResponse(title, href, TvType.Movie) { this.posterUrl = poster }
             }
+        } catch (e: Exception) {
+            emptyList()
         }
-        catch (e: Exception) {
-            // ignore
-        }
-        return emptyList()
     }
 
     override suspend fun load(url: String): LoadResponse {
-        val doc = app.get(
-            url,
-            referer = mainUrl
-        ).document
+        val doc = app.get(url, referer = mainUrl).document
         val playLink = doc.select("div.module-info-footer a.main-btn").attr("href")
         val title = doc.select("div.module-info-heading h1").attr("title")
-        val poster = fixUrlNull(doc.selectFirst("div.module-item-pic img")?.attr("src"))
+        val poster =
+                fixUrlNull(
+                        doc.selectFirst("div.module-item-pic img")?.let {
+                            it.attr("data-original").ifEmpty { it.attr("src") }
+                        }
+                )
         val plot = doc.selectFirst("div.module-info-introduction-content p")?.text()?.trim()
 
         // 尝试找剧集列表
-        val episodeEls = doc.select(".play-list li a, .stui-content__playlist a, .playfrom a")
+        val episodeEls = doc.select("a.module-play-list-link")
 
-        val episodes = episodeEls.mapIndexed { idx, el ->
-            val href = fixUrl(el.attr("href"))
-            val name = el.text().ifEmpty { "第 ${idx + 1} 集" }
-            newEpisode(href) {
-                this.name = name
-                this.episode = idx + 1
-            }
-        }
+        val episodes =
+                episodeEls.mapIndexed { idx, el ->
+                    val href = fixUrl(el.attr("href"))
+                    val name = el.text().ifEmpty { "第 ${idx + 1} 集" }
+                    newEpisode(href) {
+                        this.name = name
+                        this.episode = idx + 1
+                    }
+                }
         return newTvSeriesLoadResponse(title, playLink, TvType.TvSeries, episodes) {
             this.posterUrl = poster
             this.plot = plot
         }
-
     }
 
     override suspend fun loadLinks(
-        data: String,
-        isCasting: Boolean,
-        subtitleCallback: (SubtitleFile) -> Unit,
-        callback: (ExtractorLink) -> Unit
+            data: String,
+            isCasting: Boolean,
+            subtitleCallback: (SubtitleFile) -> Unit,
+            callback: (ExtractorLink) -> Unit
     ): Boolean {
         // data is episode url -> load and extract
-        val doc = app.get(
-            data,
-            referer = mainUrl
-        ).document
-        // try iframe src
-        val iframe = doc.selectFirst("iframe")?.attr("src")
-        if (!iframe.isNullOrEmpty()) {
-            loadExtractor(iframe, referer = data, subtitleCallback = subtitleCallback, callback = callback)
+        val doc = app.get(data, referer = mainUrl).document
+
+        // Method 1: Try iframe src (MacCMS LionPlay pattern)
+        val iframeSrc = doc.selectFirst("iframe")?.attr("src")
+        if (!iframeSrc.isNullOrEmpty()) {
+            val iframeUrl = fixUrl(iframeSrc)
+            // Fetch the iframe content to find the actual video
+            val iframeDoc = app.get(iframeUrl, referer = data).document
+
+            // Look for video element inside iframe (note: "viedo" is a typo in the original site)
+            val videoSrc =
+                    iframeDoc.selectFirst("video#viedo source")?.attr("src")
+                            ?: iframeDoc.selectFirst("video source")?.attr("src")
+                                    ?: iframeDoc.selectFirst("video")?.attr("src")
+
+            if (!videoSrc.isNullOrEmpty()) {
+                callback.invoke(
+                        newExtractorLink(name, name, url = videoSrc, type = INFER_TYPE) {
+                            this.referer = iframeUrl
+                        }
+                )
+                return true
+            }
+
+            // Fallback to loadExtractor for other iframe types
+            loadExtractor(
+                    iframeUrl,
+                    referer = data,
+                    subtitleCallback = subtitleCallback,
+                    callback = callback
+            )
             return true
         }
 
-        // try direct video link
+        // Method 2: Try direct video link on the page
         val video = doc.selectFirst("video source[src]")?.attr("src")
         if (!video.isNullOrEmpty()) {
-            callback.invoke(newExtractorLink(name, name, url = video, type = INFER_TYPE) { this.referer = data })
+            callback.invoke(
+                    newExtractorLink(name, name, url = video, type = INFER_TYPE) {
+                        this.referer = data
+                    }
+            )
             return true
         }
 

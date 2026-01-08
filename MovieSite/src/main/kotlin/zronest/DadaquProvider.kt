@@ -2,7 +2,7 @@ package zronest
 
 import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.utils.ExtractorLink
-import com.lagradost.cloudstream3.utils.ExtractorLinkType.M3U8
+import com.lagradost.cloudstream3.utils.INFER_TYPE
 import com.lagradost.cloudstream3.utils.newExtractorLink
 import java.net.URLEncoder
 import org.jsoup.nodes.Element
@@ -47,7 +47,7 @@ class DadaquProvider : MainAPI() {
         val href = fixUrl(this.attr("href"))
         val posterUrl =
                 fixUrlNull(
-                        this.selectFirst("img")?.attr("data-src")
+                        this.selectFirst("img")?.attr("data-original")
                                 ?: this.selectFirst("img")?.attr("src")
                 )
 
@@ -73,7 +73,7 @@ class DadaquProvider : MainAPI() {
         val href = fixUrl(this.attr("href"))
         val posterUrl =
                 fixUrlNull(
-                        this.selectFirst("img")?.attr("data-src")
+                        this.selectFirst("img")?.attr("data-original")
                                 ?: this.selectFirst("img")?.attr("src")
                 )
 
@@ -97,7 +97,7 @@ class DadaquProvider : MainAPI() {
 
         val poster =
                 fixUrlNull(
-                        document.selectFirst("div.module-info-poster img")?.attr("data-src")
+                        document.selectFirst("div.module-info-poster img")?.attr("data-original")
                                 ?: document.selectFirst("div.module-info-poster img")?.attr("src")
                 )
 
@@ -222,27 +222,23 @@ class DadaquProvider : MainAPI() {
             subtitleCallback: (SubtitleFile) -> Unit,
             callback: (ExtractorLink) -> Unit
     ): Boolean {
-        // First, fetch the page HTML and extract video src (blob URL)
         val document = app.get(data, referer = mainUrl).document
 
-        // Extract blob URL from video tag (for reference, though we'll sniff the actual URL)
-        val blobUrl = document.select("video.art-video").attr("src")
+        // Extract video URL directly from video.art-video element
+        val videoUrl = document.selectFirst("video.art-video")?.attr("src")
 
-        // Now use WebView to sniff the actual M3U8 URL from network requests
-        // The page will load the video player and make network requests for the real video
-        val videoUrl = Utils.sniffVideoWithWebView(blobUrl, mainUrl)
-
-        if (videoUrl.isNotEmpty()) {
+        if (!videoUrl.isNullOrEmpty() && !videoUrl.startsWith("blob:")) {
             callback.invoke(
                     newExtractorLink(
                             name = this.name,
                             source = this.name,
                             url = videoUrl,
-                            type = M3U8
-                    ) { this.referer = mainUrl }
+                            type = INFER_TYPE
+                    ) { this.referer = data }
             )
+            return true
         }
 
-        return true
+        return false
     }
 }
