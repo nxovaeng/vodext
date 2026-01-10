@@ -1,5 +1,6 @@
 package zronest
 
+import com.lagradost.api.Log
 import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.network.WebViewResolver
 import com.lagradost.cloudstream3.utils.ExtractorLink
@@ -251,8 +252,135 @@ class DadaquProvider : MainAPI() {
         ): Boolean {
                 val response = app.get(data, referer = mainUrl)
                 val document = response.document
+                val pageHtml = response.text
 
-                // Method 1: Direct video element (快速路径)
+                // Method 0: 从 player_aaaa 配置中提取视频 URL（最可靠的方法）
+                // player_aaaa 包含加密的 URL，我们可以直接构造 iframe
+                val playerConfigRegex = Regex("""var\s+player_aaaa\s*=\s*(\{[^}]+\})""")
+                val configMatch = playerConfigRegex.find(pageHtml)
+                if (configMatch != null) {
+                        try {
+                                val configJson = configMatch.groupValues[1]
+                                // 提取 url 字段（Base64 编码的视频参数）
+                                val urlMatch = Regex(""""url"\s*:\s*"([^"]+)"""").find(configJson)
+                                if (urlMatch != null) {
+                                        val encodedUrl = urlMatch.groupValues[1]
+                                        val iframeUrl = "$mainUrl/ddplay/index.php?vid=$encodedUrl"
+
+                                        // 直接请求 iframe 页面
+                                        val iframeResponse = app.get(iframeUrl, referer = data)
+                                        val iframeHtml = iframeResponse.text
+
+                                        // 从 iframe 中提取视频 URL
+                                        val videoUrlRegex =
+                                                Regex(
+                                                        """["']?(?:url|file|source|src|video_url|playurl)["']?\s*[:=]\s*["'](https?://[^"']+\.(?:mp4|m3u8)[^"']*)["']""",
+                                                        RegexOption.IGNORE_CASE
+                                                )
+
+                                        val extractedUrl =
+                                                videoUrlRegex
+                                                        .findAll(iframeHtml)
+                                                        .map { it.groupValues.getOrNull(1) }
+                                                        .firstOrNull {
+                                                                !it.isNullOrEmpty() &&
+                                                                        !it.contains("logo") &&
+                                                                        !it.contains("load.gif")
+                                                        }
+                                                        ?.replace("\\u002F", "/")
+                                                        ?.replace("\\/", "/")
+
+                                        if (!extractedUrl.isNullOrEmpty()) {
+                                                callback.invoke(
+                                                        newExtractorLink(
+                                                                name = this.name,
+                                                                source = this.name,
+                                                                url = extractedUrl,
+                                                                type = INFER_TYPE
+                                                        ) { this.referer = iframeUrl }
+                                                )
+                                                return true
+                                        }
+                                }
+                        } catch (e: Exception) {
+                                Log.e("DadaquProvider", "Error parsing player_aaaa: ${e.message}")
+                        }
+                }
+
+                // Method 1: Extract iframe URL (达达趣使用 iframe 播放器)
+                val iframeUrl =
+                        document.selectFirst("iframe[src*='/ddplay/']")?.attr("src")
+                                ?: document.selectFirst("iframe")?.attr("src")
+                if (!iframeUrl.isNullOrEmpty()) {
+                        val fullIframeUrl = fixUrl(iframeUrl)
+
+                        // 请求 iframe 页面
+                        val iframeResponse = app.get(fullIframeUrl, referer = data)
+                        val iframeHtml = iframeResponse.text
+
+                        // 尝试从 iframe 中提取视频 URL
+                        val videoUrlRegex =
+                                Regex(
+                                        """["']?(?:url|file|source|src|video_url|playurl)["']?\s*[:=]\s*["'](https?://[^"']+\.(?:mp4|m3u8)[^"']*)["']""",
+                                        RegexOption.IGNORE_CASE
+                                )
+
+                        val extractedUrl =
+                                videoUrlRegex
+                                        .findAll(iframeHtml)
+                                        .map { it.groupValues.getOrNull(1) }
+                                        .firstOrNull {
+                                                !it.isNullOrEmpty() &&
+                                                        !it.contains("logo") &&
+                                                        !it.contains("load.gif")
+                                        }
+                                        ?.replace("\\u002F", "/")
+                                        ?.replace("\\/", "/")
+
+                        if (!extractedUrl.isNullOrEmpty()) {
+                                callback.invoke(
+                                        newExtractorLink(
+                                                name = this.name,
+                                                source = this.name,
+                                                url = extractedUrl,
+                                                type = INFER_TYPE
+                                        ) { this.referer = fullIframeUrl }
+                                )
+                                return true
+                        }
+
+                        // 如果 iframe 中也没有找到，使用 WebView 加载 iframe
+                        val webViewResolver =
+                                WebViewResolver(
+                                        interceptUrl = Regex(""".*\.(?:mp4|m3u8).*"""),
+                                        timeout = 40_000L // 增加超时到 40 秒
+                                )
+
+                        val interceptedUrl =
+                                app.get(
+                                                fullIframeUrl,
+                                                referer = data,
+                                                interceptor = webViewResolver
+                                        )
+                                        .url
+
+                        if (interceptedUrl.isNotEmpty() &&
+                                        (interceptedUrl.contains(".mp4") ||
+                                                interceptedUrl.contains(".m3u8"))
+                        ) {
+                                callback.invoke(
+                                        newExtractorLink(
+                                                name = this.name,
+                                                source = this.name,
+                                                url = interceptedUrl,
+                                                type = INFER_TYPE
+                                        ) { this.referer = fullIframeUrl }
+                                )
+                                return true
+                        }
+                }
+
+                // Method 2: Direct video element (快速路径)
                 val videoUrl = document.selectFirst("video.art-video")?.attr("src")
                 if (!videoUrl.isNullOrEmpty() && !videoUrl.startsWith("blob:")) {
                         callback.invoke(
@@ -266,22 +394,24 @@ class DadaquProvider : MainAPI() {
                         return true
                 }
 
-                // Method 2: Rumble 风格 - 从 JavaScript 中正则提取视频 URL
-                // 匹配模式: "url": "https://...", file: "...", src: "..." 等
-                val pageHtml = response.text
+                // Method 3: 从主页面 JavaScript 中正则提取视频 URL
                 val videoUrlRegex =
                         Regex(
-                                """["']?(?:url|file|source|src|video_url)["']?\s*[:=]\s*["'](https?://[^"']+\.(?:mp4|m3u8)[^"']*)["']""",
+                                """["']?(?:url|file|source|src|video_url|playurl)["']?\s*[:=]\s*["'](https?://[^"']+\.(?:mp4|m3u8)[^"']*)["']""",
                                 RegexOption.IGNORE_CASE
                         )
 
                 val extractedUrl =
                         videoUrlRegex
-                                .find(pageHtml)
-                                ?.groupValues
-                                ?.getOrNull(1)
-                                ?.replace("\\u002F", "/") // 处理 Unicode 转义
-                                ?.replace("\\/", "/") // 处理 JSON 转义
+                                .findAll(pageHtml)
+                                .map { it.groupValues.getOrNull(1) }
+                                .firstOrNull {
+                                        !it.isNullOrEmpty() &&
+                                                !it.contains("logo") &&
+                                                !it.contains("load.gif")
+                                }
+                                ?.replace("\\u002F", "/")
+                                ?.replace("\\/", "/")
 
                 if (!extractedUrl.isNullOrEmpty()) {
                         callback.invoke(
@@ -295,12 +425,11 @@ class DadaquProvider : MainAPI() {
                         return true
                 }
 
-                // Method 3: WebViewResolver - 拦截实际的视频网络请求
-                // 用于处理 Blob URL 和动态生成的 cmecloud.cn 预签名 URL
+                // Method 4: WebViewResolver - 拦截主页面的视频请求（最后手段）
                 val webViewResolver =
                         WebViewResolver(
-                                interceptUrl = Regex(""".*\.(mp4|m3u8).*"""),
-                                timeout = 20_000L
+                                interceptUrl = Regex(""".*\.(?:mp4|m3u8).*"""),
+                                timeout = 40_000L
                         )
 
                 val interceptedUrl =
