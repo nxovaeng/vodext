@@ -5,17 +5,17 @@
 
 ### 内置的主要 Extractor 类型
 
-// 视频网站解析器
-StreamWishExtractor   // 支持 streamwish.to 等站点
-VidHidePro           // 支持 vidhide.com 等加密视频
-VidStack             // 支持 vidstack.stream 类型站点
-VidhideExtractor     // 支持 vidhide 系列站点
-Streamtape          // streamtape.com
-DoodStream          // dood.watch 系列
-Solidfiles          // solidfiles.com
-MixDrop            // mixdrop.co
-Mp4Upload          // mp4upload.com
-StreamSB           // streamsb.net
+视频网站解析器
+- StreamWishExtractor   // 支持 streamwish.to 等站点
+- VidHidePro           // 支持 vidhide.com 等加密视频
+- VidStack             // 支持 vidstack.stream 类型站点
+- VidhideExtractor     // 支持 vidhide 系列站点
+- Streamtape          // streamtape.com
+- DoodStream          // dood.watch 系列
+- Solidfiles          // solidfiles.com
+- MixDrop            // mixdrop.co
+- Mp4Upload          // mp4upload.com
+- StreamSB           // streamsb.net
 
 ### 如何判断是否可以复用
 

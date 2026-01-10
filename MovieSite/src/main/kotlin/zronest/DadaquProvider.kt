@@ -43,7 +43,12 @@ class DadaquProvider : MainAPI() {
     }
 
     private fun Element.toSearchResult(): SearchResponse? {
-        val title = this.selectFirst("div")?.text()?.trim() ?: return null
+        // 使用 title 属性或 img 的 alt 属性获取真正的标题
+        // 而不是 div 文本（那个会是状态标签如"完结"、"正片"）
+        val title =
+                this.attr("title").ifEmpty { this.selectFirst("img")?.attr("alt") }?.trim()
+                        ?: return null
+
         val href = fixUrl(this.attr("href"))
         val posterUrl =
                 fixUrlNull(
@@ -167,11 +172,14 @@ class DadaquProvider : MainAPI() {
 
                 episodes.add(
                         newEpisode(epUrl) {
+                            // 使用实际的剧集名称，而不是播放源名称
                             this.name =
-                                    if (episodeLinks.size == 1) {
-                                        sourceName
+                                    if (episodeLinks.size == 1 && epTitle.isNotEmpty()) {
+                                        epTitle // 单集时直接用链接文本（如"正片"、"HD"等）
+                                    } else if (epTitle.isNotEmpty()) {
+                                        "$epTitle ($sourceName)" // 多集时显示 "第01集 (高清线路)"
                                     } else {
-                                        "$sourceName - $epTitle"
+                                        sourceName
                                     }
                             this.episode = epIndex + 1
                             this.posterUrl = poster
@@ -222,17 +230,67 @@ class DadaquProvider : MainAPI() {
             subtitleCallback: (SubtitleFile) -> Unit,
             callback: (ExtractorLink) -> Unit
     ): Boolean {
-        val document = app.get(data, referer = mainUrl).document
+        val response = app.get(data, referer = mainUrl)
+        val document = response.document
 
-        // Extract video URL directly from video.art-video element
+        // Method 1: Direct video element (快速路径)
         val videoUrl = document.selectFirst("video.art-video")?.attr("src")
-
         if (!videoUrl.isNullOrEmpty() && !videoUrl.startsWith("blob:")) {
             callback.invoke(
                     newExtractorLink(
                             name = this.name,
                             source = this.name,
                             url = videoUrl,
+                            type = INFER_TYPE
+                    ) { this.referer = data }
+            )
+            return true
+        }
+
+        // Method 2: Rumble 风格 - 从 JavaScript 中正则提取视频 URL
+        // 匹配模式: "url": "https://...", file: "...", src: "..." 等
+        val pageHtml = response.text
+        val videoUrlRegex =
+                Regex(
+                        """["']?(?:url|file|source|src|video_url)["']?\s*[:=]\s*["'](https?://[^"']+\.(?:mp4|m3u8)[^"']*)["']""",
+                        RegexOption.IGNORE_CASE
+                )
+
+        val extractedUrl =
+                videoUrlRegex
+                        .find(pageHtml)
+                        ?.groupValues
+                        ?.getOrNull(1)
+                        ?.replace("\\u002F", "/") // 处理 Unicode 转义
+                        ?.replace("\\/", "/") // 处理 JSON 转义
+
+        if (!extractedUrl.isNullOrEmpty()) {
+            callback.invoke(
+                    newExtractorLink(
+                            name = this.name,
+                            source = this.name,
+                            url = extractedUrl,
+                            type = INFER_TYPE
+                    ) { this.referer = data }
+            )
+            return true
+        }
+
+        // Method 3: WebViewResolver - 拦截实际的视频网络请求
+        // 用于处理 Blob URL 和动态生成的 cmecloud.cn 预签名 URL
+        val webViewResolver =
+                WebViewResolver(interceptUrl = Regex(""".*\.(mp4|m3u8).*"""), timeout = 20_000L)
+
+        val interceptedUrl = app.get(data, referer = mainUrl, interceptor = webViewResolver).url
+
+        if (interceptedUrl.isNotEmpty() &&
+                        (interceptedUrl.contains(".mp4") || interceptedUrl.contains(".m3u8"))
+        ) {
+            callback.invoke(
+                    newExtractorLink(
+                            name = this.name,
+                            source = this.name,
+                            url = interceptedUrl,
                             type = INFER_TYPE
                     ) { this.referer = data }
             )
