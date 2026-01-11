@@ -250,167 +250,163 @@ class DadaquProvider : MainAPI() {
                 subtitleCallback: (SubtitleFile) -> Unit,
                 callback: (ExtractorLink) -> Unit
         ): Boolean {
+                Log.d("DadaquProvider", "Loading links for: $data")
 
-                val response = app.get(data, referer = mainUrl)
-                val pageHtml = response.text
-
-                // Extract player_aaaa configuration
-                // Need to properly extract JSON with nested objects
-                val playerConfigStart = pageHtml.indexOf("var player_aaaa")
-
-                if (playerConfigStart != -1) {
-                        try {
-                                // Find the opening brace
-                                val jsonStart = pageHtml.indexOf('{', playerConfigStart)
-                                if (jsonStart == -1) {
-                                        Log.d("DadaquProvider", "No opening brace found")
-                                        return false
-                                }
-
-                                // Count braces to find the matching closing brace
-                                var braceCount = 0
-                                var jsonEnd = jsonStart
-                                for (i in jsonStart until pageHtml.length) {
-                                        when (pageHtml[i]) {
-                                                '{' -> braceCount++
-                                                '}' -> {
-                                                        braceCount--
-                                                        if (braceCount == 0) {
-                                                                jsonEnd = i
-                                                                break
-                                                        }
+                // 直接在播放页面上操作，而不是加载 iframe
+                // 因为 iframe URL 有防盗链保护
+                val webViewResolver =
+                        WebViewResolver(
+                                script =
+                                        """
+                                        (function() {
+                                            console.log('[DadaquProvider] Script started');
+                                            var foundUrl = null;
+                                            var attempts = 0;
+                                            var maxAttempts = 80; // 40 seconds
+                                            
+                                            // 等待页面完全加载
+                                            setTimeout(function() {
+                                                console.log('[DadaquProvider] Attempting to trigger play...');
+                                                triggerPlay();
+                                            }, 3000);
+                                            
+                                            function triggerPlay() {
+                                                // 方法 1: 尝试通过 ArtPlayer API 播放
+                                                if (window.art) {
+                                                    try {
+                                                        console.log('[DadaquProvider] Found ArtPlayer, calling play()');
+                                                        window.art.play();
+                                                    } catch(e) {
+                                                        console.log('[DadaquProvider] ArtPlayer play error:', e);
+                                                    }
                                                 }
-                                        }
-                                }
+                                                
+                                                // 方法 2: 点击播放按钮和容器
+                                                var clickTargets = [
+                                                    '.art-video-player',
+                                                    '.art-control-play',
+                                                    '#player',
+                                                    'video',
+                                                    '.content',
+                                                    '#start',
+                                                    'body'
+                                                ];
+                                                
+                                                for (var i = 0; i < clickTargets.length; i++) {
+                                                    var elem = document.querySelector(clickTargets[i]);
+                                                    if (elem) {
+                                                        try {
+                                                            console.log('[DadaquProvider] Clicking:', clickTargets[i]);
+                                                            elem.click();
+                                                            var evt = new MouseEvent('click', {
+                                                                bubbles: true,
+                                                                cancelable: true,
+                                                                view: window
+                                                            });
+                                                            elem.dispatchEvent(evt);
+                                                        } catch(e) {
+                                                            console.log('[DadaquProvider] Click error:', e);
+                                                        }
+                                                    }
+                                                }
+                                                
+                                                // 方法 3: 直接调用 video.play()
+                                                var video = document.querySelector('video');
+                                                if (video) {
+                                                    try {
+                                                        console.log('[DadaquProvider] Calling video.play()');
+                                                        video.play();
+                                                    } catch(e) {
+                                                        console.log('[DadaquProvider] video.play error:', e);
+                                                    }
+                                                }
+                                            }
+                                            
+                                            // 定期检查视频 URL
+                                            var checkInterval = setInterval(function() {
+                                                attempts++;
+                                                
+                                                // 方法 1: 检查 ArtPlayer 配置
+                                                if (window.art && window.art.option && window.art.option.url) {
+                                                    var url = window.art.option.url;
+                                                    if (url && url.startsWith('http')) {
+                                                        clearInterval(checkInterval);
+                                                        console.log('[DadaquProvider] Found URL in ArtPlayer:', url);
+                                                        window.location = 'cloudstream-intercept://' + url;
+                                                        return;
+                                                    }
+                                                }
+                                                
+                                                // 方法 2: 检查 video.src
+                                                var video = document.querySelector('video');
+                                                if (video) {
+                                                    var src = video.src || video.currentSrc;
+                                                    if (src && src.startsWith('http')) {
+                                                        clearInterval(checkInterval);
+                                                        console.log('[DadaquProvider] Found video.src:', src);
+                                                        window.location = 'cloudstream-intercept://' + src;
+                                                        return;
+                                                    }
+                                                }
+                                                
+                                                // 方法 3: 检查 source 元素
+                                                if (video) {
+                                                    var sources = video.querySelectorAll('source');
+                                                    for (var i = 0; i < sources.length; i++) {
+                                                        var src = sources[i].src;
+                                                        if (src && src.startsWith('http')) {
+                                                            clearInterval(checkInterval);
+                                                            console.log('[DadaquProvider] Found source.src:', src);
+                                                            window.location = 'cloudstream-intercept://' + src;
+                                                            return;
+                                                        }
+                                                    }
+                                                }
+                                                
+                                                // 超时处理
+                                                if (attempts >= maxAttempts) {
+                                                    clearInterval(checkInterval);
+                                                    console.log('[DadaquProvider] TIMEOUT after', attempts, 'attempts');
+                                                    console.log('[DadaquProvider] Debug - window.art:', !!window.art);
+                                                    if (window.art && window.art.option) {
+                                                        console.log('[DadaquProvider] Debug - art.option.url:', window.art.option.url);
+                                                    }
+                                                    console.log('[DadaquProvider] Debug - video element:', !!video);
+                                                    if (video) {
+                                                        console.log('[DadaquProvider] Debug - video.src:', video.src);
+                                                        console.log('[DadaquProvider] Debug - video.currentSrc:', video.currentSrc);
+                                                    }
+                                                    window.location = 'cloudstream-intercept://TIMEOUT';
+                                                }
+                                            }, 500);
+                                        })();
+                                        """.trimIndent(),
+                                interceptUrl = Regex("""cloudstream-intercept://(.*)"""),
+                                timeout = 60_000L
+                        )
 
-                                val configJson = pageHtml.substring(jsonStart, jsonEnd + 1)
-                                Log.d("DadaquProvider", "Found player_aaaa: $configJson")
+                val interceptedUrl =
+                        app.get(data, referer = mainUrl, interceptor = webViewResolver)
+                                .url
+                                .removePrefix("cloudstream-intercept://")
 
-                                // Extract the token URL (no decoding - backend handles it)
-                                val urlMatch = Regex(""""url"\s*:\s*"([^"]+)"""").find(configJson)
-
-                                if (urlMatch != null) {
-                                        val token = urlMatch.groupValues[1]
-                                        Log.d("DadaquProvider", "Token: $token")
-
-                                        // Construct iframe URL - pass token as-is
-                                        val iframeUrl = "$mainUrl/ddplay/index.php?vid=$token"
-                                        Log.d("DadaquProvider", "Iframe URL: $iframeUrl")
-
-                                        // Use WebView to load iframe and extract video src via
-                                        // JavaScript
-                                        val webViewResolver =
-                                                WebViewResolver(
-                                                        // Use JavaScript to extract video src after
-                                                        // player loads
-                                                        script =
-                                                                """
-                                                                (function() {
-                                                                    // Function to trigger play
-                                                                    function triggerPlay() {
-                                                                        // Click anywhere on the player to trigger playback
-                                                                        var targets = [
-                                                                            '#start',
-                                                                            '.content',
-                                                                            '#player',
-                                                                            'video',
-                                                                            '.art-video-player',
-                                                                            'body'
-                                                                        ];
-                                                                        
-                                                                        for (var i = 0; i < targets.length; i++) {
-                                                                            var elem = document.querySelector(targets[i]);
-                                                                            if (elem) {
-                                                                                try { 
-                                                                                    elem.click(); 
-                                                                                    // Also dispatch a real click event
-                                                                                    var evt = new MouseEvent('click', {
-                                                                                        bubbles: true,
-                                                                                        cancelable: true,
-                                                                                        view: window
-                                                                                    });
-                                                                                    elem.dispatchEvent(evt);
-                                                                                } catch(e) {}
-                                                                                break; // Stop after first successful click
-                                                                            }
-                                                                        }
-                                                                        
-                                                                        // Also try to play video directly
-                                                                        var video = document.querySelector('video');
-                                                                        if (video) {
-                                                                            try { video.play(); } catch(e) {}
-                                                                        }
-                                                                    }
-                                                                    
-                                                                    // Wait a bit for page to load, then trigger play
-                                                                    setTimeout(function() {
-                                                                        triggerPlay();
-                                                                    }, 2000);
-                                                                    
-                                                                    // Wait for video element to load and have src
-                                                                    var maxAttempts = 60; // 60 attempts = ~30 seconds
-                                                                    var attempts = 0;
-                                                                    
-                                                                    var checkVideo = setInterval(function() {
-                                                                        attempts++;
-                                                                        var video = document.querySelector('video');
-                                                                        
-                                                                        if (video && video.src && video.src.startsWith('http')) {
-                                                                            clearInterval(checkVideo);
-                                                                            window.location = 'cloudstream-intercept://' + video.src;
-                                                                        } else if (attempts >= maxAttempts) {
-                                                                            clearInterval(checkVideo);
-                                                                            window.location = 'cloudstream-intercept://TIMEOUT';
-                                                                        }
-                                                                    }, 500);
-                                                                })();
-                                                        """.trimIndent(),
-                                                        interceptUrl =
-                                                                Regex(
-                                                                        """cloudstream-intercept://(.*)"""
-                                                                ),
-                                                        timeout = 60_000L
-                                                )
-
-                                        val interceptedUrl =
-                                                app.get(
-                                                                iframeUrl,
-                                                                referer = data,
-                                                                interceptor = webViewResolver
-                                                        )
-                                                        .url
-                                                        .removePrefix("cloudstream-intercept://")
-
-                                        if (interceptedUrl.isNotEmpty() &&
-                                                        interceptedUrl != "TIMEOUT" &&
-                                                        interceptedUrl.startsWith("http")
-                                        ) {
-                                                Log.d(
-                                                        "DadaquProvider",
-                                                        "Success! Media URL: $interceptedUrl"
-                                                )
-                                                callback.invoke(
-                                                        newExtractorLink(
-                                                                name = this.name,
-                                                                source = this.name,
-                                                                url = interceptedUrl,
-                                                                type = INFER_TYPE
-                                                        ) { this.referer = iframeUrl }
-                                                )
-                                                return true
-                                        } else {
-                                                Log.d(
-                                                        "DadaquProvider",
-                                                        "WebView intercepted no media URL"
-                                                )
-                                        }
-                                }
-                        } catch (e: Exception) {
-                                Log.e("DadaquProvider", "Error in loadLinks")
-                        }
+                if (interceptedUrl.isNotEmpty() &&
+                                interceptedUrl != "TIMEOUT" &&
+                                interceptedUrl.startsWith("http")
+                ) {
+                        Log.d("DadaquProvider", "Success! Video URL: $interceptedUrl")
+                        callback.invoke(
+                                newExtractorLink(
+                                        name = this.name,
+                                        source = this.name,
+                                        url = interceptedUrl,
+                                        type = INFER_TYPE
+                                ) { this.referer = data }
+                        )
+                        return true
+                } else {
+                        Log.d("DadaquProvider", "Failed to extract video URL (timeout or empty)")
+                        return false
                 }
-
-                Log.d("DadaquProvider", "Failed to extract video URL")
-                return false
         }
 }
