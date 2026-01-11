@@ -250,206 +250,144 @@ class DadaquProvider : MainAPI() {
                 subtitleCallback: (SubtitleFile) -> Unit,
                 callback: (ExtractorLink) -> Unit
         ): Boolean {
+
                 val response = app.get(data, referer = mainUrl)
-                val document = response.document
                 val pageHtml = response.text
 
-                // Method 0: 从 player_aaaa 配置中提取视频 URL（最可靠的方法）
-                // player_aaaa 包含加密的 URL，我们可以直接构造 iframe
+                // Extract player_aaaa configuration
                 val playerConfigRegex = Regex("""var\s+player_aaaa\s*=\s*(\{[^}]+\})""")
                 val configMatch = playerConfigRegex.find(pageHtml)
+
                 if (configMatch != null) {
                         try {
                                 val configJson = configMatch.groupValues[1]
-                                // 提取 url 字段（Base64 编码的视频参数）
+                                Log.d("DadaquProvider", "Found player_aaaa: $configJson")
+
+                                // Extract the token URL (no decoding - backend handles it)
                                 val urlMatch = Regex(""""url"\s*:\s*"([^"]+)"""").find(configJson)
+
                                 if (urlMatch != null) {
-                                        val encodedUrl = urlMatch.groupValues[1]
-                                        val iframeUrl = "$mainUrl/ddplay/index.php?vid=$encodedUrl"
+                                        val token = urlMatch.groupValues[1]
+                                        Log.d("DadaquProvider", "Token: $token")
 
-                                        // 直接请求 iframe 页面
-                                        val iframeResponse = app.get(iframeUrl, referer = data)
-                                        val iframeHtml = iframeResponse.text
+                                        // Construct iframe URL - pass token as-is
+                                        val iframeUrl = "$mainUrl/ddplay/index.php?vid=$token"
+                                        Log.d("DadaquProvider", "Iframe URL: $iframeUrl")
 
-                                        // 从 iframe 中提取视频 URL
-                                        val videoUrlRegex =
-                                                Regex(
-                                                        """["']?(?:url|file|source|src|video_url|playurl)["']?\s*[:=]\s*["'](https?://[^"']+\.(?:mp4|m3u8)[^"']*)["']""",
-                                                        RegexOption.IGNORE_CASE
+                                        // Use WebView to load iframe and extract video src via
+                                        // JavaScript
+                                        val webViewResolver =
+                                                WebViewResolver(
+                                                        // Use JavaScript to extract video src after
+                                                        // player loads
+                                                        script =
+                                                                """
+                                                                (function() {
+                                                                    // Function to trigger play
+                                                                    function triggerPlay() {
+                                                                        // Click anywhere on the player to trigger playback
+                                                                        var targets = [
+                                                                            '#start',
+                                                                            '.content',
+                                                                            '#player',
+                                                                            'video',
+                                                                            '.art-video-player',
+                                                                            'body'
+                                                                        ];
+                                                                        
+                                                                        for (var i = 0; i < targets.length; i++) {
+                                                                            var elem = document.querySelector(targets[i]);
+                                                                            if (elem) {
+                                                                                try { 
+                                                                                    elem.click(); 
+                                                                                    // Also dispatch a real click event
+                                                                                    var evt = new MouseEvent('click', {
+                                                                                        bubbles: true,
+                                                                                        cancelable: true,
+                                                                                        view: window
+                                                                                    });
+                                                                                    elem.dispatchEvent(evt);
+                                                                                } catch(e) {}
+                                                                                break; // Stop after first successful click
+                                                                            }
+                                                                        }
+                                                                        
+                                                                        // Also try to play video directly
+                                                                        var video = document.querySelector('video');
+                                                                        if (video) {
+                                                                            try { video.play(); } catch(e) {}
+                                                                        }
+                                                                    }
+                                                                    
+                                                                    // Wait a bit for page to load, then trigger play
+                                                                    setTimeout(function() {
+                                                                        triggerPlay();
+                                                                    }, 2000);
+                                                                    
+                                                                    // Wait for video element to load and have src
+                                                                    var maxAttempts = 60; // 60 attempts = ~30 seconds
+                                                                    var attempts = 0;
+                                                                    
+                                                                    var checkVideo = setInterval(function() {
+                                                                        attempts++;
+                                                                        var video = document.querySelector('video');
+                                                                        
+                                                                        if (video && video.src && video.src.startsWith('http')) {
+                                                                            clearInterval(checkVideo);
+                                                                            window.location = 'cloudstream-intercept://' + video.src;
+                                                                        } else if (attempts >= maxAttempts) {
+                                                                            clearInterval(checkVideo);
+                                                                            window.location = 'cloudstream-intercept://TIMEOUT';
+                                                                        }
+                                                                    }, 500);
+                                                                })();
+                                                        """.trimIndent(),
+                                                        interceptUrl =
+                                                                Regex(
+                                                                        """cloudstream-intercept://(.*)"""
+                                                                ),
+                                                        timeout = 60_000L
                                                 )
 
-                                        val extractedUrl =
-                                                videoUrlRegex
-                                                        .findAll(iframeHtml)
-                                                        .map { it.groupValues.getOrNull(1) }
-                                                        .firstOrNull {
-                                                                !it.isNullOrEmpty() &&
-                                                                        !it.contains("logo") &&
-                                                                        !it.contains("load.gif")
-                                                        }
-                                                        ?.replace("\\u002F", "/")
-                                                        ?.replace("\\/", "/")
+                                        val interceptedUrl =
+                                                app.get(
+                                                                iframeUrl,
+                                                                referer = data,
+                                                                interceptor = webViewResolver
+                                                        )
+                                                        .url
+                                                        .removePrefix("cloudstream-intercept://")
 
-                                        if (!extractedUrl.isNullOrEmpty()) {
+                                        if (interceptedUrl.isNotEmpty() &&
+                                                        interceptedUrl != "TIMEOUT" &&
+                                                        interceptedUrl.startsWith("http")
+                                        ) {
+                                                Log.d(
+                                                        "DadaquProvider",
+                                                        "Success! Media URL: $interceptedUrl"
+                                                )
                                                 callback.invoke(
                                                         newExtractorLink(
                                                                 name = this.name,
                                                                 source = this.name,
-                                                                url = extractedUrl,
+                                                                url = interceptedUrl,
                                                                 type = INFER_TYPE
                                                         ) { this.referer = iframeUrl }
                                                 )
                                                 return true
+                                        } else {
+                                                Log.d(
+                                                        "DadaquProvider",
+                                                        "WebView intercepted no media URL"
+                                                )
                                         }
                                 }
                         } catch (e: Exception) {
-                                Log.e("DadaquProvider", "Error parsing player_aaaa: ${e.message}")
+                                Log.e("DadaquProvider", "Error in loadLinks")
                         }
                 }
 
-                // Method 1: Extract iframe URL (达达趣使用 iframe 播放器)
-                val iframeUrl =
-                        document.selectFirst("iframe[src*='/ddplay/']")?.attr("src")
-                                ?: document.selectFirst("iframe")?.attr("src")
-                if (!iframeUrl.isNullOrEmpty()) {
-                        val fullIframeUrl = fixUrl(iframeUrl)
-
-                        // 请求 iframe 页面
-                        val iframeResponse = app.get(fullIframeUrl, referer = data)
-                        val iframeHtml = iframeResponse.text
-
-                        // 尝试从 iframe 中提取视频 URL
-                        val videoUrlRegex =
-                                Regex(
-                                        """["']?(?:url|file|source|src|video_url|playurl)["']?\s*[:=]\s*["'](https?://[^"']+\.(?:mp4|m3u8)[^"']*)["']""",
-                                        RegexOption.IGNORE_CASE
-                                )
-
-                        val extractedUrl =
-                                videoUrlRegex
-                                        .findAll(iframeHtml)
-                                        .map { it.groupValues.getOrNull(1) }
-                                        .firstOrNull {
-                                                !it.isNullOrEmpty() &&
-                                                        !it.contains("logo") &&
-                                                        !it.contains("load.gif")
-                                        }
-                                        ?.replace("\\u002F", "/")
-                                        ?.replace("\\/", "/")
-
-                        if (!extractedUrl.isNullOrEmpty()) {
-                                callback.invoke(
-                                        newExtractorLink(
-                                                name = this.name,
-                                                source = this.name,
-                                                url = extractedUrl,
-                                                type = INFER_TYPE
-                                        ) { this.referer = fullIframeUrl }
-                                )
-                                return true
-                        }
-
-                        // 如果 iframe 中也没有找到，使用 WebView 加载 iframe
-                        val webViewResolver =
-                                WebViewResolver(
-                                        interceptUrl = Regex(""".*\.(?:mp4|m3u8).*"""),
-                                        timeout = 40_000L // 增加超时到 40 秒
-                                )
-
-                        val interceptedUrl =
-                                app.get(
-                                                fullIframeUrl,
-                                                referer = data,
-                                                interceptor = webViewResolver
-                                        )
-                                        .url
-
-                        if (interceptedUrl.isNotEmpty() &&
-                                        (interceptedUrl.contains(".mp4") ||
-                                                interceptedUrl.contains(".m3u8"))
-                        ) {
-                                callback.invoke(
-                                        newExtractorLink(
-                                                name = this.name,
-                                                source = this.name,
-                                                url = interceptedUrl,
-                                                type = INFER_TYPE
-                                        ) { this.referer = fullIframeUrl }
-                                )
-                                return true
-                        }
-                }
-
-                // Method 2: Direct video element (快速路径)
-                val videoUrl = document.selectFirst("video.art-video")?.attr("src")
-                if (!videoUrl.isNullOrEmpty() && !videoUrl.startsWith("blob:")) {
-                        callback.invoke(
-                                newExtractorLink(
-                                        name = this.name,
-                                        source = this.name,
-                                        url = videoUrl,
-                                        type = INFER_TYPE
-                                ) { this.referer = data }
-                        )
-                        return true
-                }
-
-                // Method 3: 从主页面 JavaScript 中正则提取视频 URL
-                val videoUrlRegex =
-                        Regex(
-                                """["']?(?:url|file|source|src|video_url|playurl)["']?\s*[:=]\s*["'](https?://[^"']+\.(?:mp4|m3u8)[^"']*)["']""",
-                                RegexOption.IGNORE_CASE
-                        )
-
-                val extractedUrl =
-                        videoUrlRegex
-                                .findAll(pageHtml)
-                                .map { it.groupValues.getOrNull(1) }
-                                .firstOrNull {
-                                        !it.isNullOrEmpty() &&
-                                                !it.contains("logo") &&
-                                                !it.contains("load.gif")
-                                }
-                                ?.replace("\\u002F", "/")
-                                ?.replace("\\/", "/")
-
-                if (!extractedUrl.isNullOrEmpty()) {
-                        callback.invoke(
-                                newExtractorLink(
-                                        name = this.name,
-                                        source = this.name,
-                                        url = extractedUrl,
-                                        type = INFER_TYPE
-                                ) { this.referer = data }
-                        )
-                        return true
-                }
-
-                // Method 4: WebViewResolver - 拦截主页面的视频请求（最后手段）
-                val webViewResolver =
-                        WebViewResolver(
-                                interceptUrl = Regex(""".*\.(?:mp4|m3u8).*"""),
-                                timeout = 40_000L
-                        )
-
-                val interceptedUrl =
-                        app.get(data, referer = mainUrl, interceptor = webViewResolver).url
-
-                if (interceptedUrl.isNotEmpty() &&
-                                (interceptedUrl.contains(".mp4") ||
-                                        interceptedUrl.contains(".m3u8"))
-                ) {
-                        callback.invoke(
-                                newExtractorLink(
-                                        name = this.name,
-                                        source = this.name,
-                                        url = interceptedUrl,
-                                        type = INFER_TYPE
-                                ) { this.referer = data }
-                        )
-                        return true
-                }
-
+                Log.d("DadaquProvider", "Failed to extract video URL")
                 return false
         }
 }
