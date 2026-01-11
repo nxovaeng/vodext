@@ -255,12 +255,35 @@ class DadaquProvider : MainAPI() {
                 val pageHtml = response.text
 
                 // Extract player_aaaa configuration
-                val playerConfigRegex = Regex("""var\s+player_aaaa\s*=\s*(\{[^}]+\})""")
-                val configMatch = playerConfigRegex.find(pageHtml)
+                // Need to properly extract JSON with nested objects
+                val playerConfigStart = pageHtml.indexOf("var player_aaaa")
 
-                if (configMatch != null) {
+                if (playerConfigStart != -1) {
                         try {
-                                val configJson = configMatch.groupValues[1]
+                                // Find the opening brace
+                                val jsonStart = pageHtml.indexOf('{', playerConfigStart)
+                                if (jsonStart == -1) {
+                                        Log.d("DadaquProvider", "No opening brace found")
+                                        return false
+                                }
+
+                                // Count braces to find the matching closing brace
+                                var braceCount = 0
+                                var jsonEnd = jsonStart
+                                for (i in jsonStart until pageHtml.length) {
+                                        when (pageHtml[i]) {
+                                                '{' -> braceCount++
+                                                '}' -> {
+                                                        braceCount--
+                                                        if (braceCount == 0) {
+                                                                jsonEnd = i
+                                                                break
+                                                        }
+                                                }
+                                        }
+                                }
+
+                                val configJson = pageHtml.substring(jsonStart, jsonEnd + 1)
                                 Log.d("DadaquProvider", "Found player_aaaa: $configJson")
 
                                 // Extract the token URL (no decoding - backend handles it)
