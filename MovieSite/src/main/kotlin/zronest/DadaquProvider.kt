@@ -266,9 +266,49 @@ class DadaquProvider : MainAPI() {
                                             
                                             // 等待页面完全加载
                                             setTimeout(function() {
-                                                console.log('[DadaquProvider] Attempting to trigger play...');
-                                                triggerPlay();
+                                                console.log('[DadaquProvider] Closing popup first...');
+                                                closePopup();
+                                                
+                                                // 关闭弹窗后等待一下再触发播放
+                                                setTimeout(function() {
+                                                    console.log('[DadaquProvider] Attempting to trigger play...');
+                                                    triggerPlay();
+                                                }, 500);
                                             }, 3000);
+                                            
+                                            function closePopup() {
+                                                // 尝试点击弹窗关闭按钮
+                                                var popupCloseSelectors = [
+                                                    '.close-pop',
+                                                    '#popup .popup-btn',
+                                                    '.popup-footer .popup-btn'
+                                                ];
+                                                
+                                                for (var i = 0; i < popupCloseSelectors.length; i++) {
+                                                    var closeBtn = document.querySelector(popupCloseSelectors[i]);
+                                                    if (closeBtn) {
+                                                        try {
+                                                            console.log('[DadaquProvider] Clicking popup close button:', popupCloseSelectors[i]);
+                                                            closeBtn.click();
+                                                            return;
+                                                        } catch(e) {
+                                                            console.log('[DadaquProvider] Error clicking popup:', e);
+                                                        }
+                                                    }
+                                                }
+                                                
+                                                // 如果找不到按钮，尝试隐藏弹窗
+                                                var popup = document.querySelector('#popup');
+                                                if (popup) {
+                                                    try {
+                                                        console.log('[DadaquProvider] Hiding popup directly');
+                                                        popup.style.display = 'none';
+                                                        popup.classList.remove('popupShow');
+                                                    } catch(e) {
+                                                        console.log('[DadaquProvider] Error hiding popup:', e);
+                                                    }
+                                                }
+                                            }
                                             
                                             function triggerPlay() {
                                                 // 方法 1: 尝试通过 ArtPlayer API 播放
@@ -281,14 +321,14 @@ class DadaquProvider : MainAPI() {
                                                     }
                                                 }
                                                 
-                                                // 方法 2: 点击播放按钮和容器
+                                                // 方法 2: 点击播放按钮和容器（优先点击 #start）
                                                 var clickTargets = [
+                                                    '#start',           // 主播放按钮
+                                                    '.content',         // 内容区域
                                                     '.art-video-player',
                                                     '.art-control-play',
                                                     '#player',
                                                     'video',
-                                                    '.content',
-                                                    '#start',
                                                     'body'
                                                 ];
                                                 
