@@ -8,7 +8,6 @@ import com.lagradost.cloudstream3.app
 import com.lagradost.cloudstream3.base64Decode
 import com.lagradost.cloudstream3.fixUrl
 import com.lagradost.cloudstream3.fixUrlNull
-import com.lagradost.cloudstream3.mainPageOf
 import com.lagradost.cloudstream3.newMovieSearchResponse
 import com.lagradost.cloudstream3.utils.ExtractorLink
 import com.lagradost.cloudstream3.utils.INFER_TYPE
@@ -26,13 +25,6 @@ open class SeaTV : Donghuastream() {
     override var lang = "zh"
     override val hasDownloadSupport = true
     override val supportedTypes = setOf(TvType.Anime)
-
-    override val mainPage =
-            mainPageOf(
-                    "anime/?status=&type=&order=update&page=" to "Recently Updated",
-                    "anime/?status=completed&type=&order=update" to "Completed",
-                    "anime/?status=upcoming&type=&sub=&order=" to "Upcoming",
-            )
 
     private fun Element.toSearch2Result(): SearchResponse {
         val title = this.select("div.bsx > a").attr("title")

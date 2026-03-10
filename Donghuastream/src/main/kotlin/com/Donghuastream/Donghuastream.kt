@@ -41,9 +41,8 @@ open class Donghuastream : MainAPI() {
 
     override val mainPage =
             mainPageOf(
-                    "anime/?status=&type=&order=update&page=" to "Recently Updated",
-                    "anime/?status=completed&type=&order=update" to "Completed",
-                    "anime/?status=&type=special&sub=&order=update" to "Special Anime",
+                    "anime/?status=ongoing&type=&order=update&page=" to "Recently Updated",
+                    "anime/?status=&type=&order=popular&page=" to "Popular",
             )
 
     /**

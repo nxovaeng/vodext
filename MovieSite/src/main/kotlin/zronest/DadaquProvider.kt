@@ -2,11 +2,14 @@ package zronest
 
 import com.lagradost.api.Log
 import com.lagradost.cloudstream3.*
-import com.lagradost.cloudstream3.network.WebViewResolver
 import com.lagradost.cloudstream3.utils.ExtractorLink
 import com.lagradost.cloudstream3.utils.INFER_TYPE
 import com.lagradost.cloudstream3.utils.newExtractorLink
 import java.net.URLEncoder
+import java.security.MessageDigest
+import kotlin.io.encoding.Base64
+import kotlin.io.encoding.ExperimentalEncodingApi
+import org.json.JSONArray
 import org.jsoup.nodes.Element
 
 /** 达达趣 - https://www.dadaqu.pro/ */
@@ -18,26 +21,39 @@ class DadaquProvider : MainAPI() {
         override val supportedTypes =
                 setOf(TvType.Movie, TvType.TvSeries, TvType.Anime, TvType.AsianDrama)
 
-        override val mainPage =
-                mainPageOf(
-                        "$mainUrl/type/1.html" to "电影",
-                        "$mainUrl/type/2.html" to "电视剧",
-                        "$mainUrl/type/3.html" to "综艺",
-                        "$mainUrl/type/4.html" to "动漫"
-                )
+        override val mainPage = mainPageOf("1" to "电影", "2" to "电视剧", "3" to "综艺", "4" to "动漫")
+
+        companion object {
+                private const val TAG = "DadaquProvider"
+
+                // 加密/解密所需的常量
+                private const val JS_KEY = "jZ#8C*d!2$"
+                private const val STATIC_CHARS =
+                        "PXhw7UT1B0a9kQDKZsjIASmOezxYG4CHo5Jyfg2b8FLpEvRr3WtVnlqMidu6cN"
+                private const val BASE64_CHARS =
+                        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+
+                // 全局 Cookie（用于反爬绕过后保持会话）
+                @Volatile private var globalCookie = ""
+        }
+
+        // ========================================================================
+        // 主页 / 搜索 / 详情加载（保持原有逻辑）
+        // ========================================================================
 
         override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
+                val typeId = request.data
+                // 使用 /show/ 热播排序，与 JS scraper 的 getDadaquRecent 一致
                 val pageUrl =
                         if (page == 1) {
-                                request.data
+                                "$mainUrl/show/$typeId--hits---------.html"
                         } else {
-                                request.data.replace(".html", "-$page.html")
+                                "$mainUrl/show/$typeId--hits------$page---.html"
                         }
 
-                val document = app.get(pageUrl, referer = mainUrl).document
+                val document = fetchWithBypass(pageUrl)
 
-                val home =
-                        document.select("a.module-poster-item").mapNotNull { it.toSearchResult() }
+                val home = document.select(".module-item").mapNotNull { it.toShowResult() }
 
                 return newHomePageResponse(
                         listOf(HomePageList(request.name, home)),
@@ -45,9 +61,26 @@ class DadaquProvider : MainAPI() {
                 )
         }
 
+        /** 解析 /show/ 页面的 .module-item 元素 该页面中 .module-item 是 <a> 标签，包含 href、title 和图片 */
+        private fun Element.toShowResult(): SearchResponse? {
+                val title =
+                        this.attr("title").ifEmpty { this.text().trim() }.ifEmpty {
+                                return null
+                        }
+                val href = fixUrl(this.attr("href"))
+                val posterUrl =
+                        fixUrlNull(
+                                this.selectFirst(".module-item-pic img")?.attr("data-original")
+                                        ?: this.selectFirst("img")?.attr("data-original")
+                                                ?: this.selectFirst("img")?.attr("src")
+                        )
+
+                return newMovieSearchResponse(title, href, TvType.Movie) {
+                        this.posterUrl = posterUrl
+                }
+        }
+
         private fun Element.toSearchResult(): SearchResponse? {
-                // 使用 title 属性或 img 的 alt 属性获取真正的标题
-                // 而不是 div 文本（那个会是状态标签如"完结"、"正片"）
                 val title =
                         this.attr("title").ifEmpty { this.selectFirst("img")?.attr("alt") }?.trim()
                                 ?: return null
@@ -59,7 +92,6 @@ class DadaquProvider : MainAPI() {
                                         ?: this.selectFirst("img")?.attr("src")
                         )
 
-                // 根据 URL 判断类型
                 val type =
                         when {
                                 href.contains("/type/1") -> TvType.Movie
@@ -87,7 +119,6 @@ class DadaquProvider : MainAPI() {
                                         ?: this.selectFirst("img")?.attr("src")
                         )
 
-                // 从详情页判断类型，这里先默认为电影
                 return newMovieSearchResponse(title, href, TvType.Movie) {
                         this.posterUrl = posterUrl
                 }
@@ -97,7 +128,7 @@ class DadaquProvider : MainAPI() {
                 val encodedQuery = URLEncoder.encode(query, "UTF-8")
                 val searchUrl = "$mainUrl/search/${encodedQuery}-------------.html"
 
-                val document = app.get(searchUrl, referer = mainUrl).document
+                val document = fetchWithBypass(searchUrl)
 
                 return document.select("a.module-card-item-poster").mapNotNull {
                         it.toCardSearchResult()
@@ -105,7 +136,7 @@ class DadaquProvider : MainAPI() {
         }
 
         override suspend fun load(url: String): LoadResponse? {
-                val document = app.get(url, referer = mainUrl).document
+                val document = fetchWithBypass(url)
 
                 val title = document.selectFirst("h1")?.text()?.trim() ?: return null
 
@@ -120,7 +151,6 @@ class DadaquProvider : MainAPI() {
                 val description =
                         document.selectFirst("div.module-info-introduction-content")?.text()?.trim()
 
-                // 提取年份
                 val year =
                         document.select("div.module-info-item")
                                 .find { it.text().contains("年份") }
@@ -129,7 +159,6 @@ class DadaquProvider : MainAPI() {
                                 ?.trim()
                                 ?.toIntOrNull()
 
-                // 提取标签
                 val tags =
                         document.select("div.module-info-item")
                                 .find { it.text().contains("类型") }
@@ -137,18 +166,17 @@ class DadaquProvider : MainAPI() {
                                 ?.map { it.text() }
                                 ?: emptyList()
 
-                // 提取演员
                 val actors =
                         document.select("div.module-info-item")
                                 .find { it.text().contains("主演") }
                                 ?.select("a")
                                 ?.mapNotNull {
-                                        val name = it.text().trim()
-                                        if (name.isNotEmpty()) ActorData(Actor(name)) else null
+                                        val actorName = it.text().trim()
+                                        if (actorName.isNotEmpty()) ActorData(Actor(actorName))
+                                        else null
                                 }
                                 ?: emptyList()
 
-                // 提取评分
                 val ratingText = document.selectFirst("div.module-info-item")?.text()
                 val rating =
                         Regex("评分：([\\d.]+)")
@@ -157,11 +185,9 @@ class DadaquProvider : MainAPI() {
                                 ?.get(1)
                                 ?.toDoubleOrNull()
 
-                // 提取播放源和剧集
                 val playLists = document.select("div.module-play-list")
 
                 if (playLists.isEmpty()) {
-                        // 没有播放源，返回基本信息
                         return newMovieLoadResponse(title, url, TvType.Movie, "") {
                                 this.posterUrl = poster
                                 this.year = year
@@ -187,16 +213,13 @@ class DadaquProvider : MainAPI() {
 
                                 episodes.add(
                                         newEpisode(epUrl) {
-                                                // 使用实际的剧集名称，而不是播放源名称
                                                 this.name =
                                                         if (episodeLinks.size == 1 &&
                                                                         epTitle.isNotEmpty()
                                                         ) {
-                                                                epTitle // 单集时直接用链接文本（如"正片"、"HD"等）
+                                                                epTitle
                                                         } else if (epTitle.isNotEmpty()) {
-                                                                "$epTitle ($sourceName)" // 多集时显示
-                                                                // "第01集
-                                                                // (高清线路)"
+                                                                "$epTitle ($sourceName)"
                                                         } else {
                                                                 sourceName
                                                         }
@@ -207,11 +230,9 @@ class DadaquProvider : MainAPI() {
                         }
                 }
 
-                // 判断类型：单集为电影，多集为剧集
                 val type =
                         if (episodes.size <= 1) TvType.Movie
                         else {
-                                // 根据标签判断更具体的类型
                                 when {
                                         tags.any {
                                                 it.contains("动漫", ignoreCase = true) ||
@@ -244,209 +265,426 @@ class DadaquProvider : MainAPI() {
                 }
         }
 
+        // ========================================================================
+        // 核心：多源视频链接提取（纯 HTTP + 解密）
+        // ========================================================================
+
         override suspend fun loadLinks(
                 data: String,
                 isCasting: Boolean,
                 subtitleCallback: (SubtitleFile) -> Unit,
                 callback: (ExtractorLink) -> Unit
         ): Boolean {
-                Log.d("DadaquProvider", "Loading links for: $data")
+                Log.d(TAG, "loadLinks: $data")
 
-                // 直接在播放页面上操作，而不是加载 iframe
-                // 因为 iframe URL 有防盗链保护
-                val webViewResolver =
-                        WebViewResolver(
-                                script =
-                                        """
-                                        (function() {
-                                            console.log('[DadaquProvider] Script started');
-                                            var foundUrl = null;
-                                            var attempts = 0;
-                                            var maxAttempts = 80; // 40 seconds
-                                            
-                                            // 等待页面完全加载
-                                            setTimeout(function() {
-                                                console.log('[DadaquProvider] Closing popup first...');
-                                                closePopup();
-                                                
-                                                // 关闭弹窗后等待一下再触发播放
-                                                setTimeout(function() {
-                                                    console.log('[DadaquProvider] Attempting to trigger play...');
-                                                    triggerPlay();
-                                                }, 500);
-                                            }, 3000);
-                                            
-                                            function closePopup() {
-                                                // 尝试点击弹窗关闭按钮
-                                                var popupCloseSelectors = [
-                                                    '.close-pop',
-                                                    '#popup .popup-btn',
-                                                    '.popup-footer .popup-btn'
-                                                ];
-                                                
-                                                for (var i = 0; i < popupCloseSelectors.length; i++) {
-                                                    var closeBtn = document.querySelector(popupCloseSelectors[i]);
-                                                    if (closeBtn) {
-                                                        try {
-                                                            console.log('[DadaquProvider] Clicking popup close button:', popupCloseSelectors[i]);
-                                                            closeBtn.click();
-                                                            return;
-                                                        } catch(e) {
-                                                            console.log('[DadaquProvider] Error clicking popup:', e);
-                                                        }
-                                                    }
-                                                }
-                                                
-                                                // 如果找不到按钮，尝试隐藏弹窗
-                                                var popup = document.querySelector('#popup');
-                                                if (popup) {
-                                                    try {
-                                                        console.log('[DadaquProvider] Hiding popup directly');
-                                                        popup.style.display = 'none';
-                                                        popup.classList.remove('popupShow');
-                                                    } catch(e) {
-                                                        console.log('[DadaquProvider] Error hiding popup:', e);
-                                                    }
-                                                }
-                                            }
-                                            
-                                            function triggerPlay() {
-                                                // 方法 1: 尝试通过 ArtPlayer API 播放
-                                                if (window.art) {
-                                                    try {
-                                                        console.log('[DadaquProvider] Found ArtPlayer, calling play()');
-                                                        window.art.play();
-                                                    } catch(e) {
-                                                        console.log('[DadaquProvider] ArtPlayer play error:', e);
-                                                    }
-                                                }
-                                                
-                                                // 方法 2: 点击播放按钮和容器（优先点击 #start）
-                                                var clickTargets = [
-                                                    '#start',           // 主播放按钮
-                                                    '.content',         // 内容区域
-                                                    '.art-video-player',
-                                                    '.art-control-play',
-                                                    '#player',
-                                                    'video',
-                                                    'body'
-                                                ];
-                                                
-                                                for (var i = 0; i < clickTargets.length; i++) {
-                                                    var elem = document.querySelector(clickTargets[i]);
-                                                    if (elem) {
-                                                        try {
-                                                            console.log('[DadaquProvider] Clicking:', clickTargets[i]);
-                                                            elem.click();
-                                                            var evt = new MouseEvent('click', {
-                                                                bubbles: true,
-                                                                cancelable: true,
-                                                                view: window
-                                                            });
-                                                            elem.dispatchEvent(evt);
-                                                        } catch(e) {
-                                                            console.log('[DadaquProvider] Click error:', e);
-                                                        }
-                                                    }
-                                                }
-                                                
-                                                // 方法 3: 直接调用 video.play()
-                                                var video = document.querySelector('video');
-                                                if (video) {
-                                                    try {
-                                                        console.log('[DadaquProvider] Calling video.play()');
-                                                        video.play();
-                                                    } catch(e) {
-                                                        console.log('[DadaquProvider] video.play error:', e);
-                                                    }
-                                                }
-                                            }
-                                            
-                                            // 定期检查视频 URL
-                                            var checkInterval = setInterval(function() {
-                                                attempts++;
-                                                
-                                                // 方法 1: 检查 ArtPlayer 配置
-                                                if (window.art && window.art.option && window.art.option.url) {
-                                                    var url = window.art.option.url;
-                                                    if (url && url.startsWith('http')) {
-                                                        clearInterval(checkInterval);
-                                                        console.log('[DadaquProvider] Found URL in ArtPlayer:', url);
-                                                        window.location = 'cloudstream-intercept://' + url;
-                                                        return;
-                                                    }
-                                                }
-                                                
-                                                // 方法 2: 检查 video.src
-                                                var video = document.querySelector('video');
-                                                if (video) {
-                                                    var src = video.src || video.currentSrc;
-                                                    if (src && src.startsWith('http')) {
-                                                        clearInterval(checkInterval);
-                                                        console.log('[DadaquProvider] Found video.src:', src);
-                                                        window.location = 'cloudstream-intercept://' + src;
-                                                        return;
-                                                    }
-                                                }
-                                                
-                                                // 方法 3: 检查 source 元素
-                                                if (video) {
-                                                    var sources = video.querySelectorAll('source');
-                                                    for (var i = 0; i < sources.length; i++) {
-                                                        var src = sources[i].src;
-                                                        if (src && src.startsWith('http')) {
-                                                            clearInterval(checkInterval);
-                                                            console.log('[DadaquProvider] Found source.src:', src);
-                                                            window.location = 'cloudstream-intercept://' + src;
-                                                            return;
-                                                        }
-                                                    }
-                                                }
-                                                
-                                                // 超时处理
-                                                if (attempts >= maxAttempts) {
-                                                    clearInterval(checkInterval);
-                                                    console.log('[DadaquProvider] TIMEOUT after', attempts, 'attempts');
-                                                    console.log('[DadaquProvider] Debug - window.art:', !!window.art);
-                                                    if (window.art && window.art.option) {
-                                                        console.log('[DadaquProvider] Debug - art.option.url:', window.art.option.url);
-                                                    }
-                                                    console.log('[DadaquProvider] Debug - video element:', !!video);
-                                                    if (video) {
-                                                        console.log('[DadaquProvider] Debug - video.src:', video.src);
-                                                        console.log('[DadaquProvider] Debug - video.currentSrc:', video.currentSrc);
-                                                    }
-                                                    window.location = 'cloudstream-intercept://TIMEOUT';
-                                                }
-                                            }, 500);
-                                        })();
-                                        """.trimIndent(),
-                                interceptUrl = Regex("""cloudstream-intercept://(.*)"""),
-                                timeout = 60_000L
-                        )
+                // 从播放页 URL 提取 vodId 和 episodeNum
+                // 格式: /play/{vodId}-{sourceIndex}-{episodeNum}.html
+                val playMatch = Regex("""/play/(\d+)-(\d+)-(\d+)\.html""").find(data)
+                if (playMatch == null) {
+                        Log.d(TAG, "无法解析播放 URL: $data")
+                        // 直接尝试单源提取
+                        return extractStreamFromPlayPage(data, name, callback)
+                }
 
-                val interceptedUrl =
-                        app.get(data, referer = mainUrl, interceptor = webViewResolver)
-                                .url
-                                .removePrefix("cloudstream-intercept://")
+                val vodId = playMatch.groupValues[1]
+                val episodeNum = playMatch.groupValues[3].toInt()
 
-                if (interceptedUrl.isNotEmpty() &&
-                                interceptedUrl != "TIMEOUT" &&
-                                interceptedUrl.startsWith("http")
-                ) {
-                        Log.d("DadaquProvider", "Success! Video URL: $interceptedUrl")
-                        callback.invoke(
-                                newExtractorLink(
-                                        name = this.name,
-                                        source = this.name,
-                                        url = interceptedUrl,
-                                        type = INFER_TYPE
-                                ) { this.referer = data }
-                        )
-                        return true
-                } else {
-                        Log.d("DadaquProvider", "Failed to extract video URL (timeout or empty)")
+                Log.d(TAG, "vodId=$vodId, episodeNum=$episodeNum")
+
+                // 获取详情页，找到所有播放源
+                val detailUrl = "$mainUrl/detail/$vodId.html"
+                val detailDoc = fetchWithBypass(detailUrl)
+
+                // 提取播放源名称（从 tab 标签）
+                val sourceNames = mutableListOf<String>()
+                detailDoc.select(".module-tab-items-box .tab-item").forEach { el ->
+                        val tabName =
+                                el.attr("data-dropdown-value").ifEmpty {
+                                        el.text().replace(Regex("\\d+$"), "").trim()
+                                }
+                        sourceNames.add(tabName)
+                }
+
+                // 收集每个播放源中匹配当前集数的播放链接
+                data class PlayLinkInfo(
+                        val link: String,
+                        val sourceName: String,
+                        val resolution: String
+                )
+
+                val playLinks = mutableListOf<PlayLinkInfo>()
+                detailDoc.select(".module-list").forEachIndexed { sourceIndex, listEl ->
+                        val sourceName =
+                                sourceNames.getOrElse(sourceIndex) { "线路${sourceIndex + 1}" }
+                        listEl.select(".module-play-list-link").forEach { el ->
+                                val link = el.attr("href")
+                                val resolution = el.text().trim()
+                                val m = Regex("""/play/(\d+)-(\d+)-(\d+)\.html""").find(link)
+                                if (m != null && m.groupValues[3].toInt() == episodeNum) {
+                                        playLinks.add(PlayLinkInfo(link, sourceName, resolution))
+                                }
+                        }
+                }
+
+                Log.d(TAG, "找到 ${playLinks.size} 个播放源 (集数=$episodeNum)")
+
+                if (playLinks.isEmpty()) {
+                        // 没找到多源，回退到直接提取当前播放页
+                        return extractStreamFromPlayPage(data, name, callback)
+                }
+
+                // 逐个提取每个播放源的视频流
+                var hasAny = false
+                for (item in playLinks) {
+                        try {
+                                val playUrl = fixUrl(item.link)
+                                val linkName = "${item.sourceName} - ${item.resolution}"
+                                val success = extractStreamFromPlayPage(playUrl, linkName, callback)
+                                if (success) hasAny = true
+                        } catch (e: Exception) {
+                                Log.d(TAG, "提取 ${item.sourceName} 失败: ${e.message}")
+                        }
+                }
+
+                return hasAny
+        }
+
+        /** 从单个播放页提取视频流： 播放页 → player_aaaa → POST /ddplay/api.php → 解密 → 视频 URL */
+        private suspend fun extractStreamFromPlayPage(
+                playPageUrl: String,
+                sourceName: String,
+                callback: (ExtractorLink) -> Unit
+        ): Boolean {
+                val playDoc = fetchWithBypass(playPageUrl)
+                val playHtml = playDoc.html()
+
+                // 提取 player_aaaa JSON
+                val playerMatch =
+                        Regex("""var player_aaaa=(\{"flag".*?\})</script>""").find(playHtml)
+                if (playerMatch == null) {
+                        Log.d(TAG, "[$sourceName] 未找到 player_aaaa")
                         return false
+                }
+
+                val playerJson = org.json.JSONObject(playerMatch.groupValues[1])
+                val vid = playerJson.optString("url", "")
+                if (vid.isEmpty()) {
+                        Log.d(TAG, "[$sourceName] vid 为空")
+                        return false
+                }
+
+                // 调用解析 API
+                val apiUrl = "$mainUrl/ddplay/api.php"
+                val apiRes =
+                        app.post(
+                                apiUrl,
+                                data = mapOf("vid" to vid),
+                                headers =
+                                        mapOf(
+                                                "Content-Type" to
+                                                        "application/x-www-form-urlencoded",
+                                                "Origin" to mainUrl,
+                                                "Referer" to "$mainUrl/ddplay/index.php?vid=$vid",
+                                                "Cookie" to globalCookie
+                                        ),
+                                referer = "$mainUrl/ddplay/index.php?vid=$vid"
+                        )
+
+                val apiJson =
+                        try {
+                                org.json.JSONObject(apiRes.text)
+                        } catch (e: Exception) {
+                                Log.d(TAG, "[$sourceName] API 返回非 JSON")
+                                return false
+                        }
+
+                val streamData = apiJson.optJSONObject("data") ?: return false
+                val urlMode = streamData.optInt("urlmode", 0)
+                val encryptedUrl = streamData.optString("url", "")
+                if (encryptedUrl.isEmpty()) return false
+
+                Log.d(TAG, "[$sourceName] urlmode=$urlMode")
+
+                // 解密
+                val streamUrl =
+                        when (urlMode) {
+                                1 -> decodeFinalStream(encryptedUrl)
+                                2 -> decodeFinalStream2(encryptedUrl)
+                                else -> null
+                        }
+
+                if (streamUrl.isNullOrEmpty() || streamUrl.contains("404.mp4")) {
+                        Log.d(TAG, "[$sourceName] 解密失败或 404")
+                        return false
+                }
+
+                Log.d(TAG, "[$sourceName] ✅ $streamUrl")
+
+                callback.invoke(
+                        newExtractorLink(
+                                name = sourceName,
+                                source = this.name,
+                                url = streamUrl,
+                                type = INFER_TYPE
+                        ) {
+                                this.referer = "$mainUrl/ddplay/index.php?vid=$vid"
+                                this.headers =
+                                        mapOf(
+                                                "Origin" to mainUrl,
+                                                "Accept" to "*/*",
+                                                "Accept-Language" to "zh-CN,zh;q=0.9,en;q=0.8"
+                                        )
+                        }
+                )
+                return true
+        }
+
+        // ========================================================================
+        // 反爬绕过：fetchWithBypass
+        // ========================================================================
+
+        /** 带反爬绕过的页面请求。 当检测到 robot.php 挑战页面时，自动解决并重试。 */
+        private suspend fun fetchWithBypass(url: String): org.jsoup.nodes.Document {
+                val headers =
+                        mutableMapOf(
+                                "Accept" to
+                                        "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
+                                "Accept-Language" to "en-US,en;q=0.9",
+                                "Connection" to "keep-alive"
+                        )
+                if (globalCookie.isNotEmpty()) {
+                        headers["Cookie"] = globalCookie
+                }
+
+                var res = app.get(url, headers = headers)
+
+                // 更新 Cookie
+                updateCookies(res.headers)
+
+                val html = res.text
+
+                if (res.code == 200 && html.contains("robot.php")) {
+                        Log.d(TAG, "检测到反爬挑战页面")
+
+                        // Challenge 1: staticchars + token + encrypt
+                        val staticMatch = Regex("""var\s+staticchars\s*=\s*'([^']+)'""").find(html)
+                        val tokenMatch1 = Regex("""var\s+token\s*=\s*'([^']+)'""").find(html)
+                        // Challenge 2: encrypt2 方式
+                        val tokenMatch2 =
+                                Regex("""var\s+token\s*=\s*encrypt\("([^"]+)"\);""").find(html)
+
+                        if (staticMatch != null &&
+                                        tokenMatch1 != null &&
+                                        html.contains("math.random")
+                        ) {
+                                // Challenge 1
+                                val staticchars = staticMatch.groupValues[1]
+                                val token = tokenMatch1.groupValues[1]
+                                val p = encrypt(staticchars, token)
+                                val verificationUrl = "$mainUrl/static/js/robot.php?p=$p&$token="
+
+                                Log.d(TAG, "Challenge1: 发送验证请求")
+                                val verifyHeaders =
+                                        mutableMapOf("Referer" to url, "Cookie" to globalCookie)
+                                val verifyRes = app.get(verificationUrl, headers = verifyHeaders)
+                                updateCookies(verifyRes.headers)
+
+                                // 重试原请求
+                                headers["Cookie"] = globalCookie
+                                res = app.get(url, headers = headers)
+                                updateCookies(res.headers)
+                        } else if (tokenMatch2 != null) {
+                                // Challenge 2
+                                val tokenRaw = tokenMatch2.groupValues[1]
+                                val value = encrypt2(url)
+                                val token = encrypt2(tokenRaw)
+
+                                Log.d(TAG, "Challenge2: 发送 POST 验证请求")
+                                val postData = mapOf("value" to value, "token" to token)
+                                val verifyHeaders =
+                                        mutableMapOf(
+                                                "Content-Type" to
+                                                        "application/x-www-form-urlencoded",
+                                                "Cookie" to globalCookie,
+                                                "Referer" to url
+                                        )
+                                val verifyRes =
+                                        app.post(
+                                                "$mainUrl/robot.php",
+                                                data = postData,
+                                                headers = verifyHeaders
+                                        )
+                                updateCookies(verifyRes.headers)
+
+                                // 重试原请求
+                                headers["Cookie"] = globalCookie
+                                res = app.get(url, headers = headers)
+                                updateCookies(res.headers)
+                        }
+                }
+
+                return res.document
+        }
+
+        /** 从响应头中提取并更新全局 Cookie */
+        private fun updateCookies(headers: okhttp3.Headers) {
+                val setCookies = headers.values("Set-Cookie")
+                if (setCookies.isNotEmpty()) {
+                        val newCookies = setCookies.map { it.split(";")[0] }.joinToString("; ")
+                        // 合并已有的 cookie
+                        val existingMap = mutableMapOf<String, String>()
+                        if (globalCookie.isNotEmpty()) {
+                                globalCookie.split("; ").forEach { part ->
+                                        val eqIdx = part.indexOf('=')
+                                        if (eqIdx > 0) {
+                                                existingMap[part.substring(0, eqIdx)] =
+                                                        part.substring(eqIdx + 1)
+                                        }
+                                }
+                        }
+                        setCookies.forEach { raw ->
+                                val cookiePart = raw.split(";")[0]
+                                val eqIdx = cookiePart.indexOf('=')
+                                if (eqIdx > 0) {
+                                        existingMap[cookiePart.substring(0, eqIdx)] =
+                                                cookiePart.substring(eqIdx + 1)
+                                }
+                        }
+                        globalCookie =
+                                existingMap.entries.joinToString("; ") { "${it.key}=${it.value}" }
+                }
+        }
+
+        // ========================================================================
+        // 加密函数（用于反爬绕过）
+        // ========================================================================
+
+        /** Challenge 1 加密：MD5 + XOR + Base64 */
+        @OptIn(ExperimentalEncodingApi::class)
+        private fun encrypt(txt: String, key: String): String {
+                val nh = (Math.random() * 64).toInt()
+                val ch = BASE64_CHARS[nh]
+                val mdKey = md5(key + ch)
+                val startIdx = nh % 8
+                val length = if (nh % 8 > 7) nh % 8 else nh % 8 + 17
+                val subKey =
+                        mdKey.substring(startIdx, (startIdx + length).coerceAtMost(mdKey.length))
+
+                val txtBase64 = Base64.encode(txt.toByteArray(Charsets.UTF_8))
+                val sb = StringBuilder()
+                var k = 0
+                for (c in txtBase64) {
+                        if (k == subKey.length) k = 0
+                        val xored = c.code xor subKey[k].code
+                        k++
+                        sb.append(xored.toChar())
+                }
+                val result = ch + Base64.encode(sb.toString().toByteArray(Charsets.ISO_8859_1))
+                return URLEncoder.encode(result, "UTF-8")
+        }
+
+        /** Challenge 2 加密：自定义字母表替换 + 随机填充 + Base64 */
+        @OptIn(ExperimentalEncodingApi::class)
+        private fun encrypt2(str: String): String {
+                val sb = StringBuilder()
+                for (c in str) {
+                        val idx = STATIC_CHARS.indexOf(c)
+                        val code = if (idx == -1) c else STATIC_CHARS[(idx + 3) % 62]
+                        val r1 = (Math.random() * 62).toInt()
+                        val r2 = (Math.random() * 62).toInt()
+                        sb.append(STATIC_CHARS[r1])
+                        sb.append(code)
+                        sb.append(STATIC_CHARS[r2])
+                }
+                return Base64.encode(sb.toString().toByteArray(Charsets.UTF_8))
+        }
+
+        // ========================================================================
+        // 解密函数（用于视频 URL 解密）
+        // ========================================================================
+
+        /** MD5 哈希 */
+        private fun md5(input: String): String {
+                val digest = MessageDigest.getInstance("MD5")
+                val bytes = digest.digest(input.toByteArray(Charsets.UTF_8))
+                return bytes.joinToString("") { "%02x".format(it) }
+        }
+
+        /** decode1: 第一层解密 Base64 解码 → XOR(MD5("test")) → Base64 解码 */
+        @OptIn(ExperimentalEncodingApi::class)
+        private fun decode1(cipherStr: String): String {
+                val key = md5("test")
+                // Base64 解码为 binary string（ISO_8859_1 保留原始字节）
+                val decoded1 = String(Base64.decode(cipherStr), Charsets.ISO_8859_1)
+                val sb = StringBuilder()
+                for (i in decoded1.indices) {
+                        val k = i % key.length
+                        val xored = decoded1[i].code xor key[k].code
+                        sb.append(xored.toChar())
+                }
+                // 再做一次 Base64 解码得到 UTF-8 文本
+                return String(Base64.decode(sb.toString()), Charsets.UTF_8)
+        }
+
+        /** decodeFinalStream (urlmode=1): decode1 → 按 "/" 分割 → Base64 解码各部分 → 字母替换映射 → 真实 URL */
+        @OptIn(ExperimentalEncodingApi::class)
+        private fun decodeFinalStream(input: String): String? {
+                return try {
+                        val decoded = decode1(input)
+                        val parts = decoded.split("/")
+                        if (parts.size < 3) return null
+
+                        val arr1 = JSONArray(String(Base64.decode(parts[0]), Charsets.UTF_8))
+                        val arr2 = JSONArray(String(Base64.decode(parts[1]), Charsets.UTF_8))
+                        val cipherUrl = String(Base64.decode(parts[2]), Charsets.UTF_8)
+
+                        // 构建映射表：arr2[i] -> arr1[i]
+                        val charMap = mutableMapOf<Char, Char>()
+                        for (i in 0 until arr2.length().coerceAtMost(arr1.length())) {
+                                val from = arr2.getString(i)
+                                val to = arr1.getString(i)
+                                if (from.length == 1 && to.length == 1) {
+                                        charMap[from[0]] = to[0]
+                                }
+                        }
+
+                        // 替换密文中的字母
+                        val sb = StringBuilder()
+                        for (c in cipherUrl) {
+                                if (c.isLetter()) {
+                                        sb.append(charMap[c] ?: c)
+                                } else {
+                                        sb.append(c)
+                                }
+                        }
+                        sb.toString()
+                } catch (e: Exception) {
+                        Log.d(TAG, "decodeFinalStream 解密失败: ${e.message}")
+                        null
+                }
+        }
+
+        /** decodeFinalStream2 (urlmode=2): Base64 解码 → 每3字符取中间字符 → 用静态字母表逆映射(偏移59, mod62) */
+        @OptIn(ExperimentalEncodingApi::class)
+        private fun decodeFinalStream2(input: String): String? {
+                return try {
+                        val decoded = String(Base64.decode(input), Charsets.ISO_8859_1)
+                        val sb = StringBuilder()
+                        var i = 1
+                        while (i < decoded.length) {
+                                val c = decoded[i]
+                                val idx = STATIC_CHARS.indexOf(c)
+                                if (idx == -1) {
+                                        sb.append(c)
+                                } else {
+                                        sb.append(STATIC_CHARS[(idx + 59) % 62])
+                                }
+                                i += 3
+                        }
+                        sb.toString()
+                } catch (e: Exception) {
+                        Log.d(TAG, "decodeFinalStream2 解密失败: ${e.message}")
+                        null
                 }
         }
 }

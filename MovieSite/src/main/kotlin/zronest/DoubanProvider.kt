@@ -1,158 +1,198 @@
 package zronest
 
+import com.lagradost.api.Log
 import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.utils.ExtractorLink
 import com.lagradost.cloudstream3.utils.loadExtractor
 import java.net.URLEncoder
-import org.jsoup.nodes.Element
+import org.json.JSONArray
+import org.json.JSONObject
 
-/** 豆瓣热播 - 直接解析 HTML */
+/** 豆瓣热搜 - 使用豆瓣 JSON API 参考 douban_hot_v2.js，使用 /j/search_subjects 等 API 获取数据 图片直接从 API 返回，无防盗链问题 */
 class DoubanProvider : MainAPI() {
     override var mainUrl = "https://movie.douban.com"
-    override var name = "豆瓣热播"
+    override var name = "豆瓣热搜"
     override var lang = "zh"
     override val hasMainPage = true
     override val supportedTypes = setOf(TvType.Movie, TvType.TvSeries)
 
-    var searchUrl = "https://search.douban.com"
+    companion object {
+        private const val TAG = "DoubanProvider"
+        private const val CATEGORY_API = "https://movie.douban.com/j/search_subjects"
+        private const val SUGGEST_API = "https://movie.douban.com/j/subject_suggest"
+        private const val SUBJECT_API = "https://movie.douban.com/j/subject_abstract"
+    }
 
-    override val mainPage = mainPageOf("$mainUrl/" to "热门电影", "$mainUrl/tv/" to "热门剧集")
+    private val apiHeaders =
+            mapOf(
+                    "User-Agent" to
+                            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+                    "Referer" to "https://movie.douban.com/"
+            )
+
+    // 使用标签分类作为首页，与 JS 插件保持一致
+    override val mainPage =
+            mainPageOf(
+                    "热门" to "🔥热门",
+                    "最新" to "🆕最新",
+                    "经典" to "🎬经典",
+                    "豆瓣高分" to "⭐高分",
+                    "冷门佳片" to "💎冷门",
+                    "华语" to "🇨🇳华语",
+                    "欧美" to "🇺🇸欧美",
+                    "韩国" to "🇰🇷韩国",
+                    "日本" to "🇯🇵日本"
+            )
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
-        val document = app.get(request.data, referer = mainUrl).document
+        val tag = request.data // 标签名称
+        val pageStart = (page - 1) * 20
+        val url =
+                "$CATEGORY_API?type=movie&tag=${URLEncoder.encode(tag, "UTF-8")}&page_limit=20&page_start=$pageStart"
 
-        val home =
-                if (request.data.contains("/tv/")) {
-                    // 解析电视剧页面 - 使用新的选择器
-                    document.select("a[href*=\"/tv/\"]")
-                            .filter { it.selectFirst("img") != null }
-                            .mapNotNull { it.toTvSearchResult() }
-                } else {
-                    // 解析电影页面 - 正在热映
-                    val nowPlaying =
-                            document.select("div.screening-bd ul li").mapNotNull {
-                                it.toMovieSearchResult()
-                            }
+        val response = app.get(url, headers = apiHeaders).text
+        val json = JSONObject(response)
+        val subjects = json.optJSONArray("subjects") ?: JSONArray()
 
-                    // 解析电影页面 - 热门推荐
-                    val popular =
-                            document.select("div.ui-slide-content a").mapNotNull {
-                                it.toPopularMovieSearchResult()
-                            }
+        val home = mutableListOf<SearchResponse>()
+        for (i in 0 until subjects.length()) {
+            val item = subjects.getJSONObject(i)
+            val title = item.optString("title", "").trim()
+            val rate = item.optString("rate", "")
+            val cover = item.optString("cover", "")
+            val id = item.optString("id", "")
 
-                    nowPlaying + popular
-                }
+            if (title.isNotEmpty() && id.isNotEmpty()) {
+                home.add(
+                        newMovieSearchResponse(title, "$mainUrl/subject/$id/", TvType.Movie) {
+                            this.posterUrl = cover
+                            this.quality =
+                                    if (rate.isNotEmpty() && rate != "0")
+                                            SearchQuality.valueOf("⭐$rate")
+                                    else null
+                        }
+                )
+            }
+        }
 
         return newHomePageResponse(
-                listOf(HomePageList(request.name, home.take(20))),
-                hasNext = false
+                listOf(HomePageList(request.name, home)),
+                hasNext = home.size >= 20
         )
     }
 
-    private fun Element.toMovieSearchResult(): SearchResponse? {
-        val title = this.selectFirst("a")?.attr("title") ?: return null
-        val href = fixUrl(this.selectFirst("a")?.attr("href") ?: return null)
-        val posterUrl = this.selectFirst("img")?.attr("src")
-
-        return newMovieSearchResponse(title, href, TvType.Movie) { this.posterUrl = posterUrl }
-    }
-
-    private fun Element.toPopularMovieSearchResult(): SearchResponse? {
-        val title = this.selectFirst("span")?.text()?.trim() ?: return null
-        val href = fixUrl(this.attr("href"))
-        val posterUrl = this.selectFirst("img")?.attr("src")
-
-        return newMovieSearchResponse(title, href, TvType.Movie) { this.posterUrl = posterUrl }
-    }
-
-    private fun Element.toTvSearchResult(): SearchResponse? {
-        val title = this.selectFirst("span")?.text()?.trim() ?: return null
-        val posterUrl = this.selectFirst("img")?.attr("src")
-
-        // 从 doubanapp/dispatch?uri=/tv/[ID] 格式提取 ID
-        val rawHref = this.attr("href")
-        val id =
-                Regex("uri=/tv/(\\d+)").find(rawHref)?.groupValues?.getOrNull(1)
-                        ?: Regex("/subject/(\\d+)").find(rawHref)?.groupValues?.getOrNull(1)
-                                ?: return null
-
-        val detailUrl = "$mainUrl/subject/$id/"
-
-        return newTvSeriesSearchResponse(title, detailUrl, TvType.TvSeries) {
-            this.posterUrl = posterUrl
-        }
-    }
-
     override suspend fun search(query: String): List<SearchResponse> {
-        val encodedQuery = URLEncoder.encode(query, "UTF-8")
-        val url = "$searchUrl/movie/subject_search?search_text=$encodedQuery"
-        val document = app.get(url, referer = searchUrl).document
+        // 使用 subject_suggest API（与 JS 保持一致）
+        val url = "$SUGGEST_API?q=${URLEncoder.encode(query, "UTF-8")}"
+        val response = app.get(url, headers = apiHeaders).text
+        val data = JSONArray(response)
 
-        return document.select("div.item-root").mapNotNull {
-            val title = it.selectFirst("a.title-text")?.text()?.trim() ?: return@mapNotNull null
-            val href =
-                    fixUrl(it.selectFirst("a.cover-link")?.attr("href") ?: return@mapNotNull null)
-            val posterUrl = it.selectFirst("img")?.attr("src")
+        val results = mutableListOf<SearchResponse>()
+        for (i in 0 until data.length()) {
+            val item = data.getJSONObject(i)
+            val type = item.optString("type", "")
+            // 只处理电影和电视剧
+            if (type != "movie" && type != "tv") continue
 
-            // 判断是电影还是电视剧
-            val typeText = it.selectFirst("span.subject-cast")?.text() ?: ""
-            val type =
-                    if (typeText.contains("集数", ignoreCase = true) ||
-                                    typeText.contains("季", ignoreCase = true)
-                    ) {
-                        TvType.TvSeries
-                    } else {
-                        TvType.Movie
-                    }
+            val title = item.optString("title", "").trim()
+            val cover = item.optString("img", "")
+            val id = item.optString("id", "")
+            val year = item.optString("year", "")
+            val episode = item.optString("episode", "")
 
-            if (type == TvType.Movie) {
-                newMovieSearchResponse(title, href, TvType.Movie) { this.posterUrl = posterUrl }
-            } else {
-                newTvSeriesSearchResponse(title, href, TvType.TvSeries) {
-                    this.posterUrl = posterUrl
+            if (title.isNotEmpty() && id.isNotEmpty()) {
+                val tvType = if (type == "tv") TvType.TvSeries else TvType.Movie
+                val detailUrl = "$mainUrl/subject/$id/"
+
+                if (tvType == TvType.TvSeries) {
+                    results.add(
+                            newTvSeriesSearchResponse(title, detailUrl, tvType) {
+                                this.posterUrl = cover
+                            }
+                    )
+                } else {
+                    results.add(
+                            newMovieSearchResponse(title, detailUrl, tvType) {
+                                this.posterUrl = cover
+                            }
+                    )
                 }
             }
         }
+        return results
     }
 
     override suspend fun load(url: String): LoadResponse? {
-        val document = app.get(url, referer = mainUrl).document
+        // 从 URL 提取豆瓣 ID
+        val id = Regex("""/subject/(\d+)""").find(url)?.groupValues?.get(1) ?: return null
 
-        val title =
-                document.selectFirst("h1 span")?.text()?.trim()
-                        ?: document.selectFirst("h1")?.text()?.trim() ?: return null
+        // 使用 subject_abstract API 获取详情（与 JS 保持一致）
+        val apiUrl = "$SUBJECT_API?subject_id=$id"
+        val response = app.get(apiUrl, headers = apiHeaders).text
+        val json = JSONObject(response)
+        val subject = json.optJSONObject("subject") ?: return null
 
-        val poster =
-                document.selectFirst("div#mainpic img")?.attr("src")
-                        ?: document.selectFirst("img[rel=v:image]")?.attr("src")
+        var title = subject.optString("title", "影片$id")
+        // 清理标题中的年份后缀，如 "年会不能停!(2023)"
+        title = title.replace(Regex("""\s*\(\d{4}\)\s*$"""), "").trim()
 
-        val year =
-                document.selectFirst("span.year")
-                        ?.text()
-                        ?.trim()
-                        ?.replace(Regex("[()]"), "")
-                        ?.toIntOrNull()
+        val cover = subject.optString("cover", "")
+        val rate = subject.optString("rate", "")
+        val year = subject.optString("release_year", "").toIntOrNull()
 
-        val description =
-                document.selectFirst("span[property=v:summary]")?.text()?.trim()
-                        ?: document.selectFirst("div.related-info span.all.hidden")?.text()?.trim()
+        // 解析简介
+        val intro = buildString {
+            val shortComment = subject.optJSONObject("short_comment")
+            if (shortComment != null) {
+                val content = shortComment.optString("content", "")
+                if (content.isNotEmpty()) append(content)
+            } else {
+                val shortInfo = subject.optString("short_info", "")
+                if (shortInfo.isNotEmpty()) append(shortInfo)
+            }
+        }
 
-        val rating = document.selectFirst("strong.rating_num")?.text()?.trim()
-
-        val tags = document.select("span[property=v:genre]").map { it.text() }
+        // 导演和演员
+        val directors =
+                subject.optJSONArray("directors")?.let { arr ->
+                    (0 until arr.length()).map { arr.getString(it) }
+                }
+                        ?: emptyList()
 
         val actors =
-                document.select("div.celebrities-list a.celebrity").mapNotNull {
-                    val name = it.selectFirst("span.name")?.text()?.trim()
-                    name?.let { ActorData(Actor(it)) }
+                subject.optJSONArray("actors")?.let { arr ->
+                    (0 until arr.length()).map { arr.getString(it) }
                 }
+                        ?: emptyList()
 
-        // 判断类型
-        val infoText = document.select("div#info").text()
+        val types =
+                subject.optJSONArray("types")?.let { arr ->
+                    (0 until arr.length()).map { arr.getString(it) }
+                }
+                        ?: emptyList()
+
+        val region = subject.optString("region", "")
+        val duration = subject.optString("duration", "")
+
+        // 构建详细描述
+        val description = buildString {
+            if (rate.isNotEmpty()) appendLine("⭐ 豆瓣评分: $rate")
+            if (year != null) appendLine("📅 年份: $year")
+            if (types.isNotEmpty()) appendLine("🎭 类型: ${types.joinToString(" / ")}")
+            if (region.isNotEmpty()) appendLine("🌍 地区: $region")
+            if (duration.isNotEmpty()) appendLine("⏱️ 时长: $duration")
+            if (directors.isNotEmpty()) appendLine("🎬 导演: ${directors.joinToString(" / ")}")
+            if (actors.isNotEmpty()) appendLine("👥 演员: ${actors.joinToString(" / ")}")
+            if (intro.isNotEmpty()) appendLine("\n📖 短评: $intro")
+        }
+
+        val actorData = actors.map { ActorData(Actor(it)) }
+
+        // 判断是否为剧集
         val isTvSeries =
-                infoText.contains("集数", ignoreCase = true) ||
-                        infoText.contains("季数", ignoreCase = true) ||
-                        infoText.contains("单集片长", ignoreCase = true)
+                types.any {
+                    it.contains("剧", ignoreCase = true) || it.contains("动画", ignoreCase = true)
+                }
 
         // 聚合搜索其他源
         val providers = listOf<MainAPI>(DadaquProvider(), PipishiProvider())
@@ -162,29 +202,28 @@ class DoubanProvider : MainAPI() {
             try {
                 searchResults.addAll(provider.search(title).orEmpty())
             } catch (e: Exception) {
-                // 忽略搜索失败
+                Log.d(TAG, "搜索 ${provider.name} 失败: ${e.message}")
             }
         }
 
         if (searchResults.isEmpty()) {
-            // 如果没有找到播放源，返回基本信息
             return if (isTvSeries) {
                 newTvSeriesLoadResponse(title, url, TvType.TvSeries, emptyList()) {
-                    this.posterUrl = poster
+                    this.posterUrl = cover.ifEmpty { null }
                     this.year = year
                     this.plot = description
-                    this.tags = tags
-                    this.actors = actors
-                    this.score = rating?.toDoubleOrNull()?.let { Score.from10(it.toInt()) }
+                    this.tags = types
+                    this.actors = actorData
+                    this.score = rate.toDoubleOrNull()?.let { Score.from10(it.toInt()) }
                 }
             } else {
                 newMovieLoadResponse(title, url, TvType.Movie, "") {
-                    this.posterUrl = poster
+                    this.posterUrl = cover.ifEmpty { null }
                     this.year = year
                     this.plot = description
-                    this.tags = tags
-                    this.actors = actors
-                    this.score = rating?.toDoubleOrNull()?.let { Score.from10(it.toInt()) }
+                    this.tags = types
+                    this.actors = actorData
+                    this.score = rate.toDoubleOrNull()?.let { Score.from10(it.toInt()) }
                 }
             }
         }
@@ -204,12 +243,12 @@ class DoubanProvider : MainAPI() {
         }
 
         return newTvSeriesLoadResponse(title, url, TvType.TvSeries, episodes) {
-            this.posterUrl = poster ?: sorted.firstOrNull()?.posterUrl
+            this.posterUrl = cover.ifEmpty { sorted.firstOrNull()?.posterUrl }
             this.year = year
-            this.plot = description ?: "聚合搜索结果，选择一个播放源进入"
-            this.tags = tags
-            this.actors = actors
-            this.score = rating?.toDoubleOrNull()?.let { Score.from10(it.toInt()) }
+            this.plot = description.ifEmpty { "聚合搜索结果，选择一个播放源进入" }
+            this.tags = types
+            this.actors = actorData
+            this.score = rate.toDoubleOrNull()?.let { Score.from10(it.toInt()) }
         }
     }
 
@@ -219,12 +258,12 @@ class DoubanProvider : MainAPI() {
             subtitleCallback: (SubtitleFile) -> Unit,
             callback: (ExtractorLink) -> Unit
     ): Boolean {
-        // 由于是聚合其他源，这里直接加载对应源的链接
+        // 聚合其他源，直接加载对应源的链接
         loadExtractor(data, subtitleCallback, callback)
         return true
     }
 
-    // 相似度计算函数
+    // 相似度计算
     private fun similarity(a: String, b: String): Double {
         val distance = levenshtein(a, b)
         val maxLen = maxOf(a.length, b.length)
