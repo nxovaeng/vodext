@@ -9,6 +9,9 @@ import java.net.URLEncoder
 import java.security.MessageDigest
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import org.json.JSONArray
 import org.jsoup.nodes.Element
 
@@ -336,17 +339,34 @@ class DadaquProvider : MainAPI() {
                         return extractStreamFromPlayPage(data, name, callback)
                 }
 
-                // 逐个提取每个播放源的视频流
+                // 并行提取每个播放源的视频流
                 var hasAny = false
-                for (item in playLinks) {
-                        try {
-                                val playUrl = fixUrl(item.link)
-                                val linkName = "${item.sourceName} - ${item.resolution}"
-                                val success = extractStreamFromPlayPage(playUrl, linkName, callback)
-                                if (success) hasAny = true
-                        } catch (e: Exception) {
-                                Log.d(TAG, "提取 ${item.sourceName} 失败: ${e.message}")
-                        }
+                coroutineScope {
+                        playLinks
+                                .map { item ->
+                                        async {
+                                                try {
+                                                        val playUrl = fixUrl(item.link)
+                                                        val linkName =
+                                                                "${item.sourceName} - ${item.resolution}"
+                                                        val success =
+                                                                extractStreamFromPlayPage(
+                                                                        playUrl,
+                                                                        linkName,
+                                                                        callback
+                                                                )
+                                                        if (success) {
+                                                                hasAny = true
+                                                        }
+                                                } catch (e: Exception) {
+                                                        Log.d(
+                                                                TAG,
+                                                                "提取 ${item.sourceName} 失败: ${e.message}"
+                                                        )
+                                                }
+                                        }
+                                }
+                                .awaitAll()
                 }
 
                 return hasAny

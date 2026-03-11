@@ -9,6 +9,9 @@ import java.net.URLEncoder
 import java.security.MessageDigest
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import org.json.JSONObject
 import org.jsoup.nodes.Document
 
@@ -236,15 +239,21 @@ open class PipishiProvider : MainAPI() {
         Log.d(TAG, "Found ${playLinks.size} play links for episode $episodeNum")
 
         var hasAny = false
-        for (item in playLinks) {
-            try {
-                val playUrl = fixUrl(item.link)
-                val linkName = "${item.sourceName} - ${item.resolution}"
-                val success = extractStreamFromPlayPage(playUrl, linkName, callback)
-                if (success) hasAny = true
-            } catch (e: Exception) {
-                Log.d(TAG, "Extract ${item.sourceName} failed: ${e.message}")
-            }
+        coroutineScope {
+            playLinks
+                    .map { item ->
+                        async {
+                            try {
+                                val playUrl = fixUrl(item.link)
+                                val linkName = "${item.sourceName} - ${item.resolution}"
+                                val success = extractStreamFromPlayPage(playUrl, linkName, callback)
+                                if (success) hasAny = true
+                            } catch (e: Exception) {
+                                Log.d(TAG, "Extract ${item.sourceName} failed: ${e.message}")
+                            }
+                        }
+                    }
+                    .awaitAll()
         }
 
         return hasAny
