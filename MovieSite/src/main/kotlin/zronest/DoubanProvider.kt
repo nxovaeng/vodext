@@ -21,13 +21,22 @@ class DoubanProvider : MainAPI() {
         private const val CATEGORY_API = "https://movie.douban.com/j/search_subjects"
         private const val SUGGEST_API = "https://movie.douban.com/j/subject_suggest"
         private const val SUBJECT_API = "https://movie.douban.com/j/subject_abstract"
+
+        // 生成随机 bid cookie 字符串 (11位大小写字母+数字)
+        private fun getRandomBid(): String {
+            val chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+            var bid = ""
+            for (i in 0..10) bid += chars.random()
+            return bid
+        }
     }
 
     private val apiHeaders =
             mapOf(
                     "User-Agent" to
-                            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
-                    "Referer" to "https://movie.douban.com/"
+                            "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
+                    "Referer" to "https://movie.douban.com/",
+                    "Cookie" to "bid=${getRandomBid()};"
             )
 
     // 使用标签分类作为首页，与 JS 插件保持一致
@@ -35,14 +44,14 @@ class DoubanProvider : MainAPI() {
             mainPageOf(
                     "热门" to "🔥热门",
                     "最新" to "🆕最新",
-                    "经典" to "🎬经典",
+                    // "经典" to "🎬经典",
                     "豆瓣高分" to "⭐高分",
-                    "冷门佳片" to "💎冷门",
+                    // "冷门佳片" to "💎冷门",
                     "华语" to "🇨🇳华语",
                     "欧美" to "🇺🇸欧美",
-                    "韩国" to "🇰🇷韩国",
-                    "日本" to "🇯🇵日本"
-            )
+                    // "韩国" to "🇰🇷韩国",
+                    // "日本" to "🇯🇵日本"
+                    )
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
         val tag = request.data // 标签名称
@@ -51,7 +60,13 @@ class DoubanProvider : MainAPI() {
                 "$CATEGORY_API?type=movie&tag=${URLEncoder.encode(tag, "UTF-8")}&page_limit=20&page_start=$pageStart"
 
         val response = app.get(url, headers = apiHeaders).text
-        val json = JSONObject(response)
+        val json =
+                try {
+                    JSONObject(response)
+                } catch (e: Exception) {
+                    Log.d(TAG, "Failed to parse JSON for getMainPage: ${e.message}")
+                    return newHomePageResponse(emptyList(), false)
+                }
         val subjects = json.optJSONArray("subjects") ?: JSONArray()
 
         val home = mutableListOf<SearchResponse>()
@@ -91,7 +106,14 @@ class DoubanProvider : MainAPI() {
         // 使用 subject_suggest API（与 JS 保持一致）
         val url = "$SUGGEST_API?q=${URLEncoder.encode(query, "UTF-8")}"
         val response = app.get(url, headers = apiHeaders).text
-        val data = JSONArray(response)
+
+        val data =
+                try {
+                    JSONArray(response)
+                } catch (e: Exception) {
+                    Log.d(TAG, "Failed to parse JSON for search: ${e.message}")
+                    JSONArray()
+                }
 
         val results = mutableListOf<SearchResponse>()
         for (i in 0 until data.length()) {
@@ -135,7 +157,14 @@ class DoubanProvider : MainAPI() {
         // 使用 subject_abstract API 获取详情（与 JS 保持一致）
         val apiUrl = "$SUBJECT_API?subject_id=$id"
         val response = app.get(apiUrl, headers = apiHeaders).text
-        val json = JSONObject(response)
+
+        val json =
+                try {
+                    JSONObject(response)
+                } catch (e: Exception) {
+                    Log.d(TAG, "Failed to parse JSON for detail load: ${e.message}")
+                    return null
+                }
         val subject = json.optJSONObject("subject") ?: return null
 
         var title = subject.optString("title", "影片$id")

@@ -24,7 +24,7 @@ open class PipishiProvider : MainAPI() {
 
     override val supportedTypes = setOf(TvType.Movie, TvType.TvSeries, TvType.Anime)
 
-    override val mainPage = mainPageOf("1" to "电影", "2" to "剧集", "3" to "综艺", "4" to "动漫")
+    override val mainPage = mainPageOf("1" to "电影", "2" to "剧集", /*"3" to "综艺",*/ "4" to "动漫")
 
     companion object {
         private const val TAG = "PipishiProvider"

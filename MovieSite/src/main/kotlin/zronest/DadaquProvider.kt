@@ -17,13 +17,14 @@ class DadaquProvider : MainAPI() {
         override var mainUrl = "https://www.dadaqu.pro"
         override var name = "达达趣"
         override var lang = "zh"
+        override val hasMainPage = true
 
-        // 备用域名：https://www.pipishi.pro, https://www.pipishi.me
+        // 备用域名：https://www.dadaqu.fun, https://www.dadaqu.me
 
         override val supportedTypes =
                 setOf(TvType.Movie, TvType.TvSeries, TvType.Anime, TvType.AsianDrama)
 
-        override val mainPage = mainPageOf("1" to "电影", "2" to "电视剧", "3" to "综艺", "4" to "动漫")
+        override val mainPage = mainPageOf("1" to "电影", "2" to "电视剧", /*"3" to "综艺",*/ "4" to "动漫")
 
         companion object {
                 private const val TAG = "DadaquProvider"
