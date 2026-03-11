@@ -17,7 +17,9 @@ class DadaquProvider : MainAPI() {
         override var mainUrl = "https://www.dadaqu.pro"
         override var name = "达达趣"
         override var lang = "zh"
-        override val hasMainPage = true
+
+        // 备用域名：https://www.pipishi.pro, https://www.pipishi.me
+
         override val supportedTypes =
                 setOf(TvType.Movie, TvType.TvSeries, TvType.Anime, TvType.AsianDrama)
 
@@ -126,7 +128,7 @@ class DadaquProvider : MainAPI() {
 
         override suspend fun search(query: String): List<SearchResponse> {
                 val encodedQuery = URLEncoder.encode(query, "UTF-8")
-                val searchUrl = "$mainUrl/search/${encodedQuery}-------------.html"
+                val searchUrl = "$mainUrl/search/-------------.html?wd=$encodedQuery"
 
                 val document = fetchWithBypass(searchUrl)
 

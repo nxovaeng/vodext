@@ -66,10 +66,16 @@ class DoubanProvider : MainAPI() {
                 home.add(
                         newMovieSearchResponse(title, "$mainUrl/subject/$id/", TvType.Movie) {
                             this.posterUrl = cover
-                            this.quality =
-                                    if (rate.isNotEmpty() && rate != "0")
-                                            SearchQuality.valueOf("⭐$rate")
-                                    else null
+                            if (rate.isNotEmpty() && rate != "0") {
+                                // SearchQuality is an Enum (e.g., HD, SD, CAM). Cannot use
+                                // arbitrary strings.
+                                // Instead, we can put the rating in quality text or posterText if
+                                // supported,
+                                // but CloudStream SearchResponse only supports Enum for quality.
+                                // Let's just append it to the name or ignore quality enum.
+                                // Actually, many providers append rating to name or use a custom
+                                // tag.
+                            }
                         }
                 )
             }
