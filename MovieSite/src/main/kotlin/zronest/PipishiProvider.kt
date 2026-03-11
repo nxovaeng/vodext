@@ -1,6 +1,5 @@
 package zronest
 
-import android.util.Base64
 import com.lagradost.api.Log
 import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.utils.ExtractorLink
@@ -8,6 +7,8 @@ import com.lagradost.cloudstream3.utils.INFER_TYPE
 import com.lagradost.cloudstream3.utils.newExtractorLink
 import java.net.URLEncoder
 import java.security.MessageDigest
+import kotlin.io.encoding.Base64
+import kotlin.io.encoding.ExperimentalEncodingApi
 import org.json.JSONObject
 import org.jsoup.nodes.Document
 
@@ -45,8 +46,8 @@ open class PipishiProvider : MainAPI() {
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
         val typeId = request.data
-        // Catalog: /list/{typeId}--------{page}---.html
-        val pageUrl = "$mainUrl/list/$typeId--------$page---.html"
+        // Catalog: /list/{typeId}--hits------{page}---.html
+        val pageUrl = "$mainUrl/list/$typeId--hits------$page---.html"
 
         val document = fetchWithBypass(pageUrl)
 
@@ -419,6 +420,7 @@ open class PipishiProvider : MainAPI() {
     }
 
     /** 挑战机制 1: MD5 + XOR + Base64 混淆加密 */
+    @OptIn(ExperimentalEncodingApi::class)
     private fun encrypt(txt: String, key: String): String {
         val nh = (Math.random() * 64).toInt()
         val ch = BASE64_CHARS[nh]
@@ -431,7 +433,7 @@ open class PipishiProvider : MainAPI() {
         val len = if (nh % 8 > 7) nh % 8 else nh % 8 + 17
         mdKey = mdKey.substring(start, start + len)
 
-        val txtBase64 = String(Base64.encode(txt.toByteArray(Charsets.UTF_8), Base64.NO_WRAP))
+        val txtBase64 = Base64.encode(txt.toByteArray(Charsets.UTF_8))
 
         val tmp = StringBuilder()
         var k = 0
@@ -441,12 +443,12 @@ open class PipishiProvider : MainAPI() {
             tmp.append(charCode.toChar())
         }
 
-        val finalBase64 =
-                String(Base64.encode(tmp.toString().toByteArray(Charsets.UTF_8), Base64.NO_WRAP))
+        val finalBase64 = Base64.encode(tmp.toString().toByteArray(Charsets.UTF_8))
         return URLEncoder.encode(ch + finalBase64, "UTF-8")
     }
 
     /** 挑战机制 2: 自定义字母表替换并混入随机字符 */
+    @OptIn(ExperimentalEncodingApi::class)
     private fun encrypt2(str: String, staticchars: String): String {
         val encodechars = StringBuilder()
         for (i in str.indices) {
@@ -456,34 +458,34 @@ open class PipishiProvider : MainAPI() {
             val num2 = (Math.random() * 62).toInt()
             encodechars.append(staticchars[num1]).append(code).append(staticchars[num2])
         }
-        return String(
-                Base64.encode(encodechars.toString().toByteArray(Charsets.UTF_8), Base64.NO_WRAP)
-        )
+        return Base64.encode(encodechars.toString().toByteArray(Charsets.UTF_8))
     }
 
+    @OptIn(ExperimentalEncodingApi::class)
     private fun decode1(cipherStr: String): String {
         val md = MessageDigest.getInstance("MD5")
         md.update("test".toByteArray(Charsets.UTF_8))
         val key = md.digest().joinToString("") { "%02x".format(it) }
 
-        val decoded1 = String(Base64.decode(cipherStr, Base64.NO_WRAP), Charsets.ISO_8859_1)
+        val decoded1 = String(Base64.decode(cipherStr), Charsets.ISO_8859_1)
         val code = StringBuilder()
         for (i in decoded1.indices) {
             val k = i % key.length
             code.append((decoded1[i].code xor key[k].code).toChar())
         }
-        return String(Base64.decode(code.toString(), Base64.NO_WRAP), Charsets.UTF_8)
+        return String(Base64.decode(code.toString()), Charsets.UTF_8)
     }
 
+    @OptIn(ExperimentalEncodingApi::class)
     private fun decodeFinalStream(input: String): String? {
         val out = decode1(input)
         val parts = out.split('/')
         if (parts.size < 3) return null
 
         return try {
-            val arr1Text = String(Base64.decode(parts[0], Base64.NO_WRAP), Charsets.UTF_8)
-            val arr2Text = String(Base64.decode(parts[1], Base64.NO_WRAP), Charsets.UTF_8)
-            val cipherUrl = String(Base64.decode(parts[2], Base64.NO_WRAP), Charsets.UTF_8)
+            val arr1Text = String(Base64.decode(parts[0]), Charsets.UTF_8)
+            val arr2Text = String(Base64.decode(parts[1]), Charsets.UTF_8)
+            val cipherUrl = String(Base64.decode(parts[2]), Charsets.UTF_8)
 
             val arr1 = JSONObject("{\"data\":$arr1Text}").getJSONArray("data")
             val arr2 = JSONObject("{\"data\":$arr2Text}").getJSONArray("data")
@@ -509,9 +511,10 @@ open class PipishiProvider : MainAPI() {
         }
     }
 
+    @OptIn(ExperimentalEncodingApi::class)
     private fun decodeFinalStream2(input: String): String? {
         return try {
-            val decoded = String(Base64.decode(input, Base64.NO_WRAP), Charsets.ISO_8859_1)
+            val decoded = String(Base64.decode(input), Charsets.ISO_8859_1)
             val res = java.lang.StringBuilder()
             for (i in 1 until decoded.length step 3) {
                 val idx = STATIC_CHARS.indexOf(decoded[i])
