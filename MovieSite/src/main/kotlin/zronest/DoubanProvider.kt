@@ -29,28 +29,45 @@ class DoubanProvider : MainAPI() {
             for (i in 0..10) bid += chars.random()
             return bid
         }
+
+        // 多种移动端 User-Agent 随机切换
+        private val userAgents =
+                listOf(
+                        "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
+                        "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1",
+                        "Mozilla/5.0 (Linux; Android 13; SM-S918B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36",
+                        "Mozilla/5.0 (Linux; Android 12; Pixel 6 Pro) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Mobile Safari/537.36",
+                        "Mozilla/5.0 (iPad; CPU OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1"
+                )
     }
 
-    private val apiHeaders =
-            mapOf(
-                    "User-Agent" to
-                            "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
-                    "Referer" to "https://movie.douban.com/",
-                    "Cookie" to "bid=${getRandomBid()};"
-            )
+    // 每次请求都动态生成新的 bid 和随机 UA
+    private val apiHeaders: Map<String, String>
+        get() =
+                mapOf(
+                        "User-Agent" to userAgents.random(),
+                        "Accept" to "application/json, text/plain, */*",
+                        "Accept-Language" to "zh-CN,zh;q=0.9,en;q=0.8",
+                        "Referer" to "https://movie.douban.com/",
+                        "Origin" to "https://movie.douban.com",
+                        "Sec-Fetch-Dest" to "empty",
+                        "Sec-Fetch-Mode" to "cors",
+                        "Sec-Fetch-Site" to "same-origin",
+                        "Cookie" to "bid=${getRandomBid()};"
+                )
 
     // 使用标签分类作为首页，与 JS 插件保持一致
     override val mainPage =
             mainPageOf(
                     "热门" to "🔥热门",
                     "最新" to "🆕最新",
-                    // "经典" to "🎬经典",
+                    /*"经典" to "🎬经典",*/
                     "豆瓣高分" to "⭐高分",
-                    // "冷门佳片" to "💎冷门",
+                    /*"冷门佳片" to "💎冷门",*/
                     "华语" to "🇨🇳华语",
                     "欧美" to "🇺🇸欧美",
-                    // "韩国" to "🇰🇷韩国",
-                    // "日本" to "🇯🇵日本"
+                    /*"韩国" to "🇰🇷韩国",*/
+                    /*"日本" to "🇯🇵日本"*/
                     )
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
