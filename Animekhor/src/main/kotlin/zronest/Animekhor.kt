@@ -21,9 +21,10 @@ import com.lagradost.cloudstream3.newTvSeriesLoadResponse
 import com.lagradost.cloudstream3.utils.ExtractorLink
 import com.lagradost.cloudstream3.utils.httpsify
 import com.lagradost.cloudstream3.utils.loadExtractor
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.TimeoutCancellationException
 import org.jsoup.nodes.Element
 
 /** Animekhor provider */
@@ -175,16 +176,17 @@ open class Animekhor : MainAPI() {
     ): Boolean {
         val document = app.get(data).document
         coroutineScope {
-            document.select(".mobius option")
-                    .map { server ->
-                        async {
+            document.select(".mobius option").forEach { server ->
+                launch {
+                    try {
+                        withTimeout(10_000L) {
                             val base64 = server.attr("value")
-                            if (base64.isEmpty()) return@async
+                            if (base64.isEmpty()) return@withTimeout
 
                             val decodedUrl = base64Decode(base64)
                             val regex = Regex("""src=["']([^"']+)["']""", RegexOption.IGNORE_CASE)
                             val matchResult = regex.find(decodedUrl)
-                            var url = matchResult?.groups?.get(1)?.value ?: return@async
+                            var url = matchResult?.groups?.get(1)?.value ?: return@withTimeout
                             if (url.startsWith("//")) {
                                 url = httpsify(url)
                             }
@@ -194,22 +196,25 @@ open class Animekhor : MainAPI() {
                             try {
                                 val host = java.net.URI(url).host
                                 if (host != null && blacklistedHosts.any { host.contains(it) }) {
-                                    return@async
+                                    return@withTimeout
                                 }
                             } catch (e: Exception) {
-                                // Invalid URL
-                                return@async
+                                return@withTimeout
                             }
 
                             loadExtractor(url, referer = mainUrl, subtitleCallback) { link ->
-                                // Filter for quality >= 720p or unknown
                                 if (link.quality >= 720 || link.quality <= 0) {
                                     callback(link)
                                 }
                             }
                         }
+                    } catch (e: TimeoutCancellationException) {
+                        // 单个 server 超时，跳过
+                    } catch (e: Exception) {
+                        // 单个 server 解析失败，跳过
                     }
-                    .awaitAll()
+                }
+            }
         }
         return true
     }

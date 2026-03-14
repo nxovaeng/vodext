@@ -16,8 +16,7 @@
 | 扩展名称 |  支持的网站              | 类型 | 状态 |
 |---------|-------------------------|------|------|
 | ApiCMS | bfzyapi.com, mdzyapi.com | 影视、动漫 | ✅ 正常 |
-| MacCMS | zjkrmv.com, rebovod.com | 影视、动漫 |   尚未调通 |
-| Animekhor | animekhor.org, donghuaworld.com | 动漫 | ✅ 正常-来自phisher的扩展库 |
+| MovieSite | pipishi.com, dadaqu.com | 影视、动漫 | ✅ 正常 |
 
 ## 安装方法
 

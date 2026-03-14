@@ -9,9 +9,11 @@ import java.net.URLEncoder
 import java.security.MessageDigest
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.TimeoutCancellationException
 import org.json.JSONObject
 import org.jsoup.nodes.Document
 
@@ -143,7 +145,6 @@ open class PipishiProvider : MainAPI() {
         val doc = fetchWithBypass(url)
 
         val title = doc.selectFirst("h1")?.text()?.trim() ?: return null
-        val playLink = url // Store the URL as data for loadLinks
 
         val posterUrl =
                 fixUrlNull(
@@ -156,6 +157,7 @@ open class PipishiProvider : MainAPI() {
                         ?: doc.selectFirst(".module-info-introduction-content")?.text()?.trim()
 
         val episodes = mutableListOf<Episode>()
+        // 只取第一个播放列表的集数；多线路在 loadLinks() 播放时才并行提取
         val firstList = doc.selectFirst(".module-list")
 
         firstList?.select("a")?.forEach { el ->
@@ -166,7 +168,7 @@ open class PipishiProvider : MainAPI() {
                 val epNum = match.groupValues[3].toInt()
                 if (episodes.none { it.episode == epNum }) {
                     episodes.add(
-                            newEpisode(url + "|||" + epNum) { // Pack detail and epNum
+                            newEpisode(url + "|||" + epNum) {
                                 this.name = epTitle
                                 this.episode = epNum
                             }
@@ -175,17 +177,13 @@ open class PipishiProvider : MainAPI() {
             }
         }
 
-        val isSeries =
-                episodes.size > 1 || (episodes.size == 1 && episodes[0].name?.contains("集") == true)
-        val tvType = if (isSeries) TvType.TvSeries else TvType.Movie
-
-        if (isSeries) {
-            return newTvSeriesLoadResponse(title, playLink, TvType.TvSeries, episodes) {
+        return if (episodes.size > 1) {
+            newTvSeriesLoadResponse(title, url, TvType.TvSeries, episodes) {
                 this.posterUrl = posterUrl
                 this.plot = plot
             }
         } else {
-            return newMovieLoadResponse(title, playLink, TvType.Movie, url + "|||1") {
+            newMovieLoadResponse(title, url, TvType.Movie, url + "|||1") {
                 this.posterUrl = posterUrl
                 this.plot = plot
             }
@@ -215,7 +213,7 @@ open class PipishiProvider : MainAPI() {
         val sourceNames = mutableListOf<String>()
         detailDoc.select(".module-tab-items-box .tab-item, .module-tab-item").forEach { el ->
             val tabName =
-                    el.attr("data-dropdown-value").ifEmpty {
+                    el.attr("data-dropdown-value").ifBlank {
                         el.text().replace(Regex("\\d+$"), "").trim()
                     }
             sourceNames.add(tabName)
@@ -238,25 +236,29 @@ open class PipishiProvider : MainAPI() {
 
         Log.d(TAG, "Found ${playLinks.size} play links for episode $episodeNum")
 
-        var hasAny = false
+        // coroutineScope 会等待所有 launch 子协程完成后才返回
+        // AtomicBoolean 避免多协程并发写入的 race condition
+        val hasAny = AtomicBoolean(false)
         coroutineScope {
-            playLinks
-                    .map { item ->
-                        async {
-                            try {
-                                val playUrl = fixUrl(item.link)
-                                val linkName = "${item.sourceName} - ${item.resolution}"
-                                val success = extractStreamFromPlayPage(playUrl, linkName, callback)
-                                if (success) hasAny = true
-                            } catch (e: Exception) {
-                                Log.d(TAG, "Extract ${item.sourceName} failed: ${e.message}")
-                            }
+            playLinks.forEach { item ->
+                launch {
+                    try {
+                        withTimeout(10_000L) {
+                            val playUrl = fixUrl(item.link)
+                            val linkName = "${item.sourceName} - ${item.resolution}"
+                            val success = extractStreamFromPlayPage(playUrl, linkName, callback)
+                            if (success) hasAny.set(true)
                         }
+                    } catch (e: TimeoutCancellationException) {
+                        Log.d(TAG, "Extract ${item.sourceName} timed out")
+                    } catch (e: Exception) {
+                        Log.d(TAG, "Extract ${item.sourceName} failed: ${e.message}")
                     }
-                    .awaitAll()
+                }
+            }
         }
 
-        return hasAny
+        return hasAny.get()
     }
 
     private suspend fun extractStreamFromPlayPage(
@@ -267,10 +269,26 @@ open class PipishiProvider : MainAPI() {
         val playDoc = fetchWithBypass(playPageUrl)
         val playHtml = playDoc.html()
 
-        val playerMatch = Regex("""var player_aaaa=(\{.*?\})</script>""").find(playHtml)
-        if (playerMatch == null) return false
+        // 提取 player_aaaa JSON（用括号计数，避免嵌套 } 截断）
+        val markerIdx = playHtml.indexOf("var player_aaaa=")
+        if (markerIdx == -1) return false
+        val jsonStart = playHtml.indexOf('{', markerIdx)
+        if (jsonStart == -1) return false
+        var depth = 0
+        var jsonEnd = -1
+        for (i in jsonStart until playHtml.length) {
+            when (playHtml[i]) {
+                '{' -> depth++
+                '}' -> {
+                    depth--
+                    if (depth == 0) { jsonEnd = i; break }
+                }
+            }
+        }
+        if (jsonEnd == -1) return false
+        val playerJsonStr = playHtml.substring(jsonStart, jsonEnd + 1)
 
-        val playerJson = org.json.JSONObject(playerMatch.groupValues[1])
+        val playerJson = org.json.JSONObject(playerJsonStr)
         val vid = playerJson.optString("url", "")
         if (vid.isEmpty()) return false
 
@@ -314,6 +332,26 @@ open class PipishiProvider : MainAPI() {
 
         Log.d(TAG, "[$sourceName] ✅ $streamUrl")
 
+        // 根据线路标记决定 Origin/Referer
+        val streamHost =
+                when {
+                    sourceName.contains("自营") -> mainUrl
+                    sourceName.contains("有广") -> null
+                    else ->
+                            runCatching {
+                                val u = java.net.URL(streamUrl)
+                                "${u.protocol}://${u.host}"
+                            }.getOrNull()
+                }
+
+        // 自营线路 Referer 带 vid 参数，与 API 请求保持一致
+        val streamReferer =
+                when {
+                    sourceName.contains("自营") -> "$mainUrl/lionplay/index.php?vid=$vid"
+                    streamHost != null -> "$streamHost/"
+                    else -> null
+                }
+
         callback.invoke(
                 newExtractorLink(
                         name = sourceName,
@@ -321,15 +359,25 @@ open class PipishiProvider : MainAPI() {
                         url = streamUrl,
                         type = INFER_TYPE
                 ) {
-                    this.referer = "$mainUrl/lionplay/index.php?vid=$vid"
-                    this.headers =
-                            mapOf(
-                                    "Origin" to mainUrl,
-                                    "Accept" to "*/*",
-                                    "Accept-Language" to "zh-CN,zh;q=0.9,en;q=0.8",
-                                    "User-Agent" to
-                                            "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36"
-                            )
+                    if (streamHost != null) {
+                        this.referer = streamReferer ?: "$streamHost/"
+                        this.headers =
+                                mapOf(
+                                        "Origin" to streamHost,
+                                        "Accept" to "*/*",
+                                        "Accept-Language" to "zh-CN,zh;q=0.9,en;q=0.8",
+                                        "User-Agent" to
+                                                "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36"
+                                )
+                    } else {
+                        this.headers =
+                                mapOf(
+                                        "Accept" to "*/*",
+                                        "Accept-Language" to "zh-CN,zh;q=0.9,en;q=0.8",
+                                        "User-Agent" to
+                                                "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36"
+                                )
+                    }
                 }
         )
         return true
@@ -503,7 +551,7 @@ open class PipishiProvider : MainAPI() {
 
             val realUrl = java.lang.StringBuilder()
             for (c in cipherUrl) {
-                if (c.toString().matches(Regex("^[a-zA-Z]$"))) {
+                if (c.isLetter()) {
                     val idx = arr2List.indexOf(c.toString())
                     if (idx != -1) {
                         realUrl.append(arr1.getString(idx))

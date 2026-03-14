@@ -9,9 +9,11 @@ import java.net.URLEncoder
 import java.security.MessageDigest
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.TimeoutCancellationException
 import org.json.JSONArray
 import org.jsoup.nodes.Element
 
@@ -206,34 +208,20 @@ class DadaquProvider : MainAPI() {
 
                 val episodes = mutableListOf<Episode>()
 
-                playLists.forEachIndexed { sourceIndex, playList ->
-                        val sourceName =
-                                playList.selectFirst("div.module-play-list-title")?.text()?.trim()
-                                        ?: "播放源${sourceIndex + 1}"
+                // 只取第一个播放列表的集数；多线路在 loadLinks() 播放时才并行提取
+                val firstPlayList = playLists[0]
+                val episodeLinks = firstPlayList.select("div.module-play-list-content a")
 
-                        val episodeLinks = playList.select("div.module-play-list-content a")
-
-                        episodeLinks.forEachIndexed { epIndex, epLink ->
-                                val epTitle = epLink.text().trim()
-                                val epUrl = fixUrl(epLink.attr("href"))
-
-                                episodes.add(
-                                        newEpisode(epUrl) {
-                                                this.name =
-                                                        if (episodeLinks.size == 1 &&
-                                                                        epTitle.isNotEmpty()
-                                                        ) {
-                                                                epTitle
-                                                        } else if (epTitle.isNotEmpty()) {
-                                                                "$epTitle ($sourceName)"
-                                                        } else {
-                                                                sourceName
-                                                        }
-                                                this.episode = epIndex + 1
-                                                this.posterUrl = poster
-                                        }
-                                )
-                        }
+                episodeLinks.forEachIndexed { epIndex, epLink ->
+                        val epTitle = epLink.text().trim()
+                        val epUrl = fixUrl(epLink.attr("href"))
+                        episodes.add(
+                                newEpisode(epUrl) {
+                                        this.name = epTitle.ifEmpty { "第${epIndex + 1}集" }
+                                        this.episode = epIndex + 1
+                                        this.posterUrl = poster
+                                }
+                        )
                 }
 
                 val type =
@@ -305,7 +293,7 @@ class DadaquProvider : MainAPI() {
                 val sourceNames = mutableListOf<String>()
                 detailDoc.select(".module-tab-items-box .tab-item").forEach { el ->
                         val tabName =
-                                el.attr("data-dropdown-value").ifEmpty {
+                                el.attr("data-dropdown-value").ifBlank {
                                         el.text().replace(Regex("\\d+$"), "").trim()
                                 }
                         sourceNames.add(tabName)
@@ -340,12 +328,14 @@ class DadaquProvider : MainAPI() {
                 }
 
                 // 并行提取每个播放源的视频流
-                var hasAny = false
+                // coroutineScope 会等待所有 launch 子协程完成后才返回
+                // AtomicBoolean 避免多协程并发写入的 race condition
+                val hasAny = AtomicBoolean(false)
                 coroutineScope {
-                        playLinks
-                                .map { item ->
-                                        async {
-                                                try {
+                        playLinks.forEach { item ->
+                                launch {
+                                        try {
+                                                withTimeout(10_000L) {
                                                         val playUrl = fixUrl(item.link)
                                                         val linkName =
                                                                 "${item.sourceName} - ${item.resolution}"
@@ -355,21 +345,18 @@ class DadaquProvider : MainAPI() {
                                                                         linkName,
                                                                         callback
                                                                 )
-                                                        if (success) {
-                                                                hasAny = true
-                                                        }
-                                                } catch (e: Exception) {
-                                                        Log.d(
-                                                                TAG,
-                                                                "提取 ${item.sourceName} 失败: ${e.message}"
-                                                        )
+                                                        if (success) hasAny.set(true)
                                                 }
+                                        } catch (e: TimeoutCancellationException) {
+                                                Log.d(TAG, "提取 ${item.sourceName} 超时")
+                                        } catch (e: Exception) {
+                                                Log.d(TAG, "提取 ${item.sourceName} 失败: ${e.message}")
                                         }
                                 }
-                                .awaitAll()
+                        }
                 }
 
-                return hasAny
+                return hasAny.get()
         }
 
         /** 从单个播放页提取视频流： 播放页 → player_aaaa → POST /ddplay/api.php → 解密 → 视频 URL */
@@ -381,15 +368,38 @@ class DadaquProvider : MainAPI() {
                 val playDoc = fetchWithBypass(playPageUrl)
                 val playHtml = playDoc.html()
 
-                // 提取 player_aaaa JSON
-                val playerMatch =
-                        Regex("""var player_aaaa=(\{"flag".*?\})</script>""").find(playHtml)
-                if (playerMatch == null) {
+                // 提取 player_aaaa JSON（用括号计数，避免嵌套 } 截断）
+                val markerIdx = playHtml.indexOf("var player_aaaa=")
+                if (markerIdx == -1) {
                         Log.d(TAG, "[$sourceName] 未找到 player_aaaa")
                         return false
                 }
+                val jsonStart = playHtml.indexOf('{', markerIdx)
+                if (jsonStart == -1) {
+                        Log.d(TAG, "[$sourceName] 未找到 player_aaaa JSON 起始")
+                        return false
+                }
+                var depth = 0
+                var jsonEnd = -1
+                for (i in jsonStart until playHtml.length) {
+                        when (playHtml[i]) {
+                                '{' -> depth++
+                                '}' -> {
+                                        depth--
+                                        if (depth == 0) {
+                                                jsonEnd = i
+                                                break
+                                        }
+                                }
+                        }
+                }
+                if (jsonEnd == -1) {
+                        Log.d(TAG, "[$sourceName] player_aaaa JSON 括号不匹配")
+                        return false
+                }
+                val playerJsonStr = playHtml.substring(jsonStart, jsonEnd + 1)
 
-                val playerJson = org.json.JSONObject(playerMatch.groupValues[1])
+                val playerJson = org.json.JSONObject(playerJsonStr)
                 val vid = playerJson.optString("url", "")
                 if (vid.isEmpty()) {
                         Log.d(TAG, "[$sourceName] vid 为空")
@@ -443,6 +453,26 @@ class DadaquProvider : MainAPI() {
 
                 Log.d(TAG, "[$sourceName] ✅ $streamUrl")
 
+                // 根据线路标记决定 Origin/Referer
+                val streamHost =
+                        when {
+                                sourceName.contains("自营") -> mainUrl
+                                sourceName.contains("有广") -> null
+                                else ->
+                                        runCatching {
+                                                val u = java.net.URL(streamUrl)
+                                                "${u.protocol}://${u.host}"
+                                        }.getOrNull()
+                        }
+
+                // 自营线路 Referer 带 vid 参数，与 API 请求保持一致
+                val streamReferer =
+                        when {
+                                sourceName.contains("自营") -> "$mainUrl/ddplay/index.php?vid=$vid"
+                                streamHost != null -> "$streamHost/"
+                                else -> null
+                        }
+
                 callback.invoke(
                         newExtractorLink(
                                 name = sourceName,
@@ -450,13 +480,21 @@ class DadaquProvider : MainAPI() {
                                 url = streamUrl,
                                 type = INFER_TYPE
                         ) {
-                                this.referer = "$mainUrl/ddplay/index.php?vid=$vid"
-                                this.headers =
-                                        mapOf(
-                                                "Origin" to mainUrl,
-                                                "Accept" to "*/*",
-                                                "Accept-Language" to "zh-CN,zh;q=0.9,en;q=0.8"
-                                        )
+                                if (streamHost != null) {
+                                        this.referer = streamReferer ?: "$streamHost/"
+                                        this.headers =
+                                                mapOf(
+                                                        "Origin" to streamHost,
+                                                        "Accept" to "*/*",
+                                                        "Accept-Language" to "zh-CN,zh;q=0.9,en;q=0.8"
+                                                )
+                                } else {
+                                        this.headers =
+                                                mapOf(
+                                                        "Accept" to "*/*",
+                                                        "Accept-Language" to "zh-CN,zh;q=0.9,en;q=0.8"
+                                                )
+                                }
                         }
                 )
                 return true
