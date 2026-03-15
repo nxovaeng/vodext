@@ -1,0 +1,2671 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="插件说明与下载">
+      
+      
+      
+        <link rel="canonical" href="https://<username>.github.io/<repo>/ad_filter_dev/">
+      
+      
+        <link rel="prev" href="../ad_filter_guide/">
+      
+      
+        <link rel="next" href="../vip_parser_dev/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
+    
+    
+      
+        <title>广告过滤器开发文档 - CloudStream 插件文档</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#_1" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href=".." title="CloudStream 插件文档" class="md-header__button md-logo" aria-label="CloudStream 插件文档" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            CloudStream 插件文档
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              广告过滤器开发文档
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="CloudStream 插件文档" class="md-nav__button md-logo" aria-label="CloudStream 插件文档" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    CloudStream 插件文档
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    使用指南
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    开发指南
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cloudstream_analysis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CloudStream分析
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tvbox_analysis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TVBox分析
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dev/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API知识
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ad_filter_guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    广告过滤器使用文档
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    广告过滤器开发文档
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    广告过滤器开发文档
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🎯 方案对比
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-provider-m3u8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        方案 1: Provider 层处理 m3u8（推荐）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="方案 1: Provider 层处理 m3u8（推荐）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#kotlin-cloudstream" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Kotlin 实现（CloudStream 扩展）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        方案 2: 使用本地代理实时过滤
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="方案 2: 使用本地代理实时过滤">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cloudstream-localproxy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CloudStream localProxy
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        方案 3: 高级特征识别
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-ext-x-discontinuity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        方案 4: 使用 #EXT-X-DISCONTINUITY 标记
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🎯 实战建议
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🎯 实战建议">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 组合多种规则
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 缓存处理结果
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. 配置化规则
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cloudstream" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CloudStream 网络拦截机制详解
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-interceptor-okhttp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Interceptor 机制（OkHttp 拦截器）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Interceptor 机制（OkHttp 拦截器）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        概念
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cloudstream_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CloudStream 中的使用
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="CloudStream 中的使用">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-interceptor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        方式 1: 全局 Interceptor
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-extractor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        方式 2: 针对特定 Extractor
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#interceptor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interceptor 的执行流程
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-localproxy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. localProxy 机制（本地代理服务器）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. localProxy 机制（本地代理服务器）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        概念
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#1_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 原始设计意图
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. 原始设计意图">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        问题场景
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        解决方案
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 核心用途总结
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        实现方式
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="实现方式">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        基础代理
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        高级用法：结合规则配置
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-interceptor-vs-localproxy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Interceptor vs localProxy 对比
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-provider" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. 实战示例：完整的广告过滤 Provider
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        详细说明
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="详细说明">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 内置架构
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-provider" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Provider 只需重写方法
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. 工作流程
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        实际 API 设计（根据源码推断）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="实际 API 设计（根据源码推断）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cloudstream_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CloudStream 内置服务器（主应用）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#provider" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        你的 Provider 扩展
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#provider_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        完整示例：带广告过滤的 Provider
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        关键要点总结
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vip_parser_dev/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    解析播放开发文档
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🎯 方案对比
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-provider-m3u8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        方案 1: Provider 层处理 m3u8（推荐）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="方案 1: Provider 层处理 m3u8（推荐）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#kotlin-cloudstream" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Kotlin 实现（CloudStream 扩展）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        方案 2: 使用本地代理实时过滤
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="方案 2: 使用本地代理实时过滤">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cloudstream-localproxy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CloudStream localProxy
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        方案 3: 高级特征识别
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-ext-x-discontinuity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        方案 4: 使用 #EXT-X-DISCONTINUITY 标记
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🎯 实战建议
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🎯 实战建议">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 组合多种规则
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 缓存处理结果
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. 配置化规则
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cloudstream" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CloudStream 网络拦截机制详解
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-interceptor-okhttp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Interceptor 机制（OkHttp 拦截器）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Interceptor 机制（OkHttp 拦截器）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        概念
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cloudstream_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CloudStream 中的使用
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="CloudStream 中的使用">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-interceptor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        方式 1: 全局 Interceptor
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-extractor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        方式 2: 针对特定 Extractor
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#interceptor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interceptor 的执行流程
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-localproxy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. localProxy 机制（本地代理服务器）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. localProxy 机制（本地代理服务器）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        概念
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#1_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 原始设计意图
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. 原始设计意图">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        问题场景
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        解决方案
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 核心用途总结
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        实现方式
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="实现方式">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        基础代理
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        高级用法：结合规则配置
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-interceptor-vs-localproxy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Interceptor vs localProxy 对比
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-provider" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. 实战示例：完整的广告过滤 Provider
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        详细说明
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="详细说明">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 内置架构
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-provider" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Provider 只需重写方法
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. 工作流程
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        实际 API 设计（根据源码推断）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="实际 API 设计（根据源码推断）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cloudstream_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CloudStream 内置服务器（主应用）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#provider" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        你的 Provider 扩展
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#provider_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        完整示例：带广告过滤的 Provider
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        关键要点总结
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="_1">广告过滤<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h1>
+<p>基于 CloudStream 过滤 m3u8 中广告 ts 切片的几个可行方案：</p>
+<h2 id="_2">🎯 方案对比<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>方案</th>
+<th>难度</th>
+<th>效果</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. Provider 层处理 m3u8</td>
+<td>⭐⭐</td>
+<td>⭐⭐⭐⭐</td>
+<td>CloudStream 扩展</td>
+</tr>
+<tr>
+<td>2. 本地代理过滤</td>
+<td>⭐⭐⭐</td>
+<td>⭐⭐⭐⭐⭐</td>
+<td>需要实时处理</td>
+</tr>
+<tr>
+<td>3. 预解析重写 m3u8</td>
+<td>⭐</td>
+<td>⭐⭐⭐</td>
+<td>简单场景</td>
+</tr>
+<tr>
+<td>4. 特征识别过滤</td>
+<td>⭐⭐⭐⭐</td>
+<td>⭐⭐⭐⭐⭐</td>
+<td>复杂广告模式</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="1-provider-m3u8">方案 1: Provider 层处理 m3u8（推荐）<a class="headerlink" href="#1-provider-m3u8" title="Permanent link">&para;</a></h2>
+<p>在 <code>loadLinks</code> 方法中获取并清洗 m3u8，返回干净的播放列表。</p>
+<h3 id="kotlin-cloudstream">Kotlin 实现（CloudStream 扩展）<a class="headerlink" href="#kotlin-cloudstream" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="kd">override</span><span class="w"> </span><span class="kd">suspend</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">loadLinks</span><span class="p">(</span>
+<span class="w">    </span><span class="n">data</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span>
+<span class="w">    </span><span class="n">isCasting</span><span class="p">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="p">,</span>
+<span class="w">    </span><span class="n">subtitleCallback</span><span class="p">:</span><span class="w"> </span><span class="p">(</span><span class="n">SubtitleFile</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="kt">Unit</span><span class="p">,</span>
+<span class="w">    </span><span class="n">callback</span><span class="p">:</span><span class="w"> </span><span class="p">(</span><span class="n">ExtractorLink</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="kt">Unit</span>
+<span class="p">):</span><span class="w"> </span><span class="kt">Boolean</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">m3u8Url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">extractM3u8Url</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+<span class="w">    </span><span class="c1">// 获取原始 m3u8</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">originalM3u8</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">app</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="n">m3u8Url</span><span class="p">).</span><span class="na">text</span>
+
+<span class="w">    </span><span class="c1">// 清洗 m3u8，过滤广告切片</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">cleanedM3u8</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">filterAdSegments</span><span class="p">(</span><span class="n">originalM3u8</span><span class="p">)</span>
+
+<span class="w">    </span><span class="c1">// 通过本地代理返回清洗后的 m3u8</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">proxyUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">createProxyUrl</span><span class="p">(</span><span class="n">cleanedM3u8</span><span class="p">)</span>
+
+<span class="w">    </span><span class="n">callback</span><span class="p">.</span><span class="na">invoke</span><span class="p">(</span>
+<span class="w">        </span><span class="n">ExtractorLink</span><span class="p">(</span>
+<span class="w">            </span><span class="n">source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">name</span><span class="p">,</span>
+<span class="w">            </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">name</span><span class="p">,</span>
+<span class="w">            </span><span class="n">url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">proxyUrl</span><span class="p">,</span>
+<span class="w">            </span><span class="n">referer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mainUrl</span><span class="p">,</span>
+<span class="w">            </span><span class="n">quality</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Qualities</span><span class="p">.</span><span class="na">Unknown</span><span class="p">.</span><span class="na">value</span><span class="p">,</span>
+<span class="w">            </span><span class="n">isM3u8</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">        </span><span class="p">)</span>
+<span class="w">    </span><span class="p">)</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="kc">true</span>
+<span class="p">}</span>
+
+<span class="c1">// 过滤广告切片的核心逻辑</span>
+<span class="kd">private</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">filterAdSegments</span><span class="p">(</span><span class="n">m3u8Content</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">):</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">lines</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m3u8Content</span><span class="p">.</span><span class="na">lines</span><span class="p">().</span><span class="na">toMutableList</span><span class="p">()</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">filteredLines</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mutableListOf</span><span class="o">&lt;</span><span class="kt">String</span><span class="o">&gt;</span><span class="p">()</span>
+
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">0</span>
+<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">lines</span><span class="p">.</span><span class="na">size</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">line</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lines</span><span class="o">[</span><span class="n">i</span><span class="o">]</span>
+
+<span class="w">        </span><span class="c1">// 保留头部信息</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">line</span><span class="p">.</span><span class="na">startsWith</span><span class="p">(</span><span class="s">&quot;#EXTM3U&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span>
+<span class="w">            </span><span class="n">line</span><span class="p">.</span><span class="na">startsWith</span><span class="p">(</span><span class="s">&quot;#EXT-X-VERSION&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">||</span>
+<span class="w">            </span><span class="n">line</span><span class="p">.</span><span class="na">startsWith</span><span class="p">(</span><span class="s">&quot;#EXT-X-TARGETDURATION&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">||</span>
+<span class="w">            </span><span class="n">line</span><span class="p">.</span><span class="na">startsWith</span><span class="p">(</span><span class="s">&quot;#EXT-X-MEDIA-SEQUENCE&quot;</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">filteredLines</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+<span class="w">            </span><span class="n">i</span><span class="o">++</span>
+<span class="w">            </span><span class="k">continue</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="c1">// 检测广告标记</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">line</span><span class="p">.</span><span class="na">startsWith</span><span class="p">(</span><span class="s">&quot;#EXTINF&quot;</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="kd">val</span><span class="w"> </span><span class="nv">nextLine</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lines</span><span class="p">.</span><span class="na">getOrNull</span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="m">1</span><span class="p">)</span><span class="w"> </span><span class="o">?:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
+
+<span class="w">            </span><span class="c1">// 广告识别规则（根据实际情况调整）</span>
+<span class="w">            </span><span class="kd">val</span><span class="w"> </span><span class="nv">isAd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">when</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="c1">// 规则1: URL 包含 &quot;ad&quot; 或 &quot;advertisement&quot;</span>
+<span class="w">                </span><span class="n">nextLine</span><span class="p">.</span><span class="na">contains</span><span class="p">(</span><span class="s">&quot;ad&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">ignoreCase</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">                </span><span class="n">nextLine</span><span class="p">.</span><span class="na">contains</span><span class="p">(</span><span class="s">&quot;advertisement&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">ignoreCase</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="kc">true</span>
+
+<span class="w">                </span><span class="c1">// 规则2: 特定域名的切片</span>
+<span class="w">                </span><span class="n">nextLine</span><span class="p">.</span><span class="na">contains</span><span class="p">(</span><span class="s">&quot;adserver.com&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">                </span><span class="n">nextLine</span><span class="p">.</span><span class="na">contains</span><span class="p">(</span><span class="s">&quot;ads.&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="kc">true</span>
+
+<span class="w">                </span><span class="c1">// 规则3: 异常短的切片（通常广告很短）</span>
+<span class="w">                </span><span class="n">line</span><span class="p">.</span><span class="na">contains</span><span class="p">(</span><span class="s">&quot;#EXTINF:&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>
+<span class="w">                    </span><span class="n">extractDuration</span><span class="p">(</span><span class="n">line</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="m">2.0</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="kc">true</span>
+
+<span class="w">                </span><span class="c1">// 规则4: 包含 #EXT-X-DISCONTINUITY（广告插播点）</span>
+<span class="w">                </span><span class="n">lines</span><span class="p">.</span><span class="na">getOrNull</span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="m">1</span><span class="p">)</span><span class="o">?.</span><span class="na">contains</span><span class="p">(</span><span class="s">&quot;#EXT-X-DISCONTINUITY&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">true</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="kc">true</span>
+
+<span class="w">                </span><span class="k">else</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="kc">false</span>
+<span class="w">            </span><span class="p">}</span>
+
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">isAd</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="n">filteredLines</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+<span class="w">                </span><span class="n">filteredLines</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="n">nextLine</span><span class="p">)</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">            </span><span class="n">i</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="m">2</span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">filteredLines</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+<span class="w">            </span><span class="n">i</span><span class="o">++</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">filteredLines</span><span class="p">.</span><span class="na">joinToString</span><span class="p">(</span><span class="s">&quot;\n&quot;</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c1">// 提取切片时长</span>
+<span class="kd">private</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">extractDuration</span><span class="p">(</span><span class="n">line</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">):</span><span class="w"> </span><span class="kt">Double</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">regex</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;&quot;&quot;#EXTINF:([\d.]+)&quot;&quot;&quot;</span><span class="p">.</span><span class="na">toRegex</span><span class="p">()</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">regex</span><span class="p">.</span><span class="na">find</span><span class="p">(</span><span class="n">line</span><span class="p">)</span><span class="o">?.</span><span class="na">groupValues</span><span class="o">?.</span><span class="na">get</span><span class="p">(</span><span class="m">1</span><span class="p">)</span><span class="o">?.</span><span class="na">toDoubleOrNull</span><span class="p">()</span><span class="w"> </span><span class="o">?:</span><span class="w"> </span><span class="m">0.0</span>
+<span class="p">}</span>
+</code></pre></div>
+<hr />
+<h2 id="2">方案 2: 使用本地代理实时过滤<a class="headerlink" href="#2" title="Permanent link">&para;</a></h2>
+<p>利用 CloudStream 的 [localProxy] 代理机制。</p>
+<h3 id="cloudstream-localproxy">CloudStream localProxy<a class="headerlink" href="#cloudstream-localproxy" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1">// 在 Provider 中实现本地代理</span>
+<span class="kd">override</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">getVideoInterceptor</span><span class="p">(</span><span class="n">extractorLink</span><span class="p">:</span><span class="w"> </span><span class="n">ExtractorLink</span><span class="p">):</span><span class="w"> </span><span class="n">Interceptor</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">Interceptor</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">chain</span><span class="w"> </span><span class="o">-&gt;</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">request</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">chain</span><span class="p">.</span><span class="na">request</span><span class="p">()</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="na">url</span><span class="p">.</span><span class="na">toString</span><span class="p">()</span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">url</span><span class="p">.</span><span class="na">contains</span><span class="p">(</span><span class="s">&quot;.m3u8&quot;</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="c1">// 获取并过滤 m3u8</span>
+<span class="w">            </span><span class="kd">val</span><span class="w"> </span><span class="nv">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">chain</span><span class="p">.</span><span class="na">proceed</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+<span class="w">            </span><span class="kd">val</span><span class="w"> </span><span class="nv">originalBody</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">response</span><span class="p">.</span><span class="na">body</span><span class="o">?.</span><span class="na">string</span><span class="p">()</span><span class="w"> </span><span class="o">?:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
+<span class="w">            </span><span class="kd">val</span><span class="w"> </span><span class="nv">cleanedBody</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">filterAdSegments</span><span class="p">(</span><span class="n">originalBody</span><span class="p">)</span>
+
+<span class="w">            </span><span class="k">return</span><span class="nd">@Interceptor</span><span class="w"> </span><span class="n">response</span><span class="p">.</span><span class="na">newBuilder</span><span class="p">()</span>
+<span class="w">                </span><span class="p">.</span><span class="na">body</span><span class="p">(</span><span class="n">cleanedBody</span><span class="p">.</span><span class="na">toResponseBody</span><span class="p">(</span><span class="n">response</span><span class="p">.</span><span class="na">body</span><span class="o">?.</span><span class="na">contentType</span><span class="p">()))</span>
+<span class="w">                </span><span class="p">.</span><span class="na">build</span><span class="p">()</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="n">chain</span><span class="p">.</span><span class="na">proceed</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<hr />
+<h2 id="3">方案 3: 高级特征识别<a class="headerlink" href="#3" title="Permanent link">&para;</a></h2>
+<p>基于机器学习或统计特征识别广告切片。</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">is_ad_segment_advanced</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">extinf_line</span><span class="p">,</span> <span class="n">ts_url</span><span class="p">,</span> <span class="n">segment_index</span><span class="p">,</span> <span class="n">all_segments</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;高级广告检测&quot;&quot;&quot;</span>
+
+    <span class="c1"># 特征1: 时长分布异常</span>
+    <span class="n">duration</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">extract_duration</span><span class="p">(</span><span class="n">extinf_line</span><span class="p">)</span>
+    <span class="n">avg_duration</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calculate_average_duration</span><span class="p">(</span><span class="n">all_segments</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">duration</span> <span class="o">-</span> <span class="n">avg_duration</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">avg_duration</span> <span class="o">*</span> <span class="mf">0.5</span><span class="p">:</span>  <span class="c1"># 偏差超过50%</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="c1"># 特征2: URL 模式突变</span>
+    <span class="k">if</span> <span class="n">segment_index</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">prev_url</span> <span class="o">=</span> <span class="n">all_segments</span><span class="p">[</span><span class="n">segment_index</span> <span class="o">-</span> <span class="mi">1</span><span class="p">][</span><span class="s1">&#39;url&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">url_pattern_changed</span><span class="p">(</span><span class="n">prev_url</span><span class="p">,</span> <span class="n">ts_url</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="c1"># 特征3: 文件大小异常（如果可以获取 Content-Length）</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">head</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="n">ts_url</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">head</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Content-Length&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">size</span> <span class="o">&lt;</span> <span class="mi">10000</span><span class="p">:</span>  <span class="c1"># 小于 10KB，可能是广告</span>
+            <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="k">pass</span>
+
+    <span class="c1"># 特征4: 连续性检查（序号跳跃）</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_sequence_gap</span><span class="p">(</span><span class="n">segment_index</span><span class="p">,</span> <span class="n">all_segments</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="k">return</span> <span class="kc">False</span>
+
+<span class="k">def</span> <span class="nf">url_pattern_changed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url1</span><span class="p">,</span> <span class="n">url2</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;检测 URL 模式变化&quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">urllib.parse</span> <span class="kn">import</span> <span class="n">urlparse</span>
+
+    <span class="n">domain1</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">url1</span><span class="p">)</span><span class="o">.</span><span class="n">netloc</span>
+    <span class="n">domain2</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">url2</span><span class="p">)</span><span class="o">.</span><span class="n">netloc</span>
+
+    <span class="c1"># 域名突然变化，可能是广告</span>
+    <span class="k">return</span> <span class="n">domain1</span> <span class="o">!=</span> <span class="n">domain2</span>
+</code></pre></div>
+<hr />
+<h2 id="4-ext-x-discontinuity">方案 4: 使用 #EXT-X-DISCONTINUITY 标记<a class="headerlink" href="#4-ext-x-discontinuity" title="Permanent link">&para;</a></h2>
+<p>许多 m3u8 文件会在广告插播点使用 <code>DISCONTINUITY</code> 标记。</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">filter_by_discontinuity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m3u8_content</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;基于 DISCONTINUITY 标记过滤&quot;&quot;&quot;</span>
+    <span class="n">lines</span> <span class="o">=</span> <span class="n">m3u8_content</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">filtered_lines</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">in_ad_block</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">discontinuity_count</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">lines</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s1">&#39;#EXT-X-DISCONTINUITY&#39;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+            <span class="n">discontinuity_count</span> <span class="o">+=</span> <span class="mi">1</span>
+
+            <span class="c1"># 奇数次出现：广告开始</span>
+            <span class="c1"># 偶数次出现：广告结束</span>
+            <span class="n">in_ad_block</span> <span class="o">=</span> <span class="p">(</span><span class="n">discontinuity_count</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="k">continue</span>  <span class="c1"># 跳过 DISCONTINUITY 标记本身</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">in_ad_block</span><span class="p">:</span>
+            <span class="n">filtered_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">filtered_lines</span><span class="p">)</span>
+</code></pre></div>
+<hr />
+<h2 id="_3">🎯 实战建议<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
+<h3 id="1">1. <strong>组合多种规则</strong><a class="headerlink" href="#1" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">is_ad_segment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">extinf_line</span><span class="p">,</span> <span class="n">ts_url</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;综合判断&quot;&quot;&quot;</span>
+    <span class="n">score</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="c1"># 关键词匹配 (+3分)</span>
+    <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">kw</span> <span class="ow">in</span> <span class="n">ts_url</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">kw</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;ad&#39;</span><span class="p">,</span> <span class="s1">&#39;adv&#39;</span><span class="p">,</span> <span class="s1">&#39;sponsor&#39;</span><span class="p">]):</span>
+        <span class="n">score</span> <span class="o">+=</span> <span class="mi">3</span>
+
+    <span class="c1"># 时长异常 (+2分)</span>
+    <span class="n">duration</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">extract_duration</span><span class="p">(</span><span class="n">extinf_line</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">duration</span> <span class="o">&lt;</span> <span class="mf">2.0</span> <span class="ow">or</span> <span class="n">duration</span> <span class="o">&gt;</span> <span class="mf">15.0</span><span class="p">:</span>
+        <span class="n">score</span> <span class="o">+=</span> <span class="mi">2</span>
+
+    <span class="c1"># 域名变化 (+2分)</span>
+    <span class="k">if</span> <span class="n">context</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain_changed</span><span class="p">(</span><span class="n">ts_url</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;prev_url&#39;</span><span class="p">)):</span>
+        <span class="n">score</span> <span class="o">+=</span> <span class="mi">2</span>
+
+    <span class="c1"># DISCONTINUITY 附近 (+1分)</span>
+    <span class="k">if</span> <span class="n">context</span> <span class="ow">and</span> <span class="n">context</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;near_discontinuity&#39;</span><span class="p">):</span>
+        <span class="n">score</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="c1"># 阈值判断</span>
+    <span class="k">return</span> <span class="n">score</span> <span class="o">&gt;=</span> <span class="mi">3</span>  <span class="c1"># 超过3分判定为广告</span>
+</code></pre></div>
+<h3 id="2_1">2. <strong>缓存处理结果</strong><a class="headerlink" href="#2_1" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">lru_cache</span>
+
+<span class="nd">@lru_cache</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">filter_ad_segments_cached</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m3u8_hash</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;缓存过滤结果，避免重复处理&quot;&quot;&quot;</span>
+    <span class="c1"># 处理逻辑...</span>
+    <span class="k">pass</span>
+</code></pre></div>
+<h3 id="3_1">3. <strong>配置化规则</strong><a class="headerlink" href="#3_1" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="n">AD_FILTER_CONFIG</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;keywords&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;ad&#39;</span><span class="p">,</span> <span class="s1">&#39;advertisement&#39;</span><span class="p">,</span> <span class="s1">&#39;sponsor&#39;</span><span class="p">],</span>
+    <span class="s1">&#39;domains&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;adserver.com&#39;</span><span class="p">,</span> <span class="s1">&#39;ads.example.com&#39;</span><span class="p">],</span>
+    <span class="s1">&#39;min_duration&#39;</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>
+    <span class="s1">&#39;max_duration&#39;</span><span class="p">:</span> <span class="mf">15.0</span><span class="p">,</span>
+    <span class="s1">&#39;size_threshold&#39;</span><span class="p">:</span> <span class="mi">10000</span>
+<span class="p">}</span>
+</code></pre></div>
+<hr />
+<h2 id="cloudstream">CloudStream 网络拦截机制详解<a class="headerlink" href="#cloudstream" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code>graph TB
+    subgraph &quot;CloudStream架构&quot;
+        A2[Provider] --&gt;|loadLinks| B2[ExtractorLink]
+        B2 --&gt;|可选: Interceptor| C2[okhttp3.Interceptor]
+        C2 --&gt;|可选: localProxy| D2[本地代理服务器]
+        D2 --&gt; E2[播放器]
+    end
+</code></pre></div>
+<hr />
+<h2 id="1-interceptor-okhttp">1. Interceptor 机制（OkHttp 拦截器）<a class="headerlink" href="#1-interceptor-okhttp" title="Permanent link">&para;</a></h2>
+<h3 id="_4">概念<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h3>
+<p><code>Interceptor</code> 是 OkHttp 网络库的核心机制，可以在<strong>请求发出前</strong>和<strong>响应返回后</strong>进行拦截和修改。</p>
+<h3 id="cloudstream_1">CloudStream 中的使用<a class="headerlink" href="#cloudstream_1" title="Permanent link">&para;</a></h3>
+<h4 id="1-interceptor">方式 1: 全局 Interceptor<a class="headerlink" href="#1-interceptor" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="kd">class</span><span class="w"> </span><span class="nc">MyProvider</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">MainAPI</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">override</span><span class="w"> </span><span class="kd">var</span><span class="w"> </span><span class="nv">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;My Provider&quot;</span>
+<span class="w">    </span><span class="kd">override</span><span class="w"> </span><span class="kd">var</span><span class="w"> </span><span class="nv">mainUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;https://example.com&quot;</span>
+
+<span class="w">    </span><span class="c1">// 返回自定义的 Interceptor</span>
+<span class="w">    </span><span class="kd">override</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">getVideoInterceptor</span><span class="p">(</span><span class="n">extractor</span><span class="p">:</span><span class="w"> </span><span class="n">VideoExtractor</span><span class="p">):</span><span class="w"> </span><span class="n">Interceptor</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">M3u8AdFilterInterceptor</span><span class="p">()</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// 自定义拦截器</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">M3u8AdFilterInterceptor</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">Interceptor</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">override</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">intercept</span><span class="p">(</span><span class="n">chain</span><span class="p">:</span><span class="w"> </span><span class="n">Interceptor</span><span class="p">.</span><span class="na">Chain</span><span class="p">):</span><span class="w"> </span><span class="n">Response</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">request</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">chain</span><span class="p">.</span><span class="na">request</span><span class="p">()</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="na">url</span><span class="p">.</span><span class="na">toString</span><span class="p">()</span>
+
+<span class="w">        </span><span class="c1">// 继续请求</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">chain</span><span class="p">.</span><span class="na">proceed</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+
+<span class="w">        </span><span class="c1">// 如果是 m3u8 文件，处理内容</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">url</span><span class="p">.</span><span class="na">endsWith</span><span class="p">(</span><span class="s">&quot;.m3u8&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">response</span><span class="p">.</span><span class="na">header</span><span class="p">(</span><span class="s">&quot;Content-Type&quot;</span><span class="p">)</span><span class="o">?.</span><span class="na">contains</span><span class="p">(</span><span class="s">&quot;mpegurl&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">true</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="kd">val</span><span class="w"> </span><span class="nv">originalBody</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">response</span><span class="p">.</span><span class="na">body</span><span class="o">?.</span><span class="na">string</span><span class="p">()</span><span class="w"> </span><span class="o">?:</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">response</span>
+
+<span class="w">            </span><span class="c1">// 过滤广告切片</span>
+<span class="w">            </span><span class="kd">val</span><span class="w"> </span><span class="nv">cleanedM3u8</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">filterAdSegments</span><span class="p">(</span><span class="n">originalBody</span><span class="p">)</span>
+
+<span class="w">            </span><span class="c1">// 返回修改后的响应</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">response</span><span class="p">.</span><span class="na">newBuilder</span><span class="p">()</span>
+<span class="w">                </span><span class="p">.</span><span class="na">body</span><span class="p">(</span><span class="n">cleanedM3u8</span><span class="p">.</span><span class="na">toResponseBody</span><span class="p">(</span><span class="n">response</span><span class="p">.</span><span class="na">body</span><span class="o">?.</span><span class="na">contentType</span><span class="p">()))</span>
+<span class="w">                </span><span class="p">.</span><span class="na">build</span><span class="p">()</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="c1">// 其他请求不处理</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">response</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">filterAdSegments</span><span class="p">(</span><span class="n">m3u8Content</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">):</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">lines</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m3u8Content</span><span class="p">.</span><span class="na">lines</span><span class="p">()</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">filtered</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mutableListOf</span><span class="o">&lt;</span><span class="kt">String</span><span class="o">&gt;</span><span class="p">()</span>
+
+<span class="w">        </span><span class="kd">var</span><span class="w"> </span><span class="nv">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">0</span>
+<span class="w">        </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">lines</span><span class="p">.</span><span class="na">size</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="kd">val</span><span class="w"> </span><span class="nv">line</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lines</span><span class="o">[</span><span class="n">i</span><span class="o">]</span>
+
+<span class="w">            </span><span class="c1">// 保留头部</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">line</span><span class="p">.</span><span class="na">startsWith</span><span class="p">(</span><span class="s">&quot;#EXTM3U&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span>
+<span class="w">                </span><span class="n">line</span><span class="p">.</span><span class="na">startsWith</span><span class="p">(</span><span class="s">&quot;#EXT-X-VERSION&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">||</span>
+<span class="w">                </span><span class="n">line</span><span class="p">.</span><span class="na">startsWith</span><span class="p">(</span><span class="s">&quot;#EXT-X-TARGETDURATION&quot;</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="n">filtered</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+<span class="w">                </span><span class="n">i</span><span class="o">++</span>
+<span class="w">                </span><span class="k">continue</span>
+<span class="w">            </span><span class="p">}</span>
+
+<span class="w">            </span><span class="c1">// 检测广告</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">line</span><span class="p">.</span><span class="na">startsWith</span><span class="p">(</span><span class="s">&quot;#EXTINF&quot;</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="kd">val</span><span class="w"> </span><span class="nv">nextLine</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lines</span><span class="p">.</span><span class="na">getOrNull</span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="m">1</span><span class="p">)</span><span class="w"> </span><span class="o">?:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
+
+<span class="w">                </span><span class="c1">// 类似 TVBox 的规则</span>
+<span class="w">                </span><span class="kd">val</span><span class="w"> </span><span class="nv">isAd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">when</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                    </span><span class="c1">// 规则1: DISCONTINUITY 之间的内容（广告插播）</span>
+<span class="w">                    </span><span class="n">isInDiscontinuityBlock</span><span class="p">(</span><span class="n">lines</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="kc">true</span>
+
+<span class="w">                    </span><span class="c1">// 规则2: 特定时长的切片</span>
+<span class="w">                    </span><span class="n">matchesDuration</span><span class="p">(</span><span class="n">line</span><span class="p">,</span><span class="w"> </span><span class="n">listOf</span><span class="p">(</span><span class="s">&quot;17.99&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;14.45&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;16.63&quot;</span><span class="p">))</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="kc">true</span>
+
+<span class="w">                    </span><span class="c1">// 规则3: URL 包含特定字符串</span>
+<span class="w">                    </span><span class="n">nextLine</span><span class="p">.</span><span class="na">contains</span><span class="p">(</span><span class="s">&quot;adjump&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">                    </span><span class="n">nextLine</span><span class="p">.</span><span class="na">contains</span><span class="p">(</span><span class="s">&quot;p1ayer&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="kc">true</span>
+
+<span class="w">                    </span><span class="k">else</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="kc">false</span>
+<span class="w">                </span><span class="p">}</span>
+
+<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">isAd</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                    </span><span class="n">filtered</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+<span class="w">                    </span><span class="n">filtered</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="n">nextLine</span><span class="p">)</span>
+<span class="w">                </span><span class="p">}</span>
+<span class="w">                </span><span class="n">i</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="m">2</span>
+<span class="w">            </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="n">filtered</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+<span class="w">                </span><span class="n">i</span><span class="o">++</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">filtered</span><span class="p">.</span><span class="na">joinToString</span><span class="p">(</span><span class="s">&quot;\n&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// 检测是否在 DISCONTINUITY 块内</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">isInDiscontinuityBlock</span><span class="p">(</span><span class="n">lines</span><span class="p">:</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="kt">String</span><span class="o">&gt;</span><span class="p">,</span><span class="w"> </span><span class="n">index</span><span class="p">:</span><span class="w"> </span><span class="kt">Int</span><span class="p">):</span><span class="w"> </span><span class="kt">Boolean</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// 向前查找最近的 DISCONTINUITY</span>
+<span class="w">        </span><span class="kd">var</span><span class="w"> </span><span class="nv">firstDisc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="m">1</span>
+<span class="w">        </span><span class="kd">var</span><span class="w"> </span><span class="nv">secondDisc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="m">1</span>
+
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="p">(</span><span class="n">index</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="m">1</span><span class="p">)</span><span class="w"> </span><span class="n">downTo</span><span class="w"> </span><span class="m">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">lines</span><span class="o">[</span><span class="n">i</span><span class="o">]</span><span class="p">.</span><span class="na">contains</span><span class="p">(</span><span class="s">&quot;#EXT-X-DISCONTINUITY&quot;</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">secondDisc</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="o">-</span><span class="m">1</span><span class="p">)</span><span class="w"> </span><span class="n">secondDisc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i</span>
+<span class="w">                </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">firstDisc</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="o">-</span><span class="m">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                    </span><span class="n">firstDisc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i</span>
+<span class="w">                    </span><span class="k">break</span>
+<span class="w">                </span><span class="p">}</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="c1">// 如果在两个 DISCONTINUITY 之间，可能是广告</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">secondDisc</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="o">-</span><span class="m">1</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">firstDisc</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="o">-</span><span class="m">1</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">index</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">firstDisc</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">index</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">secondDisc</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// 匹配时长</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">matchesDuration</span><span class="p">(</span><span class="n">extinf</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span><span class="w"> </span><span class="n">durations</span><span class="p">:</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="kt">String</span><span class="o">&gt;</span><span class="p">):</span><span class="w"> </span><span class="kt">Boolean</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">durations</span><span class="p">.</span><span class="na">any</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">extinf</span><span class="p">.</span><span class="na">contains</span><span class="p">(</span><span class="nb">it</span><span class="p">)</span><span class="w"> </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<h4 id="2-extractor">方式 2: 针对特定 Extractor<a class="headerlink" href="#2-extractor" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="kd">override</span><span class="w"> </span><span class="kd">suspend</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">loadLinks</span><span class="p">(</span>
+<span class="w">    </span><span class="n">data</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span>
+<span class="w">    </span><span class="n">isCasting</span><span class="p">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="p">,</span>
+<span class="w">    </span><span class="n">subtitleCallback</span><span class="p">:</span><span class="w"> </span><span class="p">(</span><span class="n">SubtitleFile</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="kt">Unit</span><span class="p">,</span>
+<span class="w">    </span><span class="n">callback</span><span class="p">:</span><span class="w"> </span><span class="p">(</span><span class="n">ExtractorLink</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="kt">Unit</span>
+<span class="p">):</span><span class="w"> </span><span class="kt">Boolean</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="c1">// 获取 m3u8 URL</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">m3u8Url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">extractM3u8</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+<span class="w">    </span><span class="c1">// 方案A: 直接返回带拦截器的链接</span>
+<span class="w">    </span><span class="n">callback</span><span class="p">.</span><span class="na">invoke</span><span class="p">(</span>
+<span class="w">        </span><span class="n">ExtractorLink</span><span class="p">(</span>
+<span class="w">            </span><span class="n">source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">name</span><span class="p">,</span>
+<span class="w">            </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">name</span><span class="p">,</span>
+<span class="w">            </span><span class="n">url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m3u8Url</span><span class="p">,</span>
+<span class="w">            </span><span class="n">referer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mainUrl</span><span class="p">,</span>
+<span class="w">            </span><span class="n">quality</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Qualities</span><span class="p">.</span><span class="na">Unknown</span><span class="p">.</span><span class="na">value</span><span class="p">,</span>
+<span class="w">            </span><span class="n">isM3u8</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">            </span><span class="c1">// 设置拦截器</span>
+<span class="w">            </span><span class="n">extractorData</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mapOf</span><span class="p">(</span><span class="s">&quot;interceptor&quot;</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">M3u8AdFilterInterceptor</span><span class="p">())</span>
+<span class="w">        </span><span class="p">)</span>
+<span class="w">    </span><span class="p">)</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="kc">true</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="interceptor">Interceptor 的执行流程<a class="headerlink" href="#interceptor" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>sequenceDiagram
+    participant Provider
+    participant OkHttp
+    participant Interceptor
+    participant Server
+    participant Player
+
+    Provider-&gt;&gt;OkHttp: 请求 m3u8 URL
+    OkHttp-&gt;&gt;Interceptor: chain.proceed(request)
+    Interceptor-&gt;&gt;Server: 发送请求
+    Server--&gt;&gt;Interceptor: 返回原始 m3u8
+    Interceptor-&gt;&gt;Interceptor: filterAdSegments()
+    Interceptor--&gt;&gt;OkHttp: 返回清洗后的 m3u8
+    OkHttp--&gt;&gt;Player: 传递给播放器
+    Player-&gt;&gt;Player: 播放无广告流
+</code></pre></div>
+<hr />
+<h2 id="2-localproxy">2. localProxy 机制（本地代理服务器）<a class="headerlink" href="#2-localproxy" title="Permanent link">&para;</a></h2>
+<h3 id="_5">概念<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h3>
+<p>CloudStream 可以在应用内启动一个<strong>本地 HTTP 代理服务器</strong>，拦截和修改所有经过它的请求。这比 Interceptor 更强大，可以处理任意请求。</p>
+<h3 id="1_1">1. 原始设计意图<a class="headerlink" href="#1_1" title="Permanent link">&para;</a></h3>
+<p>[localProxy] 最初的设计目的是解决以下问题：</p>
+<h4 id="_6">问题场景<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code>graph LR
+    A[播放器] --&gt;|需要特殊 Headers| B[视频服务器]
+    B --&gt;|403/401 拒绝| A
+
+    style B fill:#f96
+</code></pre></div>
+<p><strong>典型问题</strong>：
+- 视频服务器需要特定的 <code>Referer</code> 才允许播放
+- 需要特定的 <code>User-Agent</code>
+- 需要动态生成的 <code>Authorization</code> token
+- 播放器无法直接设置这些复杂的 headers</p>
+<h4 id="_7">解决方案<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code>graph LR
+    A[播放器] --&gt;|简单请求| B[localProxy]
+    B --&gt;|添加正确 Headers| C[视频服务器]
+    C --&gt;|返回流| B
+    B --&gt;|转发流| A
+
+    style B fill:#9f6
+</code></pre></div>
+<h3 id="2_2">2. 核心用途总结<a class="headerlink" href="#2_2" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>用途</th>
+<th>说明</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Headers 注入</strong></td>
+<td>为请求添加必需的 headers</td>
+<td>Referer, User-Agent, Cookie</td>
+</tr>
+<tr>
+<td><strong>内容过滤</strong></td>
+<td>过滤 m3u8 广告切片</td>
+<td>移除 DISCONTINUITY 块</td>
+</tr>
+<tr>
+<td><strong>URL 重写</strong></td>
+<td>修改视频链接格式</td>
+<td>相对路径转绝对路径</td>
+</tr>
+<tr>
+<td><strong>内容解密</strong></td>
+<td>解密加密的播放列表</td>
+<td>AES 解密</td>
+</tr>
+<tr>
+<td><strong>协议转换</strong></td>
+<td>转换不支持的协议</td>
+<td>RTMP → HLS</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="_8">实现方式<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h3>
+<h4 id="_9">基础代理<a class="headerlink" href="#_9" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="kd">class</span><span class="w"> </span><span class="nc">MyProvider</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">MainAPI</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">companion</span><span class="w"> </span><span class="kd">object</span><span class="w"> </span><span class="err">{</span>
+<span class="w">        </span><span class="kd">private</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">PROXY_HOST</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;127.0.0.1&quot;</span>
+<span class="w">        </span><span class="kd">private</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">PROXY_PORT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">8080</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// 启用本地代理</span>
+<span class="w">    </span><span class="kd">override</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">usesWebView</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span>
+<span class="w">    </span><span class="kd">override</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">supportProxy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+
+<span class="w">    </span><span class="kd">override</span><span class="w"> </span><span class="kd">suspend</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">loadLinks</span><span class="p">(</span>
+<span class="w">        </span><span class="n">data</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span>
+<span class="w">        </span><span class="n">isCasting</span><span class="p">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="p">,</span>
+<span class="w">        </span><span class="n">subtitleCallback</span><span class="p">:</span><span class="w"> </span><span class="p">(</span><span class="n">SubtitleFile</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="kt">Unit</span><span class="p">,</span>
+<span class="w">        </span><span class="n">callback</span><span class="p">:</span><span class="w"> </span><span class="p">(</span><span class="n">ExtractorLink</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="kt">Unit</span>
+<span class="w">    </span><span class="p">):</span><span class="w"> </span><span class="kt">Boolean</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">originalM3u8Url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">extractM3u8</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+<span class="w">        </span><span class="c1">// 将 m3u8 URL 转换为本地代理 URL</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">proxyUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">createProxyUrl</span><span class="p">(</span><span class="n">originalM3u8Url</span><span class="p">)</span>
+
+<span class="w">        </span><span class="n">callback</span><span class="p">.</span><span class="na">invoke</span><span class="p">(</span>
+<span class="w">            </span><span class="n">ExtractorLink</span><span class="p">(</span>
+<span class="w">                </span><span class="n">source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">name</span><span class="p">,</span>
+<span class="w">                </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">name</span><span class="p">,</span>
+<span class="w">                </span><span class="n">url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">proxyUrl</span><span class="p">,</span><span class="w">  </span><span class="c1">// 使用代理 URL</span>
+<span class="w">                </span><span class="n">referer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mainUrl</span><span class="p">,</span>
+<span class="w">                </span><span class="n">quality</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Qualities</span><span class="p">.</span><span class="na">Unknown</span><span class="p">.</span><span class="na">value</span><span class="p">,</span>
+<span class="w">                </span><span class="n">isM3u8</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">            </span><span class="p">)</span>
+<span class="w">        </span><span class="p">)</span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// 创建代理 URL</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">createProxyUrl</span><span class="p">(</span><span class="n">originalUrl</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">):</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">encodedUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">URLEncoder</span><span class="p">.</span><span class="na">encode</span><span class="p">(</span><span class="n">originalUrl</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;UTF-8&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;http://</span><span class="si">$</span><span class="n">PROXY_HOST</span><span class="s">:</span><span class="si">$</span><span class="n">PROXY_PORT</span><span class="s">/proxy?url=</span><span class="si">$</span><span class="n">encodedUrl</span><span class="s">&amp;provider=</span><span class="si">${</span><span class="n">name</span><span class="si">}</span><span class="s">&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// 本地代理处理函数</span>
+<span class="w">    </span><span class="kd">override</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">localProxy</span><span class="p">(</span><span class="n">params</span><span class="p">:</span><span class="w"> </span><span class="n">Map</span><span class="o">&lt;</span><span class="kt">String</span><span class="p">,</span><span class="w"> </span><span class="kt">String</span><span class="o">&gt;</span><span class="p">):</span><span class="w"> </span><span class="n">ProxyResponse</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">params</span><span class="o">[</span><span class="s">&quot;url&quot;</span><span class="o">]</span><span class="w"> </span><span class="o">?:</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">ProxyResponse</span><span class="p">(</span><span class="m">404</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Not Found&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">provider</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">params</span><span class="o">[</span><span class="s">&quot;provider&quot;</span><span class="o">]</span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">when</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">url</span><span class="p">.</span><span class="na">endsWith</span><span class="p">(</span><span class="s">&quot;.m3u8&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">handleM3u8Proxy</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+<span class="w">            </span><span class="n">url</span><span class="p">.</span><span class="na">endsWith</span><span class="p">(</span><span class="s">&quot;.ts&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">handleTsProxy</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+<span class="w">            </span><span class="k">else</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">ProxyResponse</span><span class="p">(</span><span class="m">404</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Not Supported&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// 处理 m3u8 代理</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">handleM3u8Proxy</span><span class="p">(</span><span class="n">url</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">):</span><span class="w"> </span><span class="n">ProxyResponse</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="c1">// 获取原始 m3u8</span>
+<span class="w">            </span><span class="kd">val</span><span class="w"> </span><span class="nv">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">app</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+<span class="w">            </span><span class="kd">val</span><span class="w"> </span><span class="nv">originalContent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">response</span><span class="p">.</span><span class="na">text</span>
+
+<span class="w">            </span><span class="c1">// 过滤广告</span>
+<span class="w">            </span><span class="kd">val</span><span class="w"> </span><span class="nv">cleanedContent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">filterAdSegments</span><span class="p">(</span><span class="n">originalContent</span><span class="p">)</span>
+
+<span class="w">            </span><span class="c1">// 将 ts 链接也转换为代理链接</span>
+<span class="w">            </span><span class="kd">val</span><span class="w"> </span><span class="nv">proxiedContent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rewriteTsLinks</span><span class="p">(</span><span class="n">cleanedContent</span><span class="p">,</span><span class="w"> </span><span class="n">url</span><span class="p">)</span>
+
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">ProxyResponse</span><span class="p">(</span>
+<span class="w">                </span><span class="n">code</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">200</span><span class="p">,</span>
+<span class="w">                </span><span class="n">body</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">proxiedContent</span><span class="p">.</span><span class="na">toByteArray</span><span class="p">(),</span>
+<span class="w">                </span><span class="n">headers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mapOf</span><span class="p">(</span>
+<span class="w">                    </span><span class="s">&quot;Content-Type&quot;</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="s">&quot;application/vnd.apple.mpegurl&quot;</span><span class="p">,</span>
+<span class="w">                    </span><span class="s">&quot;Access-Control-Allow-Origin&quot;</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="s">&quot;*&quot;</span>
+<span class="w">                </span><span class="p">)</span>
+<span class="w">            </span><span class="p">)</span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="n">e</span><span class="p">:</span><span class="w"> </span><span class="n">Exception</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">ProxyResponse</span><span class="p">(</span><span class="m">500</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Error: </span><span class="si">${</span><span class="n">e</span><span class="p">.</span><span class="na">message</span><span class="si">}</span><span class="s">&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// 重写 ts 链接为代理链接</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">rewriteTsLinks</span><span class="p">(</span><span class="n">m3u8</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span><span class="w"> </span><span class="n">baseUrl</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">):</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">m3u8</span><span class="p">.</span><span class="na">lines</span><span class="p">().</span><span class="na">joinToString</span><span class="p">(</span><span class="s">&quot;\n&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">line</span><span class="w"> </span><span class="o">-&gt;</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">line</span><span class="p">.</span><span class="na">endsWith</span><span class="p">(</span><span class="s">&quot;.ts&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">!</span><span class="n">line</span><span class="p">.</span><span class="na">startsWith</span><span class="p">(</span><span class="s">&quot;#&quot;</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="kd">val</span><span class="w"> </span><span class="nv">fullUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">line</span><span class="p">.</span><span class="na">startsWith</span><span class="p">(</span><span class="s">&quot;http&quot;</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                    </span><span class="n">line</span>
+<span class="w">                </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                    </span><span class="n">URI</span><span class="p">(</span><span class="n">baseUrl</span><span class="p">).</span><span class="na">resolve</span><span class="p">(</span><span class="n">line</span><span class="p">).</span><span class="na">toString</span><span class="p">()</span>
+<span class="w">                </span><span class="p">}</span>
+<span class="w">                </span><span class="n">createProxyUrl</span><span class="p">(</span><span class="n">fullUrl</span><span class="p">)</span>
+<span class="w">            </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="n">line</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// 处理 ts 切片代理（可选，用于添加 headers）</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">handleTsProxy</span><span class="p">(</span><span class="n">url</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">):</span><span class="w"> </span><span class="n">ProxyResponse</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="kd">val</span><span class="w"> </span><span class="nv">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">app</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span><span class="w"> </span><span class="n">headers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mapOf</span><span class="p">(</span>
+<span class="w">                </span><span class="s">&quot;User-Agent&quot;</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">userAgent</span><span class="p">,</span>
+<span class="w">                </span><span class="s">&quot;Referer&quot;</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">mainUrl</span>
+<span class="w">            </span><span class="p">))</span>
+
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">ProxyResponse</span><span class="p">(</span>
+<span class="w">                </span><span class="n">code</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">200</span><span class="p">,</span>
+<span class="w">                </span><span class="n">body</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">response</span><span class="p">.</span><span class="na">body</span><span class="o">?.</span><span class="na">bytes</span><span class="p">()</span><span class="w"> </span><span class="o">?:</span><span class="w"> </span><span class="n">byteArrayOf</span><span class="p">(),</span>
+<span class="w">                </span><span class="n">headers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mapOf</span><span class="p">(</span>
+<span class="w">                    </span><span class="s">&quot;Content-Type&quot;</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="s">&quot;video/mp2t&quot;</span><span class="p">,</span>
+<span class="w">                    </span><span class="s">&quot;Access-Control-Allow-Origin&quot;</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="s">&quot;*&quot;</span>
+<span class="w">                </span><span class="p">)</span>
+<span class="w">            </span><span class="p">)</span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="n">e</span><span class="p">:</span><span class="w"> </span><span class="n">Exception</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">ProxyResponse</span><span class="p">(</span><span class="m">500</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Error: </span><span class="si">${</span><span class="n">e</span><span class="p">.</span><span class="na">message</span><span class="si">}</span><span class="s">&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// 代理响应数据类</span>
+<span class="kd">data</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nc">ProxyResponse</span><span class="p">(</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">code</span><span class="p">:</span><span class="w"> </span><span class="kt">Int</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">body</span><span class="p">:</span><span class="w"> </span><span class="n">ByteArray</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">byteArrayOf</span><span class="p">(),</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">headers</span><span class="p">:</span><span class="w"> </span><span class="n">Map</span><span class="o">&lt;</span><span class="kt">String</span><span class="p">,</span><span class="w"> </span><span class="kt">String</span><span class="o">&gt;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">emptyMap</span><span class="p">()</span>
+<span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">constructor</span><span class="p">(</span><span class="n">code</span><span class="p">:</span><span class="w"> </span><span class="kt">Int</span><span class="p">,</span><span class="w"> </span><span class="n">message</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">)</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="k">this</span><span class="p">(</span>
+<span class="w">        </span><span class="n">code</span><span class="p">,</span><span class="w"> </span>
+<span class="w">        </span><span class="n">message</span><span class="p">.</span><span class="na">toByteArray</span><span class="p">(),</span>
+<span class="w">        </span><span class="n">mapOf</span><span class="p">(</span><span class="s">&quot;Content-Type&quot;</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="s">&quot;text/plain&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="_10">高级用法：结合规则配置<a class="headerlink" href="#_10" title="Permanent link">&para;</a></h3>
+<p>模仿 TVBox 的规则系统：</p>
+<div class="highlight"><pre><span></span><code><span class="c1">// 广告过滤规则配置</span>
+<span class="kd">data</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nc">AdFilterRule</span><span class="p">(</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">name</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">hosts</span><span class="p">:</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="kt">String</span><span class="o">&gt;</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">regex</span><span class="p">:</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="kt">String</span><span class="o">&gt;</span>
+<span class="p">)</span>
+
+<span class="kd">class</span><span class="w"> </span><span class="nc">AdFilterEngine</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">rules</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">listOf</span><span class="p">(</span>
+<span class="w">        </span><span class="n">AdFilterRule</span><span class="p">(</span>
+<span class="w">            </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;量子&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="n">hosts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">listOf</span><span class="p">(</span><span class="s">&quot;vip.lz&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;hd.lz&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;.cdnlz&quot;</span><span class="p">),</span>
+<span class="w">            </span><span class="n">regex</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">listOf</span><span class="p">(</span>
+<span class="w">                </span><span class="s">&quot;#EXT-X-DISCONTINUITY\\r*\\n*#EXTINF:7\\.166667,[\\s\\S]*?#EXT-X-DISCONTINUITY&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="s">&quot;#EXT-X-DISCONTINUITY\\r*\\n*#EXTINF:4\\.066667,[\\s\\S]*?#EXT-X-DISCONTINUITY&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="s">&quot;17.19&quot;</span>
+<span class="w">            </span><span class="p">)</span>
+<span class="w">        </span><span class="p">),</span>
+<span class="w">        </span><span class="n">AdFilterRule</span><span class="p">(</span>
+<span class="w">            </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;非凡&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="n">hosts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">listOf</span><span class="p">(</span><span class="s">&quot;vip.ffzy&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;hd.ffzy&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;super.ffzy&quot;</span><span class="p">),</span>
+<span class="w">            </span><span class="n">regex</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">listOf</span><span class="p">(</span>
+<span class="w">                </span><span class="s">&quot;#EXT-X-DISCONTINUITY\\r*\\n*#EXTINF:6\\.400000,[\\s\\S]*?#EXT-X-DISCONTINUITY&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="s">&quot;#EXT-X-DISCONTINUITY\\r*\\n*#EXTINF:6\\.666667,[\\s\\S]*?#EXT-X-DISCONTINUITY&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="s">&quot;#EXTINF.*?\\s+.*?1171(057).*?\\.ts&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="s">&quot;#EXTINF.*?\\s+.*?6d7b(077).*?\\.ts&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="s">&quot;17.99&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="s">&quot;14.45&quot;</span>
+<span class="w">            </span><span class="p">)</span>
+<span class="w">        </span><span class="p">),</span>
+<span class="w">        </span><span class="n">AdFilterRule</span><span class="p">(</span>
+<span class="w">            </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;暴风&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="n">hosts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">listOf</span><span class="p">(</span><span class="s">&quot;bfzy&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;bfbfvip&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;bfengbf&quot;</span><span class="p">),</span>
+<span class="w">            </span><span class="n">regex</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">listOf</span><span class="p">(</span>
+<span class="w">                </span><span class="s">&quot;#EXTINF.*?\\s+.*?adjump.*?\\.ts&quot;</span>
+<span class="w">            </span><span class="p">)</span>
+<span class="w">        </span><span class="p">)</span>
+<span class="w">    </span><span class="p">)</span>
+
+<span class="w">    </span><span class="c1">// 根据 URL 匹配规则</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">getRule</span><span class="p">(</span><span class="n">url</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">):</span><span class="w"> </span><span class="n">AdFilterRule? </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">rules</span><span class="p">.</span><span class="na">find</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">rule</span><span class="w"> </span><span class="o">-&gt;</span>
+<span class="w">            </span><span class="n">rule</span><span class="p">.</span><span class="na">hosts</span><span class="p">.</span><span class="na">any</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">host</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">url</span><span class="p">.</span><span class="na">contains</span><span class="p">(</span><span class="n">host</span><span class="p">,</span><span class="w"> </span><span class="n">ignoreCase</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span><span class="p">)</span><span class="w"> </span><span class="p">}</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// 应用规则过滤</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">filterM3u8</span><span class="p">(</span><span class="n">content</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span><span class="w"> </span><span class="n">url</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">):</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">rule</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">getRule</span><span class="p">(</span><span class="n">url</span><span class="p">)</span><span class="w"> </span><span class="o">?:</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">content</span>
+
+<span class="w">        </span><span class="kd">var</span><span class="w"> </span><span class="nv">filtered</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">content</span>
+
+<span class="w">        </span><span class="c1">// 应用所有正则规则</span>
+<span class="w">        </span><span class="n">rule</span><span class="p">.</span><span class="na">regex</span><span class="p">.</span><span class="na">forEach</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">pattern</span><span class="w"> </span><span class="o">-&gt;</span>
+<span class="w">            </span><span class="n">filtered</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">filtered</span><span class="p">.</span><span class="na">replace</span><span class="p">(</span><span class="n">Regex</span><span class="p">(</span><span class="n">pattern</span><span class="p">),</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="c1">// 清理空行</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">filtered</span><span class="p">.</span><span class="na">lines</span><span class="p">()</span>
+<span class="w">            </span><span class="p">.</span><span class="na">filter</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nb">it</span><span class="p">.</span><span class="na">isNotBlank</span><span class="p">()</span><span class="w"> </span><span class="p">}</span>
+<span class="w">            </span><span class="p">.</span><span class="na">joinToString</span><span class="p">(</span><span class="s">&quot;\n&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// 在 Provider 中使用</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">MyProvider</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">MainAPI</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">adFilter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">AdFilterEngine</span><span class="p">()</span>
+
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">filterAdSegments</span><span class="p">(</span><span class="n">m3u8</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span><span class="w"> </span><span class="n">url</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">):</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">adFilter</span><span class="p">.</span><span class="na">filterM3u8</span><span class="p">(</span><span class="n">m3u8</span><span class="p">,</span><span class="w"> </span><span class="n">url</span><span class="p">)</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<hr />
+<h2 id="3-interceptor-vs-localproxy">3. Interceptor vs localProxy 对比<a class="headerlink" href="#3-interceptor-vs-localproxy" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>特性</th>
+<th>Interceptor</th>
+<th>localProxy</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>作用范围</strong></td>
+<td>仅 OkHttp 请求</td>
+<td>所有 HTTP 请求（包括播放器）</td>
+</tr>
+<tr>
+<td><strong>实现复杂度</strong></td>
+<td>⭐⭐ 简单</td>
+<td>⭐⭐⭐ 中等</td>
+</tr>
+<tr>
+<td><strong>性能开销</strong></td>
+<td>⭐ 低</td>
+<td>⭐⭐ 稍高（本地服务器）</td>
+</tr>
+<tr>
+<td><strong>灵活性</strong></td>
+<td>⭐⭐⭐ 中等</td>
+<td>⭐⭐⭐⭐⭐ 最高</td>
+</tr>
+<tr>
+<td><strong>适用场景</strong></td>
+<td>简单过滤</td>
+<td>复杂处理、重写 URL</td>
+</tr>
+<tr>
+<td><strong>是否需要重写 URL</strong></td>
+<td>❌ 否</td>
+<td>✅ 是</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="4-provider">4. 实战示例：完整的广告过滤 Provider<a class="headerlink" href="#4-provider" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><span class="k">package</span><span class="w"> </span><span class="nn">com.example</span>
+
+<span class="k">import</span><span class="w"> </span><span class="nn">com.lagradost.cloudstream3.*</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">com.lagradost.cloudstream3.utils.*</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">okhttp3.Interceptor</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">okhttp3.Response</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">java.net.URLEncoder</span>
+
+<span class="kd">class</span><span class="w"> </span><span class="nc">SeaTVProvider</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">MainAPI</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">override</span><span class="w"> </span><span class="kd">var</span><span class="w"> </span><span class="nv">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;SeaTV&quot;</span>
+<span class="w">    </span><span class="kd">override</span><span class="w"> </span><span class="kd">var</span><span class="w"> </span><span class="nv">mainUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;https://seatv-24.xyz&quot;</span>
+<span class="w">    </span><span class="kd">override</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">supportedTypes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">setOf</span><span class="p">(</span><span class="n">TvType</span><span class="p">.</span><span class="na">Anime</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">override</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">hasMainPage</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+
+<span class="w">    </span><span class="c1">// 启用自定义拦截器</span>
+<span class="w">    </span><span class="kd">override</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">getVideoInterceptor</span><span class="p">(</span><span class="n">extractor</span><span class="p">:</span><span class="w"> </span><span class="n">VideoExtractor</span><span class="p">):</span><span class="w"> </span><span class="n">Interceptor</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">SeaTVInterceptor</span><span class="p">()</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// ... 其他方法 (search, getMainPage, load) ...</span>
+
+<span class="w">    </span><span class="kd">override</span><span class="w"> </span><span class="kd">suspend</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">loadLinks</span><span class="p">(</span>
+<span class="w">        </span><span class="n">data</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span>
+<span class="w">        </span><span class="n">isCasting</span><span class="p">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="p">,</span>
+<span class="w">        </span><span class="n">subtitleCallback</span><span class="p">:</span><span class="w"> </span><span class="p">(</span><span class="n">SubtitleFile</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="kt">Unit</span><span class="p">,</span>
+<span class="w">        </span><span class="n">callback</span><span class="p">:</span><span class="w"> </span><span class="p">(</span><span class="n">ExtractorLink</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="kt">Unit</span>
+<span class="w">    </span><span class="p">):</span><span class="w"> </span><span class="kt">Boolean</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">document</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">app</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="n">data</span><span class="p">).</span><span class="na">document</span>
+
+<span class="w">        </span><span class="n">document</span><span class="p">.</span><span class="na">select</span><span class="p">(</span><span class="s">&quot;.mobius option&quot;</span><span class="p">).</span><span class="na">forEach</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">option</span><span class="w"> </span><span class="o">-&gt;</span>
+<span class="w">            </span><span class="kd">val</span><span class="w"> </span><span class="nv">base64Val</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">option</span><span class="p">.</span><span class="na">attr</span><span class="p">(</span><span class="s">&quot;value&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">base64Val</span><span class="p">.</span><span class="na">isEmpty</span><span class="p">())</span><span class="w"> </span><span class="k">return</span><span class="nd">@forEach</span>
+
+<span class="w">            </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="kd">val</span><span class="w"> </span><span class="nv">decoded</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">base64Decode</span><span class="p">(</span><span class="n">base64Val</span><span class="p">)</span>
+<span class="w">                </span><span class="kd">val</span><span class="w"> </span><span class="nv">iframe</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Jsoup</span><span class="p">.</span><span class="na">parse</span><span class="p">(</span><span class="n">decoded</span><span class="p">)</span>
+<span class="w">                </span><span class="kd">val</span><span class="w"> </span><span class="nv">playUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">iframe</span><span class="p">.</span><span class="na">selectFirst</span><span class="p">(</span><span class="s">&quot;iframe&quot;</span><span class="p">)</span><span class="o">?.</span><span class="na">attr</span><span class="p">(</span><span class="s">&quot;src&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">?:</span><span class="w"> </span><span class="k">return</span><span class="nd">@forEach</span>
+
+<span class="w">                </span><span class="c1">// 返回链接，Interceptor 会自动处理</span>
+<span class="w">                </span><span class="n">callback</span><span class="p">.</span><span class="na">invoke</span><span class="p">(</span>
+<span class="w">                    </span><span class="n">ExtractorLink</span><span class="p">(</span>
+<span class="w">                        </span><span class="n">source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">name</span><span class="p">,</span>
+<span class="w">                        </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">name</span><span class="p">,</span>
+<span class="w">                        </span><span class="n">url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">playUrl</span><span class="p">,</span>
+<span class="w">                        </span><span class="n">referer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mainUrl</span><span class="p">,</span>
+<span class="w">                        </span><span class="n">quality</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Qualities</span><span class="p">.</span><span class="na">Unknown</span><span class="p">.</span><span class="na">value</span><span class="p">,</span>
+<span class="w">                        </span><span class="n">isM3u8</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">playUrl</span><span class="p">.</span><span class="na">contains</span><span class="p">(</span><span class="s">&quot;.m3u8&quot;</span><span class="p">)</span>
+<span class="w">                    </span><span class="p">)</span>
+<span class="w">                </span><span class="p">)</span>
+<span class="w">            </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="n">e</span><span class="p">:</span><span class="w"> </span><span class="n">Exception</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="n">logError</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// 拦截器实现</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">SeaTVInterceptor</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">Interceptor</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">adFilter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">AdFilterEngine</span><span class="p">()</span>
+
+<span class="w">    </span><span class="kd">override</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">intercept</span><span class="p">(</span><span class="n">chain</span><span class="p">:</span><span class="w"> </span><span class="n">Interceptor</span><span class="p">.</span><span class="na">Chain</span><span class="p">):</span><span class="w"> </span><span class="n">Response</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">request</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">chain</span><span class="p">.</span><span class="na">request</span><span class="p">()</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">chain</span><span class="p">.</span><span class="na">proceed</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="na">url</span><span class="p">.</span><span class="na">toString</span><span class="p">()</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">contentType</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">response</span><span class="p">.</span><span class="na">header</span><span class="p">(</span><span class="s">&quot;Content-Type&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">?:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
+
+<span class="w">        </span><span class="c1">// 只处理 m3u8 文件</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">url</span><span class="p">.</span><span class="na">endsWith</span><span class="p">(</span><span class="s">&quot;.m3u8&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">!</span><span class="n">contentType</span><span class="p">.</span><span class="na">contains</span><span class="p">(</span><span class="s">&quot;mpegurl&quot;</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">response</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="kd">val</span><span class="w"> </span><span class="nv">originalBody</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">response</span><span class="p">.</span><span class="na">body</span><span class="o">?.</span><span class="na">string</span><span class="p">()</span><span class="w"> </span><span class="o">?:</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">response</span>
+<span class="w">            </span><span class="kd">val</span><span class="w"> </span><span class="nv">cleanedBody</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">adFilter</span><span class="p">.</span><span class="na">filterM3u8</span><span class="p">(</span><span class="n">originalBody</span><span class="p">,</span><span class="w"> </span><span class="n">url</span><span class="p">)</span>
+
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">response</span><span class="p">.</span><span class="na">newBuilder</span><span class="p">()</span>
+<span class="w">                </span><span class="p">.</span><span class="na">body</span><span class="p">(</span><span class="n">cleanedBody</span><span class="p">.</span><span class="na">toResponseBody</span><span class="p">(</span><span class="n">response</span><span class="p">.</span><span class="na">body</span><span class="o">?.</span><span class="na">contentType</span><span class="p">()))</span>
+<span class="w">                </span><span class="p">.</span><span class="na">build</span><span class="p">()</span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="n">e</span><span class="p">:</span><span class="w"> </span><span class="n">Exception</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">response</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<hr />
+<h2 id="_11">详细说明<a class="headerlink" href="#_11" title="Permanent link">&para;</a></h2>
+<h3 id="1_2">1. 内置架构<a class="headerlink" href="#1_2" title="Permanent link">&para;</a></h3>
+<p>CloudStream 主应用内部已经实现了一个<strong>嵌入式 HTTP 服务器</strong>，运行在 Android 应用进程内。</p>
+<div class="highlight"><pre><span></span><code>graph TB
+    subgraph &quot;CloudStream 主应用进程&quot;
+        A[播放器] --&gt; B[内置 HTTP Server]
+        B --&gt; C[localProxy 路由]
+        C --&gt; D[Provider.localProxy 方法]
+    end
+
+    D --&gt; E[互联网/原始视频源]
+    E --&gt; D
+    D --&gt; C
+    C --&gt; B
+    B --&gt; A
+</code></pre></div>
+<h3 id="2-provider">2. Provider 只需重写方法<a class="headerlink" href="#2-provider" title="Permanent link">&para;</a></h3>
+<p>作为扩展开发者，你只需在 Provider 类中重写 [localProxy] 方法：</p>
+<div class="highlight"><pre><span></span><code><span class="kd">class</span><span class="w"> </span><span class="nc">MyProvider</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">MainAPI</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// ... 其他方法 ...</span>
+
+<span class="w">    </span><span class="cm">/**</span>
+<span class="cm">     * 这个方法会被 CloudStream 内置的 HTTP 服务器调用</span>
+<span class="cm">     * 你不需要自己启动服务器！</span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="kd">override</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">localProxy</span><span class="p">(</span><span class="n">params</span><span class="p">:</span><span class="w"> </span><span class="n">Map</span><span class="o">&lt;</span><span class="kt">String</span><span class="p">,</span><span class="w"> </span><span class="kt">String</span><span class="o">&gt;</span><span class="p">):</span><span class="w"> </span><span class="n">ByteArray? </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">params</span><span class="o">[</span><span class="s">&quot;url&quot;</span><span class="o">]</span><span class="w"> </span><span class="o">?:</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="kc">null</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">params</span><span class="o">[</span><span class="s">&quot;type&quot;</span><span class="o">]</span><span class="w"> </span><span class="o">?:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
+
+<span class="w">        </span><span class="k">when</span><span class="w"> </span><span class="p">(</span><span class="n">type</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="s">&quot;m3u8&quot;</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="c1">// 处理 m3u8 请求</span>
+<span class="w">                </span><span class="kd">val</span><span class="w"> </span><span class="nv">content</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">app</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="n">url</span><span class="p">).</span><span class="na">text</span>
+<span class="w">                </span><span class="kd">val</span><span class="w"> </span><span class="nv">cleaned</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">filterAdSegments</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+<span class="w">                </span><span class="k">return</span><span class="w"> </span><span class="n">cleaned</span><span class="p">.</span><span class="na">toByteArray</span><span class="p">()</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">            </span><span class="s">&quot;ts&quot;</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="c1">// 处理 ts 切片请求</span>
+<span class="w">                </span><span class="kd">val</span><span class="w"> </span><span class="nv">bytes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">app</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="n">url</span><span class="p">).</span><span class="na">body</span><span class="o">?.</span><span class="na">bytes</span><span class="p">()</span>
+<span class="w">                </span><span class="k">return</span><span class="w"> </span><span class="n">bytes</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">            </span><span class="k">else</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="kc">null</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="3_2">3. 工作流程<a class="headerlink" href="#3_2" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1">// Step 1: Provider 在 loadLinks 中返回本地代理 URL</span>
+<span class="kd">override</span><span class="w"> </span><span class="kd">suspend</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">loadLinks</span><span class="p">(...):</span><span class="w"> </span><span class="kt">Boolean</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">originalUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;https://example.com/video.m3u8&quot;</span>
+
+<span class="w">    </span><span class="c1">// 构造本地代理 URL（CloudStream 会自动路由到你的 localProxy 方法）</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">proxyUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;http://127.0.0.1:</span><span class="si">${</span><span class="n">getProxyPort</span><span class="p">()</span><span class="si">}</span><span class="s">/proxy?url=</span><span class="si">${</span><span class="n">encode</span><span class="p">(</span><span class="n">originalUrl</span><span class="p">)</span><span class="si">}</span><span class="s">&amp;type=m3u8&quot;</span>
+
+<span class="w">    </span><span class="n">callback</span><span class="p">.</span><span class="na">invoke</span><span class="p">(</span>
+<span class="w">        </span><span class="n">ExtractorLink</span><span class="p">(</span>
+<span class="w">            </span><span class="n">source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">name</span><span class="p">,</span>
+<span class="w">            </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">name</span><span class="p">,</span>
+<span class="w">            </span><span class="n">url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">proxyUrl</span><span class="p">,</span><span class="w">  </span><span class="c1">// 播放器会请求这个本地地址</span>
+<span class="w">            </span><span class="p">...</span>
+<span class="w">        </span><span class="p">)</span>
+<span class="w">    </span><span class="p">)</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="kc">true</span>
+<span class="p">}</span>
+
+<span class="c1">// Step 2: 播放器请求 proxyUrl 时，CloudStream 自动调用你的 localProxy 方法</span>
+<span class="kd">override</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">localProxy</span><span class="p">(</span><span class="n">params</span><span class="p">:</span><span class="w"> </span><span class="n">Map</span><span class="o">&lt;</span><span class="kt">String</span><span class="p">,</span><span class="w"> </span><span class="kt">String</span><span class="o">&gt;</span><span class="p">):</span><span class="w"> </span><span class="n">ByteArray? </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// params[&quot;url&quot;] = &quot;https://example.com/video.m3u8&quot;</span>
+<span class="w">    </span><span class="c1">// params[&quot;type&quot;] = &quot;m3u8&quot;</span>
+
+<span class="w">    </span><span class="c1">// 你的处理逻辑...</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">processedData</span>
+<span class="p">}</span>
+</code></pre></div>
+<hr />
+<h2 id="api">实际 API 设计（根据源码推断）<a class="headerlink" href="#api" title="Permanent link">&para;</a></h2>
+<p>CloudStream 的实际实现可能类似这样：</p>
+<h3 id="cloudstream_2">CloudStream 内置服务器（主应用）<a class="headerlink" href="#cloudstream_2" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1">// 这是 CloudStream 主应用的代码，你不需要写</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">InternalProxyServer</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">server</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NanoHTTPD</span><span class="p">(</span><span class="m">8080</span><span class="p">)</span><span class="w">  </span><span class="c1">// 或其他轻量级 HTTP 服务器</span>
+
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">start</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">server</span><span class="p">.</span><span class="na">start</span><span class="p">()</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">handleRequest</span><span class="p">(</span><span class="n">uri</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span><span class="w"> </span><span class="n">params</span><span class="p">:</span><span class="w"> </span><span class="n">Map</span><span class="o">&lt;</span><span class="kt">String</span><span class="p">,</span><span class="w"> </span><span class="kt">String</span><span class="o">&gt;</span><span class="p">):</span><span class="w"> </span><span class="n">Response</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// 解析请求，找到对应的 Provider</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">providerName</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">params</span><span class="o">[</span><span class="s">&quot;provider&quot;</span><span class="o">]</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">provider</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">getProvider</span><span class="p">(</span><span class="n">providerName</span><span class="p">)</span>
+
+<span class="w">        </span><span class="c1">// 调用 Provider 的 localProxy 方法</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">provider</span><span class="o">?.</span><span class="na">localProxy</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">result</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">Response</span><span class="p">(</span><span class="n">Status</span><span class="p">.</span><span class="na">OK</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;application/octet-stream&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">result</span><span class="p">)</span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">Response</span><span class="p">(</span><span class="n">Status</span><span class="p">.</span><span class="na">NOT_FOUND</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;text/plain&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Not found&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="provider">你的 Provider 扩展<a class="headerlink" href="#provider" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1">// 这是你需要写的代码 - 非常简单！</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">MyProvider</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">MainAPI</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">override</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">localProxy</span><span class="p">(</span><span class="n">params</span><span class="p">:</span><span class="w"> </span><span class="n">Map</span><span class="o">&lt;</span><span class="kt">String</span><span class="p">,</span><span class="w"> </span><span class="kt">String</span><span class="o">&gt;</span><span class="p">):</span><span class="w"> </span><span class="n">ByteArray? </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// 你的处理逻辑</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">params</span><span class="o">[</span><span class="s">&quot;url&quot;</span><span class="o">]</span><span class="w"> </span><span class="o">?:</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="kc">null</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">app</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+
+<span class="w">        </span><span class="c1">// 过滤广告</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">cleaned</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">filterContent</span><span class="p">(</span><span class="n">response</span><span class="p">.</span><span class="na">text</span><span class="p">)</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">cleaned</span><span class="p">.</span><span class="na">toByteArray</span><span class="p">()</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<hr />
+<h2 id="provider_1">完整示例：带广告过滤的 Provider<a class="headerlink" href="#provider_1" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><span class="k">package</span><span class="w"> </span><span class="nn">com.example</span>
+
+<span class="k">import</span><span class="w"> </span><span class="nn">com.lagradost.cloudstream3.*</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">com.lagradost.cloudstream3.utils.*</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">java.net.URLEncoder</span>
+
+<span class="kd">class</span><span class="w"> </span><span class="nc">SeaTVProvider</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">MainAPI</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">override</span><span class="w"> </span><span class="kd">var</span><span class="w"> </span><span class="nv">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;SeaTV&quot;</span>
+<span class="w">    </span><span class="kd">override</span><span class="w"> </span><span class="kd">var</span><span class="w"> </span><span class="nv">mainUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;https://seatv-24.xyz&quot;</span>
+<span class="w">    </span><span class="kd">override</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">supportedTypes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">setOf</span><span class="p">(</span><span class="n">TvType</span><span class="p">.</span><span class="na">Anime</span><span class="p">)</span>
+
+<span class="w">    </span><span class="kd">companion</span><span class="w"> </span><span class="kd">object</span><span class="w"> </span><span class="err">{</span>
+<span class="w">        </span><span class="c1">// CloudStream 内置代理端口（通常是固定的）</span>
+<span class="w">        </span><span class="kd">private</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">PROXY_PORT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">8080</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// 广告过滤规则</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">adRules</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mapOf</span><span class="p">(</span>
+<span class="w">        </span><span class="s">&quot;vip.ffzy&quot;</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">listOf</span><span class="p">(</span><span class="s">&quot;17.99&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;14.45&quot;</span><span class="p">),</span>
+<span class="w">        </span><span class="s">&quot;vip.lz&quot;</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">listOf</span><span class="p">(</span><span class="s">&quot;17.19&quot;</span><span class="p">),</span>
+<span class="w">        </span><span class="s">&quot;bfzy&quot;</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">listOf</span><span class="p">(</span><span class="s">&quot;adjump&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">)</span>
+
+<span class="w">    </span><span class="kd">override</span><span class="w"> </span><span class="kd">suspend</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">loadLinks</span><span class="p">(</span>
+<span class="w">        </span><span class="n">data</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span>
+<span class="w">        </span><span class="n">isCasting</span><span class="p">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="p">,</span>
+<span class="w">        </span><span class="n">subtitleCallback</span><span class="p">:</span><span class="w"> </span><span class="p">(</span><span class="n">SubtitleFile</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="kt">Unit</span><span class="p">,</span>
+<span class="w">        </span><span class="n">callback</span><span class="p">:</span><span class="w"> </span><span class="p">(</span><span class="n">ExtractorLink</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="kt">Unit</span>
+<span class="w">    </span><span class="p">):</span><span class="w"> </span><span class="kt">Boolean</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">document</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">app</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="n">data</span><span class="p">).</span><span class="na">document</span>
+
+<span class="w">        </span><span class="n">document</span><span class="p">.</span><span class="na">select</span><span class="p">(</span><span class="s">&quot;.mobius option&quot;</span><span class="p">).</span><span class="na">forEach</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">option</span><span class="w"> </span><span class="o">-&gt;</span>
+<span class="w">            </span><span class="kd">val</span><span class="w"> </span><span class="nv">base64Val</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">option</span><span class="p">.</span><span class="na">attr</span><span class="p">(</span><span class="s">&quot;value&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">base64Val</span><span class="p">.</span><span class="na">isEmpty</span><span class="p">())</span><span class="w"> </span><span class="k">return</span><span class="nd">@forEach</span>
+
+<span class="w">            </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="kd">val</span><span class="w"> </span><span class="nv">decoded</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">base64Decode</span><span class="p">(</span><span class="n">base64Val</span><span class="p">)</span>
+<span class="w">                </span><span class="kd">val</span><span class="w"> </span><span class="nv">iframe</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Jsoup</span><span class="p">.</span><span class="na">parse</span><span class="p">(</span><span class="n">decoded</span><span class="p">)</span>
+<span class="w">                </span><span class="kd">val</span><span class="w"> </span><span class="nv">playUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">iframe</span><span class="p">.</span><span class="na">selectFirst</span><span class="p">(</span><span class="s">&quot;iframe&quot;</span><span class="p">)</span><span class="o">?.</span><span class="na">attr</span><span class="p">(</span><span class="s">&quot;src&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">?:</span><span class="w"> </span><span class="k">return</span><span class="nd">@forEach</span>
+
+<span class="w">                </span><span class="c1">// 判断是否需要通过代理过滤</span>
+<span class="w">                </span><span class="kd">val</span><span class="w"> </span><span class="nv">needsProxy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">playUrl</span><span class="p">.</span><span class="na">contains</span><span class="p">(</span><span class="s">&quot;.m3u8&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">shouldFilter</span><span class="p">(</span><span class="n">playUrl</span><span class="p">)</span>
+
+<span class="w">                </span><span class="kd">val</span><span class="w"> </span><span class="nv">finalUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">needsProxy</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                    </span><span class="c1">// 使用本地代理（CloudStream 会自动路由到 localProxy 方法）</span>
+<span class="w">                    </span><span class="n">buildProxyUrl</span><span class="p">(</span><span class="n">playUrl</span><span class="p">)</span>
+<span class="w">                </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                    </span><span class="n">playUrl</span>
+<span class="w">                </span><span class="p">}</span>
+
+<span class="w">                </span><span class="n">callback</span><span class="p">.</span><span class="na">invoke</span><span class="p">(</span>
+<span class="w">                    </span><span class="n">ExtractorLink</span><span class="p">(</span>
+<span class="w">                        </span><span class="n">source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">name</span><span class="p">,</span>
+<span class="w">                        </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">name</span><span class="p">,</span>
+<span class="w">                        </span><span class="n">url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">finalUrl</span><span class="p">,</span>
+<span class="w">                        </span><span class="n">referer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mainUrl</span><span class="p">,</span>
+<span class="w">                        </span><span class="n">quality</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Qualities</span><span class="p">.</span><span class="na">Unknown</span><span class="p">.</span><span class="na">value</span><span class="p">,</span>
+<span class="w">                        </span><span class="n">isM3u8</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">playUrl</span><span class="p">.</span><span class="na">contains</span><span class="p">(</span><span class="s">&quot;.m3u8&quot;</span><span class="p">)</span>
+<span class="w">                    </span><span class="p">)</span>
+<span class="w">                </span><span class="p">)</span>
+<span class="w">            </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="n">e</span><span class="p">:</span><span class="w"> </span><span class="n">Exception</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="n">logError</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// 构建代理 URL</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">buildProxyUrl</span><span class="p">(</span><span class="n">originalUrl</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">):</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">encoded</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">URLEncoder</span><span class="p">.</span><span class="na">encode</span><span class="p">(</span><span class="n">originalUrl</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;UTF-8&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;http://127.0.0.1:</span><span class="si">$</span><span class="n">PROXY_PORT</span><span class="s">/localProxy?url=</span><span class="si">$</span><span class="n">encoded</span><span class="s">&amp;provider=</span><span class="si">$</span><span class="n">name</span><span class="s">&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// 判断是否需要过滤</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">shouldFilter</span><span class="p">(</span><span class="n">url</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">):</span><span class="w"> </span><span class="kt">Boolean</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">adRules</span><span class="p">.</span><span class="na">keys</span><span class="p">.</span><span class="na">any</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">url</span><span class="p">.</span><span class="na">contains</span><span class="p">(</span><span class="nb">it</span><span class="p">)</span><span class="w"> </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="cm">/**</span>
+<span class="cm">     * 本地代理处理方法</span>
+<span class="cm">     * CloudStream 内置服务器会调用这个方法</span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="kd">override</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">localProxy</span><span class="p">(</span><span class="n">params</span><span class="p">:</span><span class="w"> </span><span class="n">Map</span><span class="o">&lt;</span><span class="kt">String</span><span class="p">,</span><span class="w"> </span><span class="kt">String</span><span class="o">&gt;</span><span class="p">):</span><span class="w"> </span><span class="n">ByteArray? </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">params</span><span class="o">[</span><span class="s">&quot;url&quot;</span><span class="o">]</span><span class="w"> </span><span class="o">?:</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="kc">null</span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">url</span><span class="p">.</span><span class="na">endsWith</span><span class="p">(</span><span class="s">&quot;.m3u8&quot;</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="c1">// 处理 m3u8 文件</span>
+<span class="w">                </span><span class="n">handleM3u8Proxy</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+<span class="w">            </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">url</span><span class="p">.</span><span class="na">endsWith</span><span class="p">(</span><span class="s">&quot;.ts&quot;</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="c1">// 处理 ts 切片（可选，通常用于添加 headers）</span>
+<span class="w">                </span><span class="n">handleTsProxy</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+<span class="w">            </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="kc">null</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="n">e</span><span class="p">:</span><span class="w"> </span><span class="n">Exception</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">logError</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+<span class="w">            </span><span class="kc">null</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// 处理 m3u8 代理</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">handleM3u8Proxy</span><span class="p">(</span><span class="n">url</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">):</span><span class="w"> </span><span class="n">ByteArray</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// 获取原始 m3u8</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">app</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">original</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">response</span><span class="p">.</span><span class="na">text</span>
+
+<span class="w">        </span><span class="c1">// 过滤广告</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">cleaned</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">filterAdSegments</span><span class="p">(</span><span class="n">original</span><span class="p">,</span><span class="w"> </span><span class="n">url</span><span class="p">)</span>
+
+<span class="w">        </span><span class="c1">// 重写 ts 链接为代理链接（如果 ts 也需要代理）</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">rewritten</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rewriteTsUrls</span><span class="p">(</span><span class="n">cleaned</span><span class="p">,</span><span class="w"> </span><span class="n">url</span><span class="p">)</span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">rewritten</span><span class="p">.</span><span class="na">toByteArray</span><span class="p">()</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// 过滤广告切片</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">filterAdSegments</span><span class="p">(</span><span class="n">m3u8</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span><span class="w"> </span><span class="n">url</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">):</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// 找到匹配的规则</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">rule</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">adRules</span><span class="p">.</span><span class="na">entries</span><span class="p">.</span><span class="na">find</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">url</span><span class="p">.</span><span class="na">contains</span><span class="p">(</span><span class="nb">it</span><span class="p">.</span><span class="na">key</span><span class="p">)</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">?:</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">m3u8</span>
+
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">lines</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m3u8</span><span class="p">.</span><span class="na">lines</span><span class="p">()</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">filtered</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mutableListOf</span><span class="o">&lt;</span><span class="kt">String</span><span class="o">&gt;</span><span class="p">()</span>
+
+<span class="w">        </span><span class="kd">var</span><span class="w"> </span><span class="nv">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">0</span>
+<span class="w">        </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">lines</span><span class="p">.</span><span class="na">size</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="kd">val</span><span class="w"> </span><span class="nv">line</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lines</span><span class="o">[</span><span class="n">i</span><span class="o">]</span>
+
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">line</span><span class="p">.</span><span class="na">startsWith</span><span class="p">(</span><span class="s">&quot;#EXTINF&quot;</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="kd">val</span><span class="w"> </span><span class="nv">nextLine</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lines</span><span class="p">.</span><span class="na">getOrNull</span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="m">1</span><span class="p">)</span><span class="w"> </span><span class="o">?:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
+
+<span class="w">                </span><span class="c1">// 检测是否匹配广告规则</span>
+<span class="w">                </span><span class="kd">val</span><span class="w"> </span><span class="nv">isAd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rule</span><span class="p">.</span><span class="na">value</span><span class="p">.</span><span class="na">any</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">pattern</span><span class="w"> </span><span class="o">-&gt;</span>
+<span class="w">                    </span><span class="n">line</span><span class="p">.</span><span class="na">contains</span><span class="p">(</span><span class="n">pattern</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">nextLine</span><span class="p">.</span><span class="na">contains</span><span class="p">(</span><span class="n">pattern</span><span class="p">)</span>
+<span class="w">                </span><span class="p">}</span>
+
+<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">isAd</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                    </span><span class="n">filtered</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+<span class="w">                    </span><span class="n">filtered</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="n">nextLine</span><span class="p">)</span>
+<span class="w">                </span><span class="p">}</span>
+<span class="w">                </span><span class="n">i</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="m">2</span>
+<span class="w">            </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="n">filtered</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+<span class="w">                </span><span class="n">i</span><span class="o">++</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">filtered</span><span class="p">.</span><span class="na">joinToString</span><span class="p">(</span><span class="s">&quot;\n&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// 重写 ts URL 为代理 URL</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">rewriteTsUrls</span><span class="p">(</span><span class="n">m3u8</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span><span class="w"> </span><span class="n">baseUrl</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">):</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">m3u8</span><span class="p">.</span><span class="na">lines</span><span class="p">().</span><span class="na">joinToString</span><span class="p">(</span><span class="s">&quot;\n&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">line</span><span class="w"> </span><span class="o">-&gt;</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">line</span><span class="p">.</span><span class="na">endsWith</span><span class="p">(</span><span class="s">&quot;.ts&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">!</span><span class="n">line</span><span class="p">.</span><span class="na">startsWith</span><span class="p">(</span><span class="s">&quot;#&quot;</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="kd">val</span><span class="w"> </span><span class="nv">fullUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">line</span><span class="p">.</span><span class="na">startsWith</span><span class="p">(</span><span class="s">&quot;http&quot;</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                    </span><span class="n">line</span>
+<span class="w">                </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                    </span><span class="n">resolveUrl</span><span class="p">(</span><span class="n">baseUrl</span><span class="p">,</span><span class="w"> </span><span class="n">line</span><span class="p">)</span>
+<span class="w">                </span><span class="p">}</span>
+<span class="w">                </span><span class="n">buildProxyUrl</span><span class="p">(</span><span class="n">fullUrl</span><span class="p">)</span>
+<span class="w">            </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="n">line</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// 处理 ts 切片代理</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">handleTsProxy</span><span class="p">(</span><span class="n">url</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">):</span><span class="w"> </span><span class="n">ByteArray</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">app</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span><span class="w"> </span><span class="n">headers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mapOf</span><span class="p">(</span>
+<span class="w">            </span><span class="s">&quot;User-Agent&quot;</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="s">&quot;Mozilla/5.0 ...&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="s">&quot;Referer&quot;</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">mainUrl</span>
+<span class="w">        </span><span class="p">))</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">response</span><span class="p">.</span><span class="na">body</span><span class="o">?.</span><span class="na">bytes</span><span class="p">()</span><span class="w"> </span><span class="o">?:</span><span class="w"> </span><span class="n">byteArrayOf</span><span class="p">()</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<hr />
+<h2 id="_12">关键要点总结<a class="headerlink" href="#_12" title="Permanent link">&para;</a></h2>
+<ul>
+<li>重写 [localProxy(params: Map<String, String>): ByteArray?] 方法</li>
+<li>在 <code>loadLinks</code> 中构造本地代理 URL</li>
+<li>实现你的内容处理逻辑（过滤、重写等）</li>
+</ul>
+<hr />
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": [], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

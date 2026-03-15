@@ -1,0 +1,2176 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="插件说明与下载">
+      
+      
+      
+        <link rel="canonical" href="https://<username>.github.io/<repo>/tvbox_analysis/">
+      
+      
+        <link rel="prev" href="../cloudstream_analysis/">
+      
+      
+        <link rel="next" href="../dev/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
+    
+    
+      
+        <title>TVBox分析 - CloudStream 插件文档</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#box" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href=".." title="CloudStream 插件文档" class="md-header__button md-logo" aria-label="CloudStream 插件文档" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            CloudStream 插件文档
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              TVBox分析
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="CloudStream 插件文档" class="md-nav__button md-logo" aria-label="CloudStream 插件文档" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    CloudStream 插件文档
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    使用指南
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    开发指南
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cloudstream_analysis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CloudStream分析
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TVBox分析
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TVBox分析
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        项目概况
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="项目概况">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        核心特点
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        项目架构
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="项目架构">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        模块组成
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        整体架构图
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        运行原理
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="运行原理">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        应用启动流程
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        核心运行机制
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="核心运行机制">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-apiconfigjava" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 配置管理 (ApiConfig.java)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 数据持久化
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. 网络请求
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        插件机制详解
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="插件机制详解">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spider" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Spider 基类接口
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#1-javajar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Java/JAR 插件机制
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Java/JAR 插件机制">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#jarloaderjava" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        加载器: JarLoader.java
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-javascript" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. JavaScript 插件机制
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. JavaScript 插件机制">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#jsloaderjava" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        加载器: JsLoader.java
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#jsspiderjava" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        实现: JsSpider.java
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-python" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Python 插件机制
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Python 插件机制">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ipyloaderjava" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        接口: IPyLoader.java
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        插件类型判断
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        配置文件格式
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="配置文件格式">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#json" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        JSON配置结构
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#type" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        站点类型 (type)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ext" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        插件扩展 (ext)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        数据流转
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="数据流转">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        视频播放流程
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_14" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        搜索流程
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        核心技术总结
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="核心技术总结">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 动态加载技术
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 缓存策略
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. 线程管理
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. 安全机制
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_16" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        插件开发指南
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="插件开发指南">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#java" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Java插件开发
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#javascript" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        JavaScript插件开发
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_17" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        总结
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="总结">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_18" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        优势
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_19" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        关键设计模式
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        技术亮点
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dev/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API知识
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ad_filter_guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    广告过滤器使用文档
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ad_filter_dev/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    广告过滤器开发文档
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vip_parser_dev/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    解析播放开发文档
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        项目概况
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="项目概况">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        核心特点
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        项目架构
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="项目架构">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        模块组成
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        整体架构图
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        运行原理
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="运行原理">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        应用启动流程
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        核心运行机制
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="核心运行机制">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-apiconfigjava" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 配置管理 (ApiConfig.java)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 数据持久化
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. 网络请求
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        插件机制详解
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="插件机制详解">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spider" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Spider 基类接口
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#1-javajar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Java/JAR 插件机制
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Java/JAR 插件机制">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#jarloaderjava" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        加载器: JarLoader.java
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-javascript" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. JavaScript 插件机制
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. JavaScript 插件机制">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#jsloaderjava" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        加载器: JsLoader.java
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#jsspiderjava" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        实现: JsSpider.java
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-python" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Python 插件机制
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Python 插件机制">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ipyloaderjava" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        接口: IPyLoader.java
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        插件类型判断
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        配置文件格式
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="配置文件格式">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#json" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        JSON配置结构
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#type" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        站点类型 (type)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ext" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        插件扩展 (ext)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        数据流转
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="数据流转">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        视频播放流程
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_14" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        搜索流程
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        核心技术总结
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="核心技术总结">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 动态加载技术
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 缓存策略
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. 线程管理
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. 安全机制
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_16" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        插件开发指南
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="插件开发指南">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#java" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Java插件开发
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#javascript" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        JavaScript插件开发
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_17" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        总结
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="总结">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_18" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        优势
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_19" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        关键设计模式
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        技术亮点
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="box">Box 项目分析报告<a class="headerlink" href="#box" title="Permanent link">&para;</a></h1>
+<h2 id="_1">项目概况<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<p><strong>Box</strong> 是一个基于 Android TV 的视频播放应用程序（TVBox），主要用于聚合和播放各种在线视频内容。该项目采用了<strong>插件化架构</strong>，支持通过外部配置文件动态加载视频源（Spider）。</p>
+<h3 id="_2">核心特点<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>多格式支持</strong>: 支持 IJK、Exo、系统播放器等多种播放器</li>
+<li><strong>插件化</strong>: 支持 Java/JAR、JavaScript、Python 三种类型的爬虫插件</li>
+<li><strong>动态配置</strong>: 通过 JSON 配置文件动态加载视频源</li>
+<li><strong>Android TV 优化</strong>: 专为电视大屏设计的横屏界面</li>
+<li><strong>直播功能</strong>: 支持 IPTV 直播频道</li>
+</ul>
+<hr />
+<h2 id="_3">项目架构<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
+<h3 id="_4">模块组成<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>Box/
+├── app/                          # 主应用模块
+│   ├── src/main/java/
+│   │   └── com/github/tvbox/osc/
+│   │       ├── api/             # API配置管理
+│   │       ├── base/            # 应用基础类
+│   │       ├── player/          # 播放器相关
+│   │       ├── ui/              # 用户界面
+│   │       └── util/            # 工具类
+│   └── src/main/assets/         # 资源文件
+├── quickjs/                     # QuickJS JavaScript引擎
+└── pyramid/                     # Python支持模块
+</code></pre></div>
+<h3 id="_5">整体架构图<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>graph TB
+    subgraph &quot;应用层 UI Layer&quot;
+        A[HomeActivity&lt;br/&gt;首页]
+        B[DetailActivity&lt;br/&gt;详情页]
+        C[PlayActivity&lt;br/&gt;播放页]
+        D[SearchActivity&lt;br/&gt;搜索页]
+    end
+
+    subgraph &quot;业务逻辑层 Business Layer&quot;
+        E[ApiConfig&lt;br/&gt;配置管理]
+        F[SourceBean&lt;br/&gt;视频源]
+        G[ParseBean&lt;br/&gt;解析配置]
+    end
+
+    subgraph &quot;插件加载层 Plugin Loader&quot;
+        H[JarLoader&lt;br/&gt;Java插件加载器]
+        I[JsLoader&lt;br/&gt;JS插件加载器]
+        J[PyLoader&lt;br/&gt;Python插件加载器]
+    end
+
+    subgraph &quot;插件执行层 Spider Execution&quot;
+        K[Spider&lt;br/&gt;基类接口]
+        L[JsSpider&lt;br/&gt;JS实现]
+        M[PySpider&lt;br/&gt;Python实现]
+        N[JavaSpider&lt;br/&gt;Java实现]
+    end
+
+    subgraph &quot;底层支持 Infrastructure&quot;
+        O[QuickJS&lt;br/&gt;JS引擎]
+        P[DexClassLoader&lt;br/&gt;动态加载]
+        Q[OkHttp&lt;br/&gt;网络请求]
+    end
+
+    A --&gt; E
+    B --&gt; E
+    C --&gt; E
+    D --&gt; E
+
+    E --&gt; H
+    E --&gt; I
+    E --&gt; J
+
+    H --&gt; N
+    I --&gt; L
+    J --&gt; M
+
+    N --&gt; K
+    L --&gt; K
+    M --&gt; K
+
+    L --&gt; O
+    H --&gt; P
+    K --&gt; Q
+</code></pre></div>
+<hr />
+<h2 id="_6">运行原理<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h2>
+<h3 id="_7">应用启动流程<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>sequenceDiagram
+    participant App
+    participant ApiConfig
+    participant Loader
+    participant Spider
+
+    App-&gt;&gt;App: onCreate()
+    App-&gt;&gt;App: initParams()&lt;br/&gt;初始化默认配置
+    App-&gt;&gt;ApiConfig: loadConfig()
+    ApiConfig-&gt;&gt;ApiConfig: 下载配置文件
+    ApiConfig-&gt;&gt;ApiConfig: parseJson()&lt;br/&gt;解析配置
+    ApiConfig-&gt;&gt;Loader: loadJar()&lt;br/&gt;加载JAR插件
+    Loader-&gt;&gt;Loader: DexClassLoader加载
+    Loader-&gt;&gt;Loader: 缓存ClassLoader
+    Note over ApiConfig: 配置加载完成
+    App-&gt;&gt;ApiConfig: getCSP(sourceBean)
+    ApiConfig-&gt;&gt;Loader: getSpider()
+    Loader-&gt;&gt;Spider: 创建Spider实例
+    Spider--&gt;&gt;App: 返回Spider对象
+</code></pre></div>
+<h3 id="_8">核心运行机制<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h3>
+<h4 id="1-apiconfigjava">1. 配置管理 (<a href="file:///home/yimeng/boxext/Box/app/src/main/java/com/github/tvbox/osc/api/ApiConfig.java">ApiConfig.java</a>)<a class="headerlink" href="#1-apiconfigjava" title="Permanent link">&para;</a></h4>
+<p><code>ApiConfig</code> 是整个应用的配置中心，负责：</p>
+<ul>
+<li><strong>配置加载</strong>: 从远程URL或本地缓存加载JSON配置</li>
+<li><strong>配置解析</strong>: 解析视频源、解析器、直播源等配置</li>
+<li><strong>插件管理</strong>: 根据视频源类型调用相应的加载器</li>
+<li><strong>缓存管理</strong>: 使用MD5哈希缓存配置文件</li>
+</ul>
+<p><strong>关键方法</strong>:
+<div class="highlight"><pre><span></span><code><span class="c1">// 加载配置</span>
+<span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">loadConfig</span><span class="p">(</span><span class="kt">boolean</span><span class="w"> </span><span class="n">useCache</span><span class="p">,</span><span class="w"> </span><span class="n">LoadConfigCallback</span><span class="w"> </span><span class="n">callback</span><span class="p">,</span><span class="w"> </span><span class="n">Activity</span><span class="w"> </span><span class="n">activity</span><span class="p">)</span>
+
+<span class="c1">// 加载JAR插件</span>
+<span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">loadJar</span><span class="p">(</span><span class="kt">boolean</span><span class="w"> </span><span class="n">useCache</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">spider</span><span class="p">,</span><span class="w"> </span><span class="n">LoadConfigCallback</span><span class="w"> </span><span class="n">callback</span><span class="p">)</span>
+
+<span class="c1">// 获取Spider实例</span>
+<span class="kd">public</span><span class="w"> </span><span class="n">Spider</span><span class="w"> </span><span class="nf">getCSP</span><span class="p">(</span><span class="n">SourceBean</span><span class="w"> </span><span class="n">sourceBean</span><span class="p">)</span>
+</code></pre></div></p>
+<h4 id="2">2. 数据持久化<a class="headerlink" href="#2" title="Permanent link">&para;</a></h4>
+<p>使用 <strong>Hawk</strong> 库进行配置持久化存储：</p>
+<div class="highlight"><pre><span></span><code><span class="c1">// 默认配置写入</span>
+<span class="kd">private</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">putDefault</span><span class="p">(</span><span class="n">String</span><span class="w"> </span><span class="n">key</span><span class="p">,</span><span class="w"> </span><span class="n">Object</span><span class="w"> </span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">Hawk</span><span class="p">.</span><span class="na">contains</span><span class="p">(</span><span class="n">key</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">Hawk</span><span class="p">.</span><span class="na">put</span><span class="p">(</span><span class="n">key</span><span class="p">,</span><span class="w"> </span><span class="n">value</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>主要配置项包括：
+- <code>HOME_REC</code>: 首页推荐类型（豆瓣/站点推荐/历史）
+- <code>PLAY_TYPE</code>: 播放器类型（系统/IJK/Exo）
+- <code>IJK_CODEC</code>: IJK解码方式（软解码/硬解码）
+- <code>HOME_NUM</code>: 历史记录数量
+- <code>DOH_URL</code>: DNS over HTTPS设置</p>
+<h4 id="3">3. 网络请求<a class="headerlink" href="#3" title="Permanent link">&para;</a></h4>
+<p>使用 <strong>OkGo</strong> 封装的 OkHttp 进行网络请求：</p>
+<ul>
+<li>配置文件下载</li>
+<li>JAR/JS/Python文件下载</li>
+<li>视频源API调用</li>
+<li>支持DoH（DNS over HTTPS）</li>
+</ul>
+<hr />
+<h2 id="_9">插件机制详解<a class="headerlink" href="#_9" title="Permanent link">&para;</a></h2>
+<p>Box 的核心是其强大的插件系统，支持三种类型的爬虫插件：</p>
+<h3 id="spider">Spider 基类接口<a class="headerlink" href="#spider" title="Permanent link">&para;</a></h3>
+<p>所有插件都需要实现 <a href="file:///home/yimeng/boxext/Box/app/src/main/java/com/github/catvod/crawler/Spider.java">Spider.java</a> 基类定义的接口：</p>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">Spider</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// 初始化</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">init</span><span class="p">(</span><span class="n">Context</span><span class="w"> </span><span class="n">context</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">extend</span><span class="p">)</span><span class="w"> </span><span class="kd">throws</span><span class="w"> </span><span class="n">Exception</span>
+
+<span class="w">    </span><span class="c1">// 首页内容</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="nf">homeContent</span><span class="p">(</span><span class="kt">boolean</span><span class="w"> </span><span class="n">filter</span><span class="p">)</span><span class="w"> </span><span class="kd">throws</span><span class="w"> </span><span class="n">Exception</span>
+
+<span class="w">    </span><span class="c1">// 首页视频</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="nf">homeVideoContent</span><span class="p">()</span><span class="w"> </span><span class="kd">throws</span><span class="w"> </span><span class="n">Exception</span>
+
+<span class="w">    </span><span class="c1">// 分类内容</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="nf">categoryContent</span><span class="p">(</span><span class="n">String</span><span class="w"> </span><span class="n">tid</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">pg</span><span class="p">,</span><span class="w"> </span><span class="kt">boolean</span><span class="w"> </span><span class="n">filter</span><span class="p">,</span><span class="w"> </span>
+<span class="w">                                  </span><span class="n">HashMap</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="o">&gt;</span><span class="w"> </span><span class="n">extend</span><span class="p">)</span><span class="w"> </span><span class="kd">throws</span><span class="w"> </span><span class="n">Exception</span>
+
+<span class="w">    </span><span class="c1">// 详情内容</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="nf">detailContent</span><span class="p">(</span><span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span><span class="w"> </span><span class="n">ids</span><span class="p">)</span><span class="w"> </span><span class="kd">throws</span><span class="w"> </span><span class="n">Exception</span>
+
+<span class="w">    </span><span class="c1">// 搜索内容</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="nf">searchContent</span><span class="p">(</span><span class="n">String</span><span class="w"> </span><span class="n">key</span><span class="p">,</span><span class="w"> </span><span class="kt">boolean</span><span class="w"> </span><span class="n">quick</span><span class="p">)</span><span class="w"> </span><span class="kd">throws</span><span class="w"> </span><span class="n">Exception</span>
+
+<span class="w">    </span><span class="c1">// 播放信息</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="nf">playerContent</span><span class="p">(</span><span class="n">String</span><span class="w"> </span><span class="n">flag</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">id</span><span class="p">,</span><span class="w"> </span>
+<span class="w">                               </span><span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span><span class="w"> </span><span class="n">vipFlags</span><span class="p">)</span><span class="w"> </span><span class="kd">throws</span><span class="w"> </span><span class="n">Exception</span>
+
+<span class="w">    </span><span class="c1">// 本地代理</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">Object</span><span class="o">[]</span><span class="w"> </span><span class="nf">proxyLocal</span><span class="p">(</span><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="o">&gt;</span><span class="w"> </span><span class="n">params</span><span class="p">)</span><span class="w"> </span><span class="kd">throws</span><span class="w"> </span><span class="n">Exception</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="1-javajar">1. Java/JAR 插件机制<a class="headerlink" href="#1-javajar" title="Permanent link">&para;</a></h3>
+<h4 id="jarloaderjava">加载器: <a href="file:///home/yimeng/boxext/Box/app/src/main/java/com/github/catvod/crawler/JarLoader.java">JarLoader.java</a><a class="headerlink" href="#jarloaderjava" title="Permanent link">&para;</a></h4>
+<p><strong>工作流程</strong>:</p>
+<div class="highlight"><pre><span></span><code>flowchart TD
+    A[开始加载JAR] --&gt; B{检查缓存}
+    B --&gt;|已缓存| C[返回缓存的ClassLoader]
+    B --&gt;|未缓存| D[下载JAR文件]
+    D --&gt; E[保存到本地缓存]
+    E --&gt; F[使用DexClassLoader加载]
+    F --&gt; G[调用Init类的init方法]
+    G --&gt; H[加载Proxy类&lt;br/&gt;可选]
+    H --&gt; I[缓存ClassLoader]
+    I --&gt; J{需要Spider?}
+    J --&gt;|是| K[loadClass加载Spider类]
+    K --&gt; L[创建Spider实例]
+    L --&gt; M[调用init初始化]
+    M --&gt; N[缓存Spider实例]
+    J --&gt;|否| C
+    N --&gt; C
+</code></pre></div>
+<p><strong>关键代码</strong>:</p>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">JarLoader</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// ClassLoader缓存</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">ConcurrentHashMap</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">DexClassLoader</span><span class="o">&gt;</span><span class="w"> </span><span class="n">classLoaders</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Spider实例缓存</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">ConcurrentHashMap</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">Spider</span><span class="o">&gt;</span><span class="w"> </span><span class="n">spiders</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// 加载JAR并初始化</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kt">boolean</span><span class="w"> </span><span class="nf">loadClassLoader</span><span class="p">(</span><span class="n">String</span><span class="w"> </span><span class="n">jar</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">key</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">File</span><span class="w"> </span><span class="n">cacheDir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">File</span><span class="p">(</span><span class="n">App</span><span class="p">.</span><span class="na">getInstance</span><span class="p">().</span><span class="na">getCacheDir</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;/catvod_csp&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="n">DexClassLoader</span><span class="w"> </span><span class="n">classLoader</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">DexClassLoader</span><span class="p">(</span><span class="n">jar</span><span class="p">,</span><span class="w"> </span>
+<span class="w">            </span><span class="n">cacheDir</span><span class="p">.</span><span class="na">getAbsolutePath</span><span class="p">(),</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="n">App</span><span class="p">.</span><span class="na">getInstance</span><span class="p">().</span><span class="na">getClassLoader</span><span class="p">());</span>
+
+<span class="w">        </span><span class="c1">// 加载Init类并调用init方法</span>
+<span class="w">        </span><span class="n">Class</span><span class="o">&lt;?&gt;</span><span class="w"> </span><span class="n">classInit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">classLoader</span><span class="p">.</span><span class="na">loadClass</span><span class="p">(</span><span class="s">&quot;com.github.catvod.spider.Init&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="n">Method</span><span class="w"> </span><span class="n">initMethod</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">classInit</span><span class="p">.</span><span class="na">getMethod</span><span class="p">(</span><span class="s">&quot;init&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Context</span><span class="p">.</span><span class="na">class</span><span class="p">);</span>
+<span class="w">        </span><span class="n">initMethod</span><span class="p">.</span><span class="na">invoke</span><span class="p">(</span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="n">App</span><span class="p">.</span><span class="na">getInstance</span><span class="p">());</span>
+
+<span class="w">        </span><span class="c1">// 加载Proxy类（可选）</span>
+<span class="w">        </span><span class="n">Class</span><span class="o">&lt;?&gt;</span><span class="w"> </span><span class="n">proxy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">classLoader</span><span class="p">.</span><span class="na">loadClass</span><span class="p">(</span><span class="s">&quot;com.github.catvod.spider.Proxy&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="n">Method</span><span class="w"> </span><span class="n">proxyMethod</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">proxy</span><span class="p">.</span><span class="na">getMethod</span><span class="p">(</span><span class="s">&quot;proxy&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Map</span><span class="p">.</span><span class="na">class</span><span class="p">);</span>
+
+<span class="w">        </span><span class="n">classLoaders</span><span class="p">.</span><span class="na">put</span><span class="p">(</span><span class="n">key</span><span class="p">,</span><span class="w"> </span><span class="n">classLoader</span><span class="p">);</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="kc">true</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// 获取Spider实例</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">Spider</span><span class="w"> </span><span class="nf">getSpider</span><span class="p">(</span><span class="n">String</span><span class="w"> </span><span class="n">key</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">cls</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">ext</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">jar</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// 移除&quot;csp_&quot;前缀</span>
+<span class="w">        </span><span class="n">String</span><span class="w"> </span><span class="n">clsKey</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cls</span><span class="p">.</span><span class="na">replace</span><span class="p">(</span><span class="s">&quot;csp_&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">);</span>
+
+<span class="w">        </span><span class="c1">// 加载Spider类</span>
+<span class="w">        </span><span class="n">Spider</span><span class="w"> </span><span class="n">sp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">Spider</span><span class="p">)</span><span class="w"> </span><span class="n">classLoader</span><span class="p">.</span><span class="na">loadClass</span><span class="p">(</span>
+<span class="w">            </span><span class="s">&quot;com.github.catvod.spider.&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">clsKey</span><span class="p">).</span><span class="na">newInstance</span><span class="p">();</span>
+<span class="w">        </span><span class="n">sp</span><span class="p">.</span><span class="na">init</span><span class="p">(</span><span class="n">App</span><span class="p">.</span><span class="na">getInstance</span><span class="p">(),</span><span class="w"> </span><span class="n">ext</span><span class="p">);</span>
+
+<span class="w">        </span><span class="n">spiders</span><span class="p">.</span><span class="na">put</span><span class="p">(</span><span class="n">key</span><span class="p">,</span><span class="w"> </span><span class="n">sp</span><span class="p">);</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">sp</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<p><strong>特点</strong>:
+- 使用 <code>DexClassLoader</code> 动态加载外部JAR
+- 支持MD5校验确保文件完整性
+- 三级缓存策略：ClassLoader缓存、Spider实例缓存、文件缓存
+- 支持自定义初始化（Init类）和代理（Proxy类）</p>
+<h3 id="2-javascript">2. JavaScript 插件机制<a class="headerlink" href="#2-javascript" title="Permanent link">&para;</a></h3>
+<h4 id="jsloaderjava">加载器: <a href="file:///home/yimeng/boxext/Box/app/src/main/java/com/github/catvod/crawler/JsLoader.java">JsLoader.java</a><a class="headerlink" href="#jsloaderjava" title="Permanent link">&para;</a></h4>
+<p><strong>核心技术</strong>: 使用 <strong>QuickJS</strong> JavaScript引擎执行JS代码</p>
+<p><strong>工作流程</strong>:</p>
+<div class="highlight"><pre><span></span><code>flowchart TD
+    A[开始加载JS] --&gt; B{有jar参数?}
+    B --&gt;|有| C[下载并加载jar&lt;br/&gt;包含扩展API]
+    B --&gt;|无| D[直接加载JS文件]
+    C --&gt; D
+    D --&gt; E[创建JsSpider实例]
+    E --&gt; F[初始化QuickJS上下文]
+    F --&gt; G[加载JS模块]
+    G --&gt; H{JS格式?}
+    H --&gt;|base64编码&lt;br/&gt;//bb| I[解码并执行]
+    H --&gt;|ES6模块&lt;br/&gt;export default| J[evaluateModule]
+    H --&gt;|DRPY格式| K[加载字节码]
+    I --&gt; L[注册全局Spider对象]
+    J --&gt; L
+    K --&gt; L
+    L --&gt; M[缓存Spider实例]
+</code></pre></div>
+<h4 id="jsspiderjava">实现: <a href="file:///home/yimeng/boxext/Box/app/src/main/java/com/github/tvbox/osc/util/js/JsSpider.java">JsSpider.java</a><a class="headerlink" href="#jsspiderjava" title="Permanent link">&para;</a></h4>
+<p><strong>QuickJS 集成</strong>:</p>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">JsSpider</span><span class="w"> </span><span class="kd">extends</span><span class="w"> </span><span class="n">Spider</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="n">QuickJSContext</span><span class="w"> </span><span class="n">ctx</span><span class="p">;</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="n">JSObject</span><span class="w"> </span><span class="n">jsObject</span><span class="p">;</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">ExecutorService</span><span class="w"> </span><span class="n">executor</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// 初始化QuickJS上下文</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">createCtx</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">ctx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">QuickJSContext</span><span class="p">.</span><span class="na">create</span><span class="p">();</span>
+
+<span class="w">        </span><span class="c1">// 设置模块加载器</span>
+<span class="w">        </span><span class="n">ctx</span><span class="p">.</span><span class="na">setModuleLoader</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">QuickJSContext</span><span class="p">.</span><span class="na">BytecodeModuleLoader</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nd">@Override</span>
+<span class="w">            </span><span class="kd">public</span><span class="w"> </span><span class="kt">byte</span><span class="o">[]</span><span class="w"> </span><span class="nf">getModuleBytecode</span><span class="p">(</span><span class="n">String</span><span class="w"> </span><span class="n">moduleName</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="n">String</span><span class="w"> </span><span class="n">content</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FileUtils</span><span class="p">.</span><span class="na">loadModule</span><span class="p">(</span><span class="n">moduleName</span><span class="p">);</span>
+<span class="w">                </span><span class="c1">// 支持多种格式</span>
+<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">content</span><span class="p">.</span><span class="na">startsWith</span><span class="p">(</span><span class="s">&quot;//DRPY&quot;</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                    </span><span class="k">return</span><span class="w"> </span><span class="n">Base64</span><span class="p">.</span><span class="na">decode</span><span class="p">(</span><span class="n">content</span><span class="p">.</span><span class="na">replace</span><span class="p">(</span><span class="s">&quot;//DRPY&quot;</span><span class="p">,</span><span class="s">&quot;&quot;</span><span class="p">),</span><span class="w"> </span><span class="n">URL_SAFE</span><span class="p">);</span>
+<span class="w">                </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">content</span><span class="p">.</span><span class="na">startsWith</span><span class="p">(</span><span class="s">&quot;//bb&quot;</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                    </span><span class="k">return</span><span class="w"> </span><span class="n">byteFF</span><span class="p">(</span><span class="n">Base64</span><span class="p">.</span><span class="na">decode</span><span class="p">(</span><span class="n">content</span><span class="p">.</span><span class="na">replace</span><span class="p">(</span><span class="s">&quot;//bb&quot;</span><span class="p">,</span><span class="s">&quot;&quot;</span><span class="p">),</span><span class="w"> </span><span class="mi">0</span><span class="p">));</span>
+<span class="w">                </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                    </span><span class="k">return</span><span class="w"> </span><span class="n">ctx</span><span class="p">.</span><span class="na">compileModule</span><span class="p">(</span><span class="n">content</span><span class="p">,</span><span class="w"> </span><span class="n">moduleName</span><span class="p">);</span>
+<span class="w">                </span><span class="p">}</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">});</span>
+
+<span class="w">        </span><span class="c1">// 绑定全局对象</span>
+<span class="w">        </span><span class="n">ctx</span><span class="p">.</span><span class="na">getGlobalObject</span><span class="p">().</span><span class="na">bind</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">Global</span><span class="p">(</span><span class="n">executor</span><span class="p">));</span>
+
+<span class="w">        </span><span class="c1">// 注入网络请求能力</span>
+<span class="w">        </span><span class="n">ctx</span><span class="p">.</span><span class="na">getGlobalObject</span><span class="p">().</span><span class="na">evaluate</span><span class="p">(</span><span class="n">FileUtils</span><span class="p">.</span><span class="na">loadModule</span><span class="p">(</span><span class="s">&quot;net.js&quot;</span><span class="p">));</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// 调用JS方法</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="n">Object</span><span class="w"> </span><span class="nf">call</span><span class="p">(</span><span class="n">String</span><span class="w"> </span><span class="n">func</span><span class="p">,</span><span class="w"> </span><span class="n">Object</span><span class="p">...</span><span class="w"> </span><span class="n">args</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">executor</span><span class="p">.</span><span class="na">submit</span><span class="p">(()</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span>
+<span class="w">            </span><span class="n">Async</span><span class="p">.</span><span class="na">run</span><span class="p">(</span><span class="n">jsObject</span><span class="p">,</span><span class="w"> </span><span class="n">func</span><span class="p">,</span><span class="w"> </span><span class="n">args</span><span class="p">).</span><span class="na">get</span><span class="p">()</span>
+<span class="w">        </span><span class="p">).</span><span class="na">get</span><span class="p">();</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// 实现Spider接口</span>
+<span class="w">    </span><span class="nd">@Override</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="nf">homeContent</span><span class="p">(</span><span class="kt">boolean</span><span class="w"> </span><span class="n">filter</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="n">String</span><span class="p">)</span><span class="w"> </span><span class="n">call</span><span class="p">(</span><span class="s">&quot;home&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">filter</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<p><strong>特点</strong>:
+- 使用单线程 ExecutorService 执行所有JS调用，保证线程安全
+- 支持ES6模块系统
+- 支持base64编码的JS代码（加密保护）
+- 可选的jar扩展，提供额外的Java API给JS调用
+- 内置网络请求、JSON解析等能力</p>
+<h3 id="3-python">3. Python 插件机制<a class="headerlink" href="#3-python" title="Permanent link">&para;</a></h3>
+<h4 id="ipyloaderjava">接口: <a href="file:///home/yimeng/boxext/Box/app/src/main/java/com/github/catvod/crawler/python/IPyLoader.java">IPyLoader.java</a><a class="headerlink" href="#ipyloaderjava" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="kd">interface</span> <span class="nc">IPyLoader</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">clear</span><span class="p">();</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">setConfig</span><span class="p">(</span><span class="n">String</span><span class="w"> </span><span class="n">jsonStr</span><span class="p">);</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">setRecentPyKey</span><span class="p">(</span><span class="n">String</span><span class="w"> </span><span class="n">pyApi</span><span class="p">);</span>
+<span class="w">    </span><span class="n">Spider</span><span class="w"> </span><span class="nf">getSpider</span><span class="p">(</span><span class="n">String</span><span class="w"> </span><span class="n">key</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">cls</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">ext</span><span class="p">);</span>
+<span class="w">    </span><span class="n">Object</span><span class="o">[]</span><span class="w"> </span><span class="nf">proxyInvoke</span><span class="p">(</span><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="o">&gt;</span><span class="w"> </span><span class="n">params</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+<p><strong>特点</strong>:
+- 通过 <code>pyramid</code> 模块提供Python运行环境
+- 支持Python脚本动态加载和执行
+- 需要额外的Python解释器支持</p>
+<h3 id="_10">插件类型判断<a class="headerlink" href="#_10" title="Permanent link">&para;</a></h3>
+<p>在 <a href="file:///home/yimeng/boxext/Box/app/src/main/java/com/github/tvbox/osc/api/ApiConfig.java#L739-L747">ApiConfig.java</a> 中根据API路径判断插件类型：</p>
+<div class="highlight"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">Spider</span><span class="w"> </span><span class="nf">getCSP</span><span class="p">(</span><span class="n">SourceBean</span><span class="w"> </span><span class="n">sourceBean</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">String</span><span class="w"> </span><span class="n">api</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sourceBean</span><span class="p">.</span><span class="na">getApi</span><span class="p">();</span>
+
+<span class="w">    </span><span class="c1">// JavaScript插件</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">api</span><span class="p">.</span><span class="na">endsWith</span><span class="p">(</span><span class="s">&quot;.js&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">api</span><span class="p">.</span><span class="na">contains</span><span class="p">(</span><span class="s">&quot;.js?&quot;</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">jsLoader</span><span class="p">.</span><span class="na">getSpider</span><span class="p">(</span><span class="n">sourceBean</span><span class="p">.</span><span class="na">getKey</span><span class="p">(),</span><span class="w"> </span><span class="n">api</span><span class="p">,</span><span class="w"> </span>
+<span class="w">                                 </span><span class="n">sourceBean</span><span class="p">.</span><span class="na">getExt</span><span class="p">(),</span><span class="w"> </span><span class="n">sourceBean</span><span class="p">.</span><span class="na">getJar</span><span class="p">());</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="c1">// Python插件</span>
+<span class="w">    </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">api</span><span class="p">.</span><span class="na">contains</span><span class="p">(</span><span class="s">&quot;.py&quot;</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">pyLoader</span><span class="p">.</span><span class="na">getSpider</span><span class="p">(</span><span class="n">sourceBean</span><span class="p">.</span><span class="na">getKey</span><span class="p">(),</span><span class="w"> </span><span class="n">api</span><span class="p">,</span><span class="w"> </span>
+<span class="w">                                 </span><span class="n">sourceBean</span><span class="p">.</span><span class="na">getExt</span><span class="p">());</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="c1">// Java插件</span>
+<span class="w">    </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">jarLoader</span><span class="p">.</span><span class="na">getSpider</span><span class="p">(</span><span class="n">sourceBean</span><span class="p">.</span><span class="na">getKey</span><span class="p">(),</span><span class="w"> </span><span class="n">api</span><span class="p">,</span><span class="w"> </span>
+<span class="w">                                  </span><span class="n">sourceBean</span><span class="p">.</span><span class="na">getExt</span><span class="p">(),</span><span class="w"> </span><span class="n">sourceBean</span><span class="p">.</span><span class="na">getJar</span><span class="p">());</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<hr />
+<h2 id="_11">配置文件格式<a class="headerlink" href="#_11" title="Permanent link">&para;</a></h2>
+<h3 id="json">JSON配置结构<a class="headerlink" href="#json" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;spider&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;http://example.com/spider.jar;md5;hash值&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;wallpaper&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;http://example.com/wallpaper.jpg&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;sites&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;key&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;unique_key&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;视频源名称&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;api&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;csp_XPath&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;searchable&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;quickSearch&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;filterable&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;ext&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;配置扩展参数&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;jar&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;http://example.com/custom.jar&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;parses&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;解析器名称&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;解析器URL&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;ext&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;lives&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;group&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;频道组名&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;channels&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;频道名&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;urls&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;http://example.com/live.m3u8&quot;</span><span class="p">]</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">      </span><span class="p">]</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="type">站点类型 (type)<a class="headerlink" href="#type" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>0</strong>: 影视</li>
+<li><strong>1</strong>: 直播</li>
+<li><strong>2</strong>: 解析</li>
+<li><strong>3</strong>: 爬虫（Spider）</li>
+<li><strong>4</strong>: XPath</li>
+</ul>
+<h3 id="ext">插件扩展 (ext)<a class="headerlink" href="#ext" title="Permanent link">&para;</a></h3>
+<p><code>ext</code> 字段用于传递插件特定的配置参数，可以是：
+- JSON字符串
+- Base64编码的配置
+- 文件URL</p>
+<hr />
+<h2 id="_12">数据流转<a class="headerlink" href="#_12" title="Permanent link">&para;</a></h2>
+<h3 id="_13">视频播放流程<a class="headerlink" href="#_13" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>sequenceDiagram
+    participant User
+    participant UI
+    participant ApiConfig
+    participant Spider
+    participant Player
+
+    User-&gt;&gt;UI: 选择视频源
+    UI-&gt;&gt;ApiConfig: getCSP(sourceBean)
+    ApiConfig-&gt;&gt;Spider: 创建/获取Spider
+
+    User-&gt;&gt;UI: 浏览首页
+    UI-&gt;&gt;Spider: homeContent(filter)
+    Spider-&gt;&gt;Spider: 请求视频网站API
+    Spider--&gt;&gt;UI: 返回JSON数据
+
+    User-&gt;&gt;UI: 点击视频
+    UI-&gt;&gt;Spider: detailContent(ids)
+    Spider--&gt;&gt;UI: 返回视频详情
+
+    User-&gt;&gt;UI: 选择播放
+    UI-&gt;&gt;Spider: playerContent(flag, id, vipFlags)
+    Spider-&gt;&gt;Spider: 解析播放地址
+    Spider--&gt;&gt;UI: 返回播放URL
+
+    UI-&gt;&gt;Player: 播放视频
+    Player-&gt;&gt;Player: IJK/Exo播放
+</code></pre></div>
+<h3 id="_14">搜索流程<a class="headerlink" href="#_14" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>flowchart LR
+    A[用户输入关键词] --&gt; B[遍历所有可搜索源]
+    B --&gt; C1[Spider1.searchContent]
+    B --&gt; C2[Spider2.searchContent]
+    B --&gt; C3[Spider3.searchContent]
+    C1 --&gt; D[合并搜索结果]
+    C2 --&gt; D
+    C3 --&gt; D
+    D --&gt; E[展示搜索结果]
+</code></pre></div>
+<hr />
+<h2 id="_15">核心技术总结<a class="headerlink" href="#_15" title="Permanent link">&para;</a></h2>
+<h3 id="1">1. 动态加载技术<a class="headerlink" href="#1" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>DexClassLoader</strong>: 动态加载外部DEX/JAR文件</li>
+<li><strong>QuickJS</strong>: 嵌入式JavaScript引擎</li>
+<li><strong>反射机制</strong>: 动态调用插件方法</li>
+</ul>
+<h3 id="2_1">2. 缓存策略<a class="headerlink" href="#2_1" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>三级缓存</strong>:</li>
+<li>内存缓存（ConcurrentHashMap）</li>
+<li>文件缓存（本地存储）</li>
+<li>
+<p>远程拉取</p>
+</li>
+<li>
+<p><strong>缓存Key</strong>: 使用MD5哈希生成唯一标识</p>
+</li>
+</ul>
+<h3 id="3_1">3. 线程管理<a class="headerlink" href="#3_1" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>ExecutorService</strong>: 管理插件执行线程</li>
+<li><strong>异步加载</strong>: 避免主线程阻塞</li>
+<li><strong>Future模式</strong>: 等待异步结果</li>
+</ul>
+<h3 id="4">4. 安全机制<a class="headerlink" href="#4" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>MD5校验</strong>: 验证JAR文件完整性</li>
+<li><strong>Base64编码</strong>: JS代码加密保护</li>
+<li><strong>沙箱隔离</strong>: QuickJS运行在独立上下文</li>
+</ul>
+<hr />
+<h2 id="_16">插件开发指南<a class="headerlink" href="#_16" title="Permanent link">&para;</a></h2>
+<h3 id="java">Java插件开发<a class="headerlink" href="#java" title="Permanent link">&para;</a></h3>
+<ol>
+<li>
+<p><strong>继承Spider基类</strong>:
+<div class="highlight"><pre><span></span><code><span class="kn">package</span><span class="w"> </span><span class="nn">com.github.catvod.spider</span><span class="p">;</span>
+
+<span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">MySpider</span><span class="w"> </span><span class="kd">extends</span><span class="w"> </span><span class="n">Spider</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nd">@Override</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">init</span><span class="p">(</span><span class="n">Context</span><span class="w"> </span><span class="n">context</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">extend</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// 初始化逻辑</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="nd">@Override</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="nf">homeContent</span><span class="p">(</span><span class="kt">boolean</span><span class="w"> </span><span class="n">filter</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// 返回首页内容JSON</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;{\&quot;class\&quot;:[...], \&quot;list\&quot;:[...]}&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></p>
+</li>
+<li>
+<p><strong>编译为JAR</strong>: 打包成JAR或DEX格式</p>
+</li>
+<li>
+<p><strong>配置文件</strong>:
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;key&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;my_source&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;我的视频源&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;api&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;csp_MySpider&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;jar&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;http://example.com/myspider.jar&quot;</span>
+<span class="p">}</span>
+</code></pre></div></p>
+</li>
+</ol>
+<h3 id="javascript">JavaScript插件开发<a class="headerlink" href="#javascript" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1">// 导出Spider对象</span>
+<span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">async</span><span class="w"> </span><span class="nx">init</span><span class="p">(</span><span class="nx">cfg</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// 初始化</span>
+<span class="w">    </span><span class="p">},</span>
+
+<span class="w">    </span><span class="k">async</span><span class="w"> </span><span class="nx">home</span><span class="p">(</span><span class="nx">filter</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// 首页内容</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nb">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">({</span>
+<span class="w">            </span><span class="kd">class</span><span class="o">:</span><span class="w"> </span><span class="p">[...],</span>
+<span class="w">            </span><span class="nx">list</span><span class="o">:</span><span class="w"> </span><span class="p">[...]</span>
+<span class="w">        </span><span class="p">});</span>
+<span class="w">    </span><span class="p">},</span>
+
+<span class="w">    </span><span class="k">async</span><span class="w"> </span><span class="nx">category</span><span class="p">(</span><span class="nx">tid</span><span class="p">,</span><span class="w"> </span><span class="nx">pg</span><span class="p">,</span><span class="w"> </span><span class="nx">filter</span><span class="p">,</span><span class="w"> </span><span class="nx">extend</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// 分类内容</span>
+<span class="w">    </span><span class="p">},</span>
+
+<span class="w">    </span><span class="k">async</span><span class="w"> </span><span class="nx">detail</span><span class="p">(</span><span class="nx">id</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// 详情</span>
+<span class="w">    </span><span class="p">},</span>
+
+<span class="w">    </span><span class="k">async</span><span class="w"> </span><span class="nx">play</span><span class="p">(</span><span class="nx">flag</span><span class="p">,</span><span class="w"> </span><span class="nx">id</span><span class="p">,</span><span class="w"> </span><span class="nx">vipFlags</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// 播放地址</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nb">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">({</span>
+<span class="w">            </span><span class="nx">url</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;播放地址&quot;</span>
+<span class="w">        </span><span class="p">});</span>
+<span class="w">    </span><span class="p">},</span>
+
+<span class="w">    </span><span class="k">async</span><span class="w"> </span><span class="nx">search</span><span class="p">(</span><span class="nx">wd</span><span class="p">,</span><span class="w"> </span><span class="nx">quick</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// 搜索</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">};</span>
+</code></pre></div>
+<hr />
+<h2 id="_17">总结<a class="headerlink" href="#_17" title="Permanent link">&para;</a></h2>
+<p>Box项目通过<strong>精心设计的插件化架构</strong>，实现了高度的扩展性和灵活性：</p>
+<h3 id="_18">优势<a class="headerlink" href="#_18" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>多语言支持</strong>: Java、JavaScript、Python三种插件类型</li>
+<li><strong>动态更新</strong>: 无需重新安装应用即可更新视频源</li>
+<li><strong>高性能</strong>: 多级缓存、异步加载</li>
+<li><strong>易扩展</strong>: 清晰的Spider接口定义</li>
+<li><strong>社区生态</strong>: 开放的插件系统吸引开发者参与</li>
+</ol>
+<h3 id="_19">关键设计模式<a class="headerlink" href="#_19" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>工厂模式</strong>: ApiConfig根据类型创建不同的Spider</li>
+<li><strong>单例模式</strong>: ApiConfig全局唯一实例</li>
+<li><strong>代理模式</strong>: JsSpider代理JavaScript执行</li>
+<li><strong>策略模式</strong>: 不同的插件加载器实现不同策略</li>
+</ul>
+<h3 id="_20">技术亮点<a class="headerlink" href="#_20" title="Permanent link">&para;</a></h3>
+<ul>
+<li>QuickJS引擎集成提供高性能JS执行</li>
+<li>DexClassLoader实现真正的动态插件加载</li>
+<li>完善的缓存机制提升用户体验</li>
+<li>模块化设计便于维护和扩展</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": [], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

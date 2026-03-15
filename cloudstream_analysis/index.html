@@ -1,0 +1,2736 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="插件说明与下载">
+      
+      
+      
+        <link rel="canonical" href="https://<username>.github.io/<repo>/cloudstream_analysis/">
+      
+      
+        <link rel="prev" href="../guide/">
+      
+      
+        <link rel="next" href="../tvbox_analysis/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
+    
+    
+      
+        <title>CloudStream分析 - CloudStream 插件文档</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#cloudstream" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href=".." title="CloudStream 插件文档" class="md-header__button md-logo" aria-label="CloudStream 插件文档" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            CloudStream 插件文档
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              CloudStream分析
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="CloudStream 插件文档" class="md-nav__button md-logo" aria-label="CloudStream 插件文档" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    CloudStream 插件文档
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    使用指南
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    开发指南
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CloudStream分析
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CloudStream分析
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        项目概述
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="项目概述">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        基本信息
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        核心特性
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        技术架构
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="技术架构">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        整体架构设计
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        核心组件
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        技术栈
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        插件系统设计
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="插件系统设计">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        插件架构
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="插件架构">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#provider" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Provider 接口层次
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#provider_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Provider 四大核心功能
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Provider 四大核心功能">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-search" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 搜索功能 (Search)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-home-page" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 首页内容 (Home Page)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-load-details" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. 详情页面 (Load Details)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-load-links" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. 视频链接解析 (Load Links)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        运行原理分析
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="运行原理分析">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        应用启动流程
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        内容提供和播放机制
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="内容提供和播放机制">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        搜索流程
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_14" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        播放流程
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        网络请求和数据解析
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="网络请求和数据解析">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#http" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        HTTP 请求封装
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#html" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        HTML 解析
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#json" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        JSON 解析
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_16" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        扩展开发流程
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="扩展开发流程">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_17" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        开发环境搭建
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="开发环境搭建">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-fork" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Fork 插件模板
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-github-actions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 配置 GitHub Actions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. 项目结构
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#provider_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Provider 开发步骤
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Provider 开发步骤">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-1-provider" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1: 创建 Provider 类
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2: 实现搜索功能
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3: 实现首页加载
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 4: 实现详情加载
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 5: 实现视频链接提取
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_18" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        构建配置
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_19" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        测试与调试
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="测试与调试">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        本地测试
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        日志调试
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        发布扩展
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="发布扩展">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#github-actions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GitHub Actions 自动构建
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_23" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        扩展仓库配置
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_24" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        最佳实践与技巧
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="最佳实践与技巧">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 错误处理
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-url" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. URL 处理
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. 评分转换
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. 复用代码
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. 请求头配置
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. 处理分页
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. 视频质量标识
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_25" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        常见问题与解决方案
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="常见问题与解决方案">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        问题 1: 视频链接加密
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        问题 2: 动态内容加载
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-cloudflare" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        问题 3: Cloudflare 保护
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        问题 4: 剧集顺序错误
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_26" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        总结
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="总结">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_27" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        关键技术要点
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_28" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        开发建议
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_29" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        参考资源
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tvbox_analysis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TVBox分析
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dev/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API知识
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ad_filter_guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    广告过滤器使用文档
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ad_filter_dev/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    广告过滤器开发文档
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vip_parser_dev/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    解析播放开发文档
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        项目概述
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="项目概述">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        基本信息
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        核心特性
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        技术架构
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="技术架构">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        整体架构设计
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        核心组件
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        技术栈
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        插件系统设计
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="插件系统设计">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        插件架构
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="插件架构">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#provider" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Provider 接口层次
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#provider_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Provider 四大核心功能
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Provider 四大核心功能">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-search" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 搜索功能 (Search)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-home-page" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 首页内容 (Home Page)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-load-details" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. 详情页面 (Load Details)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-load-links" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. 视频链接解析 (Load Links)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        运行原理分析
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="运行原理分析">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        应用启动流程
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        内容提供和播放机制
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="内容提供和播放机制">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        搜索流程
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_14" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        播放流程
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        网络请求和数据解析
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="网络请求和数据解析">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#http" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        HTTP 请求封装
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#html" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        HTML 解析
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#json" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        JSON 解析
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_16" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        扩展开发流程
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="扩展开发流程">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_17" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        开发环境搭建
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="开发环境搭建">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-fork" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Fork 插件模板
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-github-actions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 配置 GitHub Actions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. 项目结构
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#provider_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Provider 开发步骤
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Provider 开发步骤">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-1-provider" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1: 创建 Provider 类
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2: 实现搜索功能
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3: 实现首页加载
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 4: 实现详情加载
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 5: 实现视频链接提取
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_18" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        构建配置
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_19" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        测试与调试
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="测试与调试">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        本地测试
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        日志调试
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        发布扩展
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="发布扩展">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#github-actions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GitHub Actions 自动构建
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_23" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        扩展仓库配置
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_24" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        最佳实践与技巧
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="最佳实践与技巧">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 错误处理
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-url" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. URL 处理
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. 评分转换
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. 复用代码
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. 请求头配置
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. 处理分页
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. 视频质量标识
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_25" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        常见问题与解决方案
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="常见问题与解决方案">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        问题 1: 视频链接加密
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        问题 2: 动态内容加载
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-cloudflare" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        问题 3: Cloudflare 保护
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        问题 4: 剧集顺序错误
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_26" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        总结
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="总结">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_27" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        关键技术要点
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_28" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        开发建议
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_29" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        参考资源
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="cloudstream">CloudStream 项目深度分析报告<a class="headerlink" href="#cloudstream" title="Permanent link">&para;</a></h1>
+<h2 id="_1">项目概述<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<p>CloudStream 是一个开源的 Android 媒体播放应用，专注于为用户和开发者提供完全的自由和灵活性。它采用基于扩展的架构设计，通过社区开发的插件来提供各种媒体内容源的访问能力。</p>
+<h3 id="_2">基本信息<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>项目名称</strong>: CloudStream</li>
+<li><strong>开发语言</strong>: Kotlin</li>
+<li><strong>平台</strong>: Android</li>
+<li><strong>开源协议</strong>: 见 <a href="https://github.com/recloudstream/cloudstream">GitHub 仓库</a></li>
+<li><strong>官方文档</strong>: <a href="https://recloudstream.github.io/csdocs/">https://recloudstream.github.io/csdocs/</a></li>
+<li><strong>官方仓库</strong>: <a href="https://github.com/recloudstream/cloudstream">https://github.com/recloudstream/cloudstream</a></li>
+</ul>
+<h3 id="_3">核心特性<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>无广告</strong>: 完全去除广告干扰</li>
+<li><strong>无追踪</strong>: 不包含任何追踪或分析功能</li>
+<li><strong>书签功能</strong>: 支持收藏和管理媒体内容</li>
+<li><strong>多设备支持</strong>: 支持手机和电视设备</li>
+<li><strong>Chromecast</strong>: 支持投屏功能</li>
+<li><strong>扩展系统</strong>: 完全可定制的插件扩展机制</li>
+</ul>
+<hr />
+<h2 id="_4">技术架构<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
+<h3 id="_5">整体架构设计<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h3>
+<p>CloudStream 采用了模块化的架构设计，核心应用本身不提供任何视频源，所有内容源都通过扩展插件提供。这种设计带来以下优势：</p>
+<ol>
+<li><strong>解耦合</strong>: 核心应用与内容源完全分离</li>
+<li><strong>灵活性</strong>: 用户可以自由选择安装需要的扩展</li>
+<li><strong>可维护性</strong>: 每个扩展独立开发和维护</li>
+<li><strong>合规性</strong>: 核心应用不涉及任何版权内容</li>
+</ol>
+<h3 id="_6">核心组件<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>graph TB
+    A[CloudStream 主应用] --&gt; B[扩展管理器]
+    B --&gt; C[扩展仓库]
+    B --&gt; D[已安装扩展]
+
+    A --&gt; E[播放器核心]
+    E --&gt; F[视频解码器]
+    E --&gt; G[字幕引擎]
+
+    A --&gt; H[用户界面]
+    H --&gt; I[搜索界面]
+    H --&gt; J[首页界面]
+    H --&gt; K[详情界面]
+    H --&gt; L[播放界面]
+
+    D --&gt; M[Provider 1]
+    D --&gt; N[Provider 2]
+    D --&gt; O[Provider N]
+
+    M --&gt; E
+    N --&gt; E
+    O --&gt; E
+</code></pre></div>
+<h3 id="_7">技术栈<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>编程语言</strong>: Kotlin</li>
+<li><strong>构建工具</strong>: Gradle</li>
+<li><strong>UI 框架</strong>: Android SDK</li>
+<li><strong>网络请求</strong>: 基于 OkHttp/Retrofit</li>
+<li><strong>HTML 解析</strong>: JSoup</li>
+<li><strong>JSON 解析</strong>: Jackson</li>
+<li><strong>异步处理</strong>: Kotlin Coroutines</li>
+</ul>
+<hr />
+<h2 id="_8">插件系统设计<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h2>
+<h3 id="_9">插件架构<a class="headerlink" href="#_9" title="Permanent link">&para;</a></h3>
+<p>CloudStream 的插件系统是其核心特性，所有扩展都基于统一的 Provider API 开发。</p>
+<h4 id="provider">Provider 接口层次<a class="headerlink" href="#provider" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code>classDiagram
+    class MainAPI {
+        &lt;&lt;interface&gt;&gt;
+        +name: String
+        +mainUrl: String
+        +supportedTypes: Set~TvType~
+        +search(query: String)
+        +getMainPage(page: Int, request: MainPageRequest)
+        +load(url: String)
+        +loadLinks(data: String, callback: LoadLinksCallback)
+    }
+
+    class TvType {
+        &lt;&lt;enumeration&gt;&gt;
+        Movie
+        TvSeries
+        Anime
+        Live
+        AsianDrama
+        Cartoon
+    }
+
+    class SearchResponse {
+        +name: String
+        +url: String
+        +posterUrl: String
+        +type: TvType
+    }
+
+    class LoadResponse {
+        +name: String
+        +url: String
+        +posterUrl: String
+        +plot: String
+        +tags: List~String~
+        +rating: Int
+    }
+
+    MainAPI --&gt; TvType
+    MainAPI ..&gt; SearchResponse
+    MainAPI ..&gt; LoadResponse
+</code></pre></div>
+<h3 id="provider_1">Provider 四大核心功能<a class="headerlink" href="#provider_1" title="Permanent link">&para;</a></h3>
+<p>CloudStream 的 Provider 主要由四个核心功能组成：</p>
+<h4 id="1-search">1. 搜索功能 (Search)<a class="headerlink" href="#1-search" title="Permanent link">&para;</a></h4>
+<p><strong>功能描述</strong>: 根据用户输入的关键词，返回匹配的媒体内容列表。</p>
+<p><strong>方法签名</strong>:
+<div class="highlight"><pre><span></span><code><span class="kd">override</span><span class="w"> </span><span class="kd">suspend</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">search</span><span class="p">(</span><span class="n">query</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">):</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">SearchResponse</span><span class="o">&gt;</span>
+</code></pre></div></p>
+<p><strong>实现示例</strong>:
+<div class="highlight"><pre><span></span><code><span class="kd">override</span><span class="w"> </span><span class="kd">suspend</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">search</span><span class="p">(</span><span class="n">query</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">):</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">SearchResponse</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">app</span><span class="p">.</span><span class="na">post</span><span class="p">(</span>
+<span class="w">        </span><span class="n">mainUrl</span><span class="p">,</span>
+<span class="w">        </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mapOf</span><span class="p">(</span><span class="s">&quot;search&quot;</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">query</span><span class="p">)</span>
+<span class="w">    </span><span class="p">).</span><span class="na">document</span>
+<span class="w">    </span><span class="p">.</span><span class="na">select</span><span class="p">(</span><span class="s">&quot;div.card-body&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="na">mapNotNull</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">element</span><span class="w"> </span><span class="o">-&gt;</span>
+<span class="w">        </span><span class="n">element</span><span class="p">.</span><span class="na">toSearchResponse</span><span class="p">()</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">private</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="n">Element</span><span class="p">.</span><span class="nf">toSearchResponse</span><span class="p">():</span><span class="w"> </span><span class="n">SearchResponse? </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">link</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="na">select</span><span class="p">(</span><span class="s">&quot;div.alternative a&quot;</span><span class="p">).</span><span class="na">last</span><span class="p">()</span><span class="w"> </span><span class="o">?:</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="kc">null</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">href</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fixUrl</span><span class="p">(</span><span class="n">link</span><span class="p">.</span><span class="na">attr</span><span class="p">(</span><span class="s">&quot;href&quot;</span><span class="p">))</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">img</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="na">selectFirst</span><span class="p">(</span><span class="s">&quot;div.thumb img&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">img</span><span class="o">?.</span><span class="na">attr</span><span class="p">(</span><span class="s">&quot;alt&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">?:</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="kc">null</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">posterUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">img</span><span class="p">.</span><span class="na">attr</span><span class="p">(</span><span class="s">&quot;src&quot;</span><span class="p">)</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">newAnimeSearchResponse</span><span class="p">(</span><span class="n">title</span><span class="p">,</span><span class="w"> </span><span class="n">href</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="na">posterUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">posterUrl</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></p>
+<p><strong>核心流程</strong>:
+1. 发送搜索请求到目标网站
+2. 解析 HTML 响应
+3. 提取搜索结果元素
+4. 转换为 <code>SearchResponse</code> 对象列表</p>
+<hr />
+<h4 id="2-home-page">2. 首页内容 (Home Page)<a class="headerlink" href="#2-home-page" title="Permanent link">&para;</a></h4>
+<p><strong>功能描述</strong>: 展示分类内容列表，支持无限滚动加载。</p>
+<p><strong>配置定义</strong>:
+<div class="highlight"><pre><span></span><code><span class="kd">override</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">mainPage</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mainPageOf</span><span class="p">(</span>
+<span class="w">    </span><span class="n">Pair</span><span class="p">(</span><span class="s">&quot;1&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Recent Release - Sub&quot;</span><span class="p">),</span>
+<span class="w">    </span><span class="n">Pair</span><span class="p">(</span><span class="s">&quot;2&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Recent Release - Dub&quot;</span><span class="p">),</span>
+<span class="w">    </span><span class="n">Pair</span><span class="p">(</span><span class="s">&quot;3&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Recent Release - Chinese&quot;</span><span class="p">)</span>
+<span class="p">)</span>
+</code></pre></div></p>
+<p><strong>方法签名</strong>:
+<div class="highlight"><pre><span></span><code><span class="kd">override</span><span class="w"> </span><span class="kd">suspend</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">getMainPage</span><span class="p">(</span>
+<span class="w">    </span><span class="n">page</span><span class="p">:</span><span class="w"> </span><span class="kt">Int</span><span class="p">,</span>
+<span class="w">    </span><span class="n">request</span><span class="p">:</span><span class="w"> </span><span class="n">MainPageRequest</span>
+<span class="p">):</span><span class="w"> </span><span class="n">HomePageResponse</span>
+</code></pre></div></p>
+<p><strong>实现示例</strong>:
+<div class="highlight"><pre><span></span><code><span class="kd">override</span><span class="w"> </span><span class="kd">suspend</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">getMainPage</span><span class="p">(</span>
+<span class="w">    </span><span class="n">page</span><span class="p">:</span><span class="w"> </span><span class="kt">Int</span><span class="p">,</span>
+<span class="w">    </span><span class="n">request</span><span class="p">:</span><span class="w"> </span><span class="n">MainPageRequest</span>
+<span class="p">):</span><span class="w"> </span><span class="n">HomePageResponse</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">params</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mapOf</span><span class="p">(</span>
+<span class="w">        </span><span class="s">&quot;page&quot;</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">page</span><span class="p">.</span><span class="na">toString</span><span class="p">(),</span>
+<span class="w">        </span><span class="s">&quot;type&quot;</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="na">data</span>
+<span class="w">    </span><span class="p">)</span>
+
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">html</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">app</span><span class="p">.</span><span class="na">get</span><span class="p">(</span>
+<span class="w">        </span><span class="s">&quot;</span><span class="si">$</span><span class="n">mainUrl</span><span class="s">/ajax/page-recent-release.html&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="n">params</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">params</span>
+<span class="w">    </span><span class="p">)</span>
+
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">home</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">html</span><span class="p">.</span><span class="na">document</span>
+<span class="w">        </span><span class="p">.</span><span class="na">select</span><span class="p">(</span><span class="s">&quot;div.film-item&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="na">mapNotNull</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nb">it</span><span class="p">.</span><span class="na">toSearchResponse</span><span class="p">()</span><span class="w"> </span><span class="p">}</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">newHomePageResponse</span><span class="p">(</span><span class="n">request</span><span class="p">.</span><span class="na">name</span><span class="p">,</span><span class="w"> </span><span class="n">home</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div></p>
+<p><strong>设计特点</strong>:
+- 支持多个分类标签
+- 分页加载机制
+- 可复用搜索结果转换逻辑</p>
+<hr />
+<h4 id="3-load-details">3. 详情页面 (Load Details)<a class="headerlink" href="#3-load-details" title="Permanent link">&para;</a></h4>
+<p><strong>功能描述</strong>: 加载媒体的详细信息，包括元数据和剧集列表。</p>
+<p><strong>方法签名</strong>:
+<div class="highlight"><pre><span></span><code><span class="kd">override</span><span class="w"> </span><span class="kd">suspend</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">load</span><span class="p">(</span><span class="n">url</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">):</span><span class="w"> </span><span class="n">LoadResponse</span>
+</code></pre></div></p>
+<p><strong>实现示例</strong>:
+<div class="highlight"><pre><span></span><code><span class="kd">override</span><span class="w"> </span><span class="kd">suspend</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">load</span><span class="p">(</span><span class="n">url</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">):</span><span class="w"> </span><span class="n">LoadResponse</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">document</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">app</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="n">url</span><span class="p">).</span><span class="na">document</span>
+
+<span class="w">    </span><span class="c1">// 提取元数据</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">document</span><span class="p">.</span><span class="na">selectFirst</span><span class="p">(</span><span class="s">&quot;h1.entry-title&quot;</span><span class="p">)</span><span class="o">?.</span><span class="na">text</span><span class="p">()</span><span class="w"> </span><span class="o">?:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">posterUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">document</span><span class="p">.</span><span class="na">selectFirst</span><span class="p">(</span><span class="s">&quot;div.ime &gt; img&quot;</span><span class="p">)</span><span class="o">?.</span><span class="na">attr</span><span class="p">(</span><span class="s">&quot;data-src&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">?:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">plot</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">document</span><span class="p">.</span><span class="na">selectFirst</span><span class="p">(</span><span class="s">&quot;div.entry-content&quot;</span><span class="p">)</span><span class="o">?.</span><span class="na">text</span><span class="p">()</span><span class="w"> </span><span class="o">?:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">rating</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">document</span><span class="p">.</span><span class="na">selectFirst</span><span class="p">(</span><span class="s">&quot;.imdb&quot;</span><span class="p">)</span><span class="o">?.</span><span class="na">text</span><span class="p">()</span><span class="o">?.</span><span class="na">toRatingInt</span><span class="p">()</span>
+
+<span class="w">    </span><span class="c1">// 判断是电影还是剧集</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">isMovie</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">document</span><span class="p">.</span><span class="na">selectFirst</span><span class="p">(</span><span class="s">&quot;.spe&quot;</span><span class="p">)</span><span class="o">?.</span><span class="na">text</span><span class="p">()</span><span class="o">?.</span><span class="na">contains</span><span class="p">(</span><span class="s">&quot;Movie&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">true</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">isMovie</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// 电影处理</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">playUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">document</span><span class="p">.</span><span class="na">selectFirst</span><span class="p">(</span><span class="s">&quot;.eplister li &gt; a&quot;</span><span class="p">)</span><span class="o">?.</span><span class="na">attr</span><span class="p">(</span><span class="s">&quot;href&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">?:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">newMovieLoadResponse</span><span class="p">(</span><span class="n">title</span><span class="p">,</span><span class="w"> </span><span class="n">url</span><span class="p">,</span><span class="w"> </span><span class="n">TvType</span><span class="p">.</span><span class="na">Movie</span><span class="p">,</span><span class="w"> </span><span class="n">playUrl</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">this</span><span class="p">.</span><span class="na">posterUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">posterUrl</span>
+<span class="w">            </span><span class="k">this</span><span class="p">.</span><span class="na">plot</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">plot</span>
+<span class="w">            </span><span class="k">this</span><span class="p">.</span><span class="na">rating</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rating</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// 剧集处理 - 获取所有集数</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">episodes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mutableListOf</span><span class="o">&lt;</span><span class="n">Episode</span><span class="o">&gt;</span><span class="p">()</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">epPageUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">document</span><span class="p">.</span><span class="na">selectFirst</span><span class="p">(</span><span class="s">&quot;.eplister li &gt; a&quot;</span><span class="p">)</span><span class="o">?.</span><span class="na">attr</span><span class="p">(</span><span class="s">&quot;href&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">?:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
+
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">epDoc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">app</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="n">epPageUrl</span><span class="p">).</span><span class="na">document</span>
+<span class="w">        </span><span class="n">epDoc</span><span class="p">.</span><span class="na">select</span><span class="p">(</span><span class="s">&quot;div.episodelist &gt; ul &gt; li&quot;</span><span class="p">).</span><span class="na">forEach</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">ep</span><span class="w"> </span><span class="o">-&gt;</span>
+<span class="w">            </span><span class="kd">val</span><span class="w"> </span><span class="nv">epLink</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ep</span><span class="p">.</span><span class="na">selectFirst</span><span class="p">(</span><span class="s">&quot;a&quot;</span><span class="p">)</span><span class="o">?.</span><span class="na">attr</span><span class="p">(</span><span class="s">&quot;href&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">?:</span><span class="w"> </span><span class="k">return</span><span class="nd">@forEach</span>
+<span class="w">            </span><span class="kd">val</span><span class="w"> </span><span class="nv">epName</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ep</span><span class="p">.</span><span class="na">selectFirst</span><span class="p">(</span><span class="s">&quot;a span&quot;</span><span class="p">)</span><span class="o">?.</span><span class="na">text</span><span class="p">()</span><span class="w"> </span><span class="o">?:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
+
+<span class="w">            </span><span class="n">episodes</span><span class="p">.</span><span class="na">add</span><span class="p">(</span>
+<span class="w">                </span><span class="n">Episode</span><span class="p">(</span><span class="n">epLink</span><span class="p">,</span><span class="w"> </span><span class="n">epName</span><span class="p">)</span>
+<span class="w">            </span><span class="p">)</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">newTvSeriesLoadResponse</span><span class="p">(</span><span class="n">title</span><span class="p">,</span><span class="w"> </span><span class="n">url</span><span class="p">,</span><span class="w"> </span><span class="n">TvType</span><span class="p">.</span><span class="na">TvSeries</span><span class="p">,</span><span class="w"> </span><span class="n">episodes</span><span class="p">.</span><span class="na">reversed</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">this</span><span class="p">.</span><span class="na">posterUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">posterUrl</span>
+<span class="w">            </span><span class="k">this</span><span class="p">.</span><span class="na">plot</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">plot</span>
+<span class="w">            </span><span class="k">this</span><span class="p">.</span><span class="na">rating</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rating</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></p>
+<p><strong>核心任务</strong>:
+- 提取媒体标题、海报、简介等元数据
+- 判断内容类型（电影/剧集）
+- 对于剧集，需获取完整的剧集列表
+- 支持评分、标签、演员等额外信息</p>
+<hr />
+<h4 id="4-load-links">4. 视频链接解析 (Load Links)<a class="headerlink" href="#4-load-links" title="Permanent link">&para;</a></h4>
+<p><strong>功能描述</strong>: 从播放页面提取实际的视频播放地址，这是最具挑战性的部分。</p>
+<p><strong>方法签名</strong>:
+<div class="highlight"><pre><span></span><code><span class="kd">override</span><span class="w"> </span><span class="kd">suspend</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">loadLinks</span><span class="p">(</span>
+<span class="w">    </span><span class="n">data</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span>
+<span class="w">    </span><span class="n">isCasting</span><span class="p">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="p">,</span>
+<span class="w">    </span><span class="n">subtitleCallback</span><span class="p">:</span><span class="w"> </span><span class="p">(</span><span class="n">SubtitleFile</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="kt">Unit</span><span class="p">,</span>
+<span class="w">    </span><span class="n">callback</span><span class="p">:</span><span class="w"> </span><span class="p">(</span><span class="n">ExtractorLink</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="kt">Unit</span>
+<span class="p">):</span><span class="w"> </span><span class="kt">Boolean</span>
+</code></pre></div></p>
+<p><strong>实现示例</strong>:
+<div class="highlight"><pre><span></span><code><span class="kd">override</span><span class="w"> </span><span class="kd">suspend</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">loadLinks</span><span class="p">(</span>
+<span class="w">    </span><span class="n">data</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span>
+<span class="w">    </span><span class="n">isCasting</span><span class="p">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="p">,</span>
+<span class="w">    </span><span class="n">subtitleCallback</span><span class="p">:</span><span class="w"> </span><span class="p">(</span><span class="n">SubtitleFile</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="kt">Unit</span><span class="p">,</span>
+<span class="w">    </span><span class="n">callback</span><span class="p">:</span><span class="w"> </span><span class="p">(</span><span class="n">ExtractorLink</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="kt">Unit</span>
+<span class="p">):</span><span class="w"> </span><span class="kt">Boolean</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">document</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">app</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="n">data</span><span class="p">).</span><span class="na">document</span>
+
+<span class="w">    </span><span class="c1">// 查找所有播放选项</span>
+<span class="w">    </span><span class="n">document</span><span class="p">.</span><span class="na">select</span><span class="p">(</span><span class="s">&quot;.mobius option, option[data-index]&quot;</span><span class="p">).</span><span class="na">forEach</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">option</span><span class="w"> </span><span class="o">-&gt;</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">base64Value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">option</span><span class="p">.</span><span class="na">attr</span><span class="p">(</span><span class="s">&quot;value&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">base64Value</span><span class="p">.</span><span class="na">isEmpty</span><span class="p">())</span><span class="w"> </span><span class="k">return</span><span class="nd">@forEach</span>
+
+<span class="w">        </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="c1">// Base64 解码</span>
+<span class="w">            </span><span class="kd">val</span><span class="w"> </span><span class="nv">decoded</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">base64Decode</span><span class="p">(</span><span class="n">base64Value</span><span class="p">)</span>
+<span class="w">            </span><span class="kd">val</span><span class="w"> </span><span class="nv">iframeDoc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Jsoup</span><span class="p">.</span><span class="na">parse</span><span class="p">(</span><span class="n">decoded</span><span class="p">)</span>
+
+<span class="w">            </span><span class="c1">// 提取 iframe 地址</span>
+<span class="w">            </span><span class="kd">val</span><span class="w"> </span><span class="nv">iframeUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">iframeDoc</span><span class="p">.</span><span class="na">selectFirst</span><span class="p">(</span><span class="s">&quot;iframe&quot;</span><span class="p">)</span><span class="o">?.</span><span class="na">attr</span><span class="p">(</span><span class="s">&quot;src&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">?:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
+
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">iframeUrl</span><span class="p">.</span><span class="na">isNotEmpty</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="c1">// 调用视频提取器</span>
+<span class="w">                </span><span class="n">loadExtractor</span><span class="p">(</span><span class="n">iframeUrl</span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">subtitleCallback</span><span class="p">,</span><span class="w"> </span><span class="n">callback</span><span class="p">)</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="n">e</span><span class="p">:</span><span class="w"> </span><span class="n">Exception</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="c1">// 继续尝试下一个选项</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="kc">true</span>
+<span class="p">}</span>
+</code></pre></div></p>
+<p><strong>常见挑战</strong>:
+- <strong>混淆保护</strong>: 视频链接通常经过 Base64、AES 或自定义加密
+- <strong>动态生成</strong>: 链接可能通过 JavaScript 动态生成
+- <strong>防盗链</strong>: 需要正确的 Referer 和 User-Agent
+- <strong>多层跳转</strong>: 可能需要多次请求才能获取最终链接</p>
+<hr />
+<h2 id="_10">运行原理分析<a class="headerlink" href="#_10" title="Permanent link">&para;</a></h2>
+<h3 id="_11">应用启动流程<a class="headerlink" href="#_11" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>sequenceDiagram
+    participant User
+    participant App
+    participant ExtManager as 扩展管理器
+    participant Storage as 本地存储
+    participant Repo as 扩展仓库
+
+    User-&gt;&gt;App: 启动应用
+    App-&gt;&gt;Storage: 加载配置
+    App-&gt;&gt;ExtManager: 初始化扩展管理器
+    ExtManager-&gt;&gt;Storage: 读取已安装扩展列表
+    ExtManager-&gt;&gt;ExtManager: 加载扩展插件
+    ExtManager--&gt;&gt;App: 扩展加载完成
+    App-&gt;&gt;Repo: 检查扩展更新
+    Repo--&gt;&gt;App: 返回更新信息
+    App--&gt;&gt;User: 显示主界面
+</code></pre></div>
+<h3 id="_12">内容提供和播放机制<a class="headerlink" href="#_12" title="Permanent link">&para;</a></h3>
+<h4 id="_13">搜索流程<a class="headerlink" href="#_13" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code>sequenceDiagram
+    participant User
+    participant UI
+    participant Provider
+    participant Website
+
+    User-&gt;&gt;UI: 输入搜索关键词
+    UI-&gt;&gt;Provider: search(query)
+    Provider-&gt;&gt;Website: HTTP 请求
+    Website--&gt;&gt;Provider: HTML 响应
+    Provider-&gt;&gt;Provider: 解析 HTML
+    Provider--&gt;&gt;UI: List&lt;SearchResponse&gt;
+    UI--&gt;&gt;User: 显示搜索结果
+</code></pre></div>
+<h4 id="_14">播放流程<a class="headerlink" href="#_14" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code>sequenceDiagram
+    participant User
+    participant UI
+    participant Provider
+    participant Extractor as 视频提取器
+    participant Player
+
+    User-&gt;&gt;UI: 选择视频/剧集
+    UI-&gt;&gt;Provider: load(url)
+    Provider--&gt;&gt;UI: LoadResponse
+    UI--&gt;&gt;User: 显示详情页
+
+    User-&gt;&gt;UI: 点击播放
+    UI-&gt;&gt;Provider: loadLinks(data)
+    Provider-&gt;&gt;Extractor: 提取视频链接
+    Extractor--&gt;&gt;Provider: ExtractorLink
+    Provider--&gt;&gt;UI: 返回播放链接
+    UI-&gt;&gt;Player: 播放视频
+    Player--&gt;&gt;User: 视频播放
+</code></pre></div>
+<h3 id="_15">网络请求和数据解析<a class="headerlink" href="#_15" title="Permanent link">&para;</a></h3>
+<h4 id="http">HTTP 请求封装<a class="headerlink" href="#http" title="Permanent link">&para;</a></h4>
+<p>CloudStream 提供了方便的网络请求工具：</p>
+<div class="highlight"><pre><span></span><code><span class="c1">// GET 请求</span>
+<span class="kd">val</span><span class="w"> </span><span class="nv">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">app</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span><span class="w"> </span><span class="n">headers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mapOf</span><span class="p">(</span><span class="s">&quot;User-Agent&quot;</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">userAgent</span><span class="p">))</span>
+
+<span class="c1">// POST 请求</span>
+<span class="kd">val</span><span class="w"> </span><span class="nv">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">app</span><span class="p">.</span><span class="na">post</span><span class="p">(</span><span class="n">url</span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mapOf</span><span class="p">(</span><span class="s">&quot;key&quot;</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="s">&quot;value&quot;</span><span class="p">))</span>
+
+<span class="c1">// 解析为 Document</span>
+<span class="kd">val</span><span class="w"> </span><span class="nv">document</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">response</span><span class="p">.</span><span class="na">document</span>
+
+<span class="c1">// 解析为 JSON</span>
+<span class="kd">val</span><span class="w"> </span><span class="nv">json</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">response</span><span class="p">.</span><span class="na">parsed</span><span class="o">&lt;</span><span class="n">MyDataClass</span><span class="o">&gt;</span><span class="p">()</span>
+</code></pre></div>
+<h4 id="html">HTML 解析<a class="headerlink" href="#html" title="Permanent link">&para;</a></h4>
+<p>使用 JSoup 进行 HTML 解析：</p>
+<div class="highlight"><pre><span></span><code><span class="c1">// CSS 选择器</span>
+<span class="kd">val</span><span class="w"> </span><span class="nv">elements</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">document</span><span class="p">.</span><span class="na">select</span><span class="p">(</span><span class="s">&quot;div.video-item&quot;</span><span class="p">)</span>
+
+<span class="c1">// 提取属性</span>
+<span class="kd">val</span><span class="w"> </span><span class="nv">href</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">element</span><span class="p">.</span><span class="na">attr</span><span class="p">(</span><span class="s">&quot;href&quot;</span><span class="p">)</span>
+<span class="kd">val</span><span class="w"> </span><span class="nv">text</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">element</span><span class="p">.</span><span class="na">text</span><span class="p">()</span>
+<span class="kd">val</span><span class="w"> </span><span class="nv">html</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">element</span><span class="p">.</span><span class="na">html</span><span class="p">()</span>
+
+<span class="c1">// 查找单个元素</span>
+<span class="kd">val</span><span class="w"> </span><span class="nv">firstElement</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">document</span><span class="p">.</span><span class="na">selectFirst</span><span class="p">(</span><span class="s">&quot;h1.title&quot;</span><span class="p">)</span>
+</code></pre></div>
+<h4 id="json">JSON 解析<a class="headerlink" href="#json" title="Permanent link">&para;</a></h4>
+<p>使用 Jackson 进行 JSON 解析：</p>
+<div class="highlight"><pre><span></span><code><span class="kd">data</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nc">VideoData</span><span class="p">(</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">title</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">url</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">episodes</span><span class="p">:</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Episode</span><span class="o">&gt;</span>
+<span class="p">)</span>
+
+<span class="c1">// 解析 JSON</span>
+<span class="kd">val</span><span class="w"> </span><span class="nv">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">parseJson</span><span class="o">&lt;</span><span class="n">VideoData</span><span class="o">&gt;</span><span class="p">(</span><span class="n">jsonString</span><span class="p">)</span>
+</code></pre></div>
+<hr />
+<h2 id="_16">扩展开发流程<a class="headerlink" href="#_16" title="Permanent link">&para;</a></h2>
+<h3 id="_17">开发环境搭建<a class="headerlink" href="#_17" title="Permanent link">&para;</a></h3>
+<h4 id="1-fork">1. Fork 插件模板<a class="headerlink" href="#1-fork" title="Permanent link">&para;</a></h4>
+<p>从官方模板仓库 fork: <a href="https://github.com/recloudstream/TestPlugins">https://github.com/recloudstream/TestPlugins</a></p>
+<h4 id="2-github-actions">2. 配置 GitHub Actions<a class="headerlink" href="#2-github-actions" title="Permanent link">&para;</a></h4>
+<ul>
+<li>启用 GitHub Actions</li>
+<li>设置读写权限：Settings &gt; Actions &gt; General &gt; Read and write permissions</li>
+</ul>
+<h4 id="3">3. 项目结构<a class="headerlink" href="#3" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code>MyExtension/
+├── build.gradle.kts          # 构建配置
+├── src/
+│   └── main/
+│       ├── kotlin/
+│       │   └── com/
+│       │       └── example/
+│       │           └── MyProvider.kt
+│       └── AndroidManifest.xml
+└── README.md
+</code></pre></div>
+<h3 id="provider_2">Provider 开发步骤<a class="headerlink" href="#provider_2" title="Permanent link">&para;</a></h3>
+<h4 id="step-1-provider">Step 1: 创建 Provider 类<a class="headerlink" href="#step-1-provider" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="k">package</span><span class="w"> </span><span class="nn">com.example</span>
+
+<span class="k">import</span><span class="w"> </span><span class="nn">com.lagradost.cloudstream3.*</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">com.lagradost.cloudstream3.utils.*</span>
+
+<span class="kd">class</span><span class="w"> </span><span class="nc">MyProvider</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">MainAPI</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">override</span><span class="w"> </span><span class="kd">var</span><span class="w"> </span><span class="nv">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;My Provider&quot;</span>
+<span class="w">    </span><span class="kd">override</span><span class="w"> </span><span class="kd">var</span><span class="w"> </span><span class="nv">mainUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;https://example.com&quot;</span>
+<span class="w">    </span><span class="kd">override</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">supportedTypes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">setOf</span><span class="p">(</span><span class="n">TvType</span><span class="p">.</span><span class="na">Movie</span><span class="p">,</span><span class="w"> </span><span class="n">TvType</span><span class="p">.</span><span class="na">TvSeries</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">override</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">hasMainPage</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">    </span><span class="kd">override</span><span class="w"> </span><span class="kd">var</span><span class="w"> </span><span class="nv">lang</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;en&quot;</span>
+
+<span class="w">    </span><span class="c1">// 实现四大核心方法</span>
+<span class="p">}</span>
+</code></pre></div>
+<h4 id="step-2">Step 2: 实现搜索功能<a class="headerlink" href="#step-2" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="kd">override</span><span class="w"> </span><span class="kd">suspend</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">search</span><span class="p">(</span><span class="n">query</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">):</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">SearchResponse</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;</span><span class="si">$</span><span class="n">mainUrl</span><span class="s">/search?q=</span><span class="si">${</span><span class="n">query</span><span class="si">}</span><span class="s">&quot;</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">document</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">app</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="n">url</span><span class="p">).</span><span class="na">document</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">document</span><span class="p">.</span><span class="na">select</span><span class="p">(</span><span class="s">&quot;.search-result&quot;</span><span class="p">).</span><span class="na">mapNotNull</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">element</span><span class="w"> </span><span class="o">-&gt;</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">element</span><span class="p">.</span><span class="na">selectFirst</span><span class="p">(</span><span class="s">&quot;.title&quot;</span><span class="p">)</span><span class="o">?.</span><span class="na">text</span><span class="p">()</span><span class="w"> </span><span class="o">?:</span><span class="w"> </span><span class="k">return</span><span class="nd">@mapNotNull</span><span class="w"> </span><span class="kc">null</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">href</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fixUrl</span><span class="p">(</span><span class="n">element</span><span class="p">.</span><span class="na">selectFirst</span><span class="p">(</span><span class="s">&quot;a&quot;</span><span class="p">)</span><span class="o">?.</span><span class="na">attr</span><span class="p">(</span><span class="s">&quot;href&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">?:</span><span class="w"> </span><span class="k">return</span><span class="nd">@mapNotNull</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">poster</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">element</span><span class="p">.</span><span class="na">selectFirst</span><span class="p">(</span><span class="s">&quot;img&quot;</span><span class="p">)</span><span class="o">?.</span><span class="na">attr</span><span class="p">(</span><span class="s">&quot;src&quot;</span><span class="p">)</span>
+
+<span class="w">        </span><span class="n">newMovieSearchResponse</span><span class="p">(</span><span class="n">title</span><span class="p">,</span><span class="w"> </span><span class="n">href</span><span class="p">,</span><span class="w"> </span><span class="n">TvType</span><span class="p">.</span><span class="na">Movie</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">this</span><span class="p">.</span><span class="na">posterUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">poster</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<h4 id="step-3">Step 3: 实现首页加载<a class="headerlink" href="#step-3" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="kd">override</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">mainPage</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mainPageOf</span><span class="p">(</span>
+<span class="w">    </span><span class="s">&quot;</span><span class="si">$</span><span class="n">mainUrl</span><span class="s">/trending&quot;</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="s">&quot;Trending&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s">&quot;</span><span class="si">$</span><span class="n">mainUrl</span><span class="s">/popular&quot;</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="s">&quot;Popular&quot;</span>
+<span class="p">)</span>
+
+<span class="kd">override</span><span class="w"> </span><span class="kd">suspend</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">getMainPage</span><span class="p">(</span><span class="n">page</span><span class="p">:</span><span class="w"> </span><span class="kt">Int</span><span class="p">,</span><span class="w"> </span><span class="n">request</span><span class="p">:</span><span class="w"> </span><span class="n">MainPageRequest</span><span class="p">):</span><span class="w"> </span><span class="n">HomePageResponse</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;</span><span class="si">${</span><span class="n">request</span><span class="p">.</span><span class="na">data</span><span class="si">}</span><span class="s">?page=</span><span class="si">$</span><span class="n">page</span><span class="s">&quot;</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">document</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">app</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="n">url</span><span class="p">).</span><span class="na">document</span>
+
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">items</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">document</span><span class="p">.</span><span class="na">select</span><span class="p">(</span><span class="s">&quot;.movie-item&quot;</span><span class="p">).</span><span class="na">mapNotNull</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nb">it</span><span class="p">.</span><span class="na">toSearchResponse</span><span class="p">()</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">newHomePageResponse</span><span class="p">(</span><span class="n">request</span><span class="p">.</span><span class="na">name</span><span class="p">,</span><span class="w"> </span><span class="n">items</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div>
+<h4 id="step-4">Step 4: 实现详情加载<a class="headerlink" href="#step-4" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="kd">override</span><span class="w"> </span><span class="kd">suspend</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">load</span><span class="p">(</span><span class="n">url</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">):</span><span class="w"> </span><span class="n">LoadResponse</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">document</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">app</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="n">url</span><span class="p">).</span><span class="na">document</span>
+
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">document</span><span class="p">.</span><span class="na">selectFirst</span><span class="p">(</span><span class="s">&quot;h1&quot;</span><span class="p">)</span><span class="o">?.</span><span class="na">text</span><span class="p">()</span><span class="w"> </span><span class="o">?:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">poster</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">document</span><span class="p">.</span><span class="na">selectFirst</span><span class="p">(</span><span class="s">&quot;.poster&quot;</span><span class="p">)</span><span class="o">?.</span><span class="na">attr</span><span class="p">(</span><span class="s">&quot;src&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">description</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">document</span><span class="p">.</span><span class="na">selectFirst</span><span class="p">(</span><span class="s">&quot;.description&quot;</span><span class="p">)</span><span class="o">?.</span><span class="na">text</span><span class="p">()</span>
+
+<span class="w">    </span><span class="c1">// 获取播放链接或剧集列表</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">playUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">document</span><span class="p">.</span><span class="na">selectFirst</span><span class="p">(</span><span class="s">&quot;.play-btn&quot;</span><span class="p">)</span><span class="o">?.</span><span class="na">attr</span><span class="p">(</span><span class="s">&quot;data-url&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">?:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">newMovieLoadResponse</span><span class="p">(</span><span class="n">title</span><span class="p">,</span><span class="w"> </span><span class="n">url</span><span class="p">,</span><span class="w"> </span><span class="n">TvType</span><span class="p">.</span><span class="na">Movie</span><span class="p">,</span><span class="w"> </span><span class="n">playUrl</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="na">posterUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">poster</span>
+<span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="na">plot</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">description</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<h4 id="step-5">Step 5: 实现视频链接提取<a class="headerlink" href="#step-5" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="kd">override</span><span class="w"> </span><span class="kd">suspend</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">loadLinks</span><span class="p">(</span>
+<span class="w">    </span><span class="n">data</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span>
+<span class="w">    </span><span class="n">isCasting</span><span class="p">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="p">,</span>
+<span class="w">    </span><span class="n">subtitleCallback</span><span class="p">:</span><span class="w"> </span><span class="p">(</span><span class="n">SubtitleFile</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="kt">Unit</span><span class="p">,</span>
+<span class="w">    </span><span class="n">callback</span><span class="p">:</span><span class="w"> </span><span class="p">(</span><span class="n">ExtractorLink</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="kt">Unit</span>
+<span class="p">):</span><span class="w"> </span><span class="kt">Boolean</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">document</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">app</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="n">data</span><span class="p">).</span><span class="na">document</span>
+
+<span class="w">    </span><span class="c1">// 提取视频 URL</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">videoUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">document</span><span class="p">.</span><span class="na">selectFirst</span><span class="p">(</span><span class="s">&quot;video source&quot;</span><span class="p">)</span><span class="o">?.</span><span class="na">attr</span><span class="p">(</span><span class="s">&quot;src&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">?:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">videoUrl</span><span class="p">.</span><span class="na">isNotEmpty</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">callback</span><span class="p">.</span><span class="na">invoke</span><span class="p">(</span>
+<span class="w">            </span><span class="n">ExtractorLink</span><span class="p">(</span>
+<span class="w">                </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="na">name</span><span class="p">,</span>
+<span class="w">                </span><span class="n">source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="na">name</span><span class="p">,</span>
+<span class="w">                </span><span class="n">url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">videoUrl</span><span class="p">,</span>
+<span class="w">                </span><span class="n">referer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">data</span><span class="p">,</span>
+<span class="w">                </span><span class="n">quality</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Qualities</span><span class="p">.</span><span class="na">Unknown</span><span class="p">.</span><span class="na">value</span><span class="p">,</span>
+<span class="w">                </span><span class="n">isM3u8</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">videoUrl</span><span class="p">.</span><span class="na">contains</span><span class="p">(</span><span class="s">&quot;.m3u8&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="p">)</span>
+<span class="w">        </span><span class="p">)</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="kc">true</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="_18">构建配置<a class="headerlink" href="#_18" title="Permanent link">&para;</a></h3>
+<p><code>build.gradle.kts</code> 示例：</p>
+<div class="highlight"><pre><span></span><code><span class="n">version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">1</span>
+
+<span class="n">cloudstream</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">language</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;en&quot;</span>
+<span class="w">    </span><span class="n">description</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;My custom provider for Example.com&quot;</span>
+
+<span class="w">    </span><span class="n">authors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">listOf</span><span class="p">(</span><span class="s">&quot;Your Name&quot;</span><span class="p">)</span>
+
+<span class="w">    </span><span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="c1">// 0: Dev, 1: Beta, 3: Stable</span>
+
+<span class="w">    </span><span class="n">tvTypes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">listOf</span><span class="p">(</span><span class="s">&quot;Movie&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;TvSeries&quot;</span><span class="p">)</span>
+
+<span class="w">    </span><span class="n">iconUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;https://example.com/icon.png&quot;</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="_19">测试与调试<a class="headerlink" href="#_19" title="Permanent link">&para;</a></h3>
+<h4 id="_20">本地测试<a class="headerlink" href="#_20" title="Permanent link">&para;</a></h4>
+<ol>
+<li>使用 Android Studio 构建项目</li>
+<li>生成 APK 文件</li>
+<li>在 CloudStream 应用中从本地安装扩展</li>
+</ol>
+<h4 id="_21">日志调试<a class="headerlink" href="#_21" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="c1">// 打印日志</span>
+<span class="n">Log</span><span class="p">.</span><span class="na">d</span><span class="p">(</span><span class="s">&quot;MyProvider&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Debug message&quot;</span><span class="p">)</span>
+
+<span class="c1">// 错误处理</span>
+<span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// 网络请求</span>
+<span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="n">e</span><span class="p">:</span><span class="w"> </span><span class="n">Exception</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">Log</span><span class="p">.</span><span class="na">e</span><span class="p">(</span><span class="s">&quot;MyProvider&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Error: </span><span class="si">${</span><span class="n">e</span><span class="p">.</span><span class="na">message</span><span class="si">}</span><span class="s">&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="k">throw</span><span class="w"> </span><span class="n">ErrorLoadingException</span><span class="p">(</span><span class="n">e</span><span class="p">.</span><span class="na">message</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="_22">发布扩展<a class="headerlink" href="#_22" title="Permanent link">&para;</a></h3>
+<h4 id="github-actions">GitHub Actions 自动构建<a class="headerlink" href="#github-actions" title="Permanent link">&para;</a></h4>
+<p>推送代码到 GitHub 后，Actions 会自动：
+1. 编译扩展
+2. 生成 JSON 配置
+3. 发布到 Releases</p>
+<h4 id="_23">扩展仓库配置<a class="headerlink" href="#_23" title="Permanent link">&para;</a></h4>
+<p>创建 <code>repo.json</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;My Extension Repository&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Custom extensions&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;manifestVersion&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;pluginLists&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;https://your-repo.com/plugins.json&quot;</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+<hr />
+<h2 id="_24">最佳实践与技巧<a class="headerlink" href="#_24" title="Permanent link">&para;</a></h2>
+<h3 id="1">1. 错误处理<a class="headerlink" href="#1" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="kd">override</span><span class="w"> </span><span class="kd">suspend</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">search</span><span class="p">(</span><span class="n">query</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">):</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">SearchResponse</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">app</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="s">&quot;</span><span class="si">$</span><span class="n">mainUrl</span><span class="s">/search?q=</span><span class="si">$</span><span class="n">query</span><span class="s">&quot;</span><span class="p">).</span><span class="na">document</span>
+<span class="w">            </span><span class="p">.</span><span class="na">select</span><span class="p">(</span><span class="s">&quot;.result&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">mapNotNull</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nb">it</span><span class="p">.</span><span class="na">toSearchResponse</span><span class="p">()</span><span class="w"> </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="n">e</span><span class="p">:</span><span class="w"> </span><span class="n">Exception</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">Log</span><span class="p">.</span><span class="na">e</span><span class="p">(</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Search failed&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="p">)</span>
+<span class="w">        </span><span class="n">emptyList</span><span class="p">()</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="2-url">2. URL 处理<a class="headerlink" href="#2-url" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1">// 处理相对 URL</span>
+<span class="kd">val</span><span class="w"> </span><span class="nv">fullUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fixUrl</span><span class="p">(</span><span class="n">relativeUrl</span><span class="p">)</span>
+
+<span class="c1">// 处理可能为空的 URL</span>
+<span class="kd">val</span><span class="w"> </span><span class="nv">url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fixUrlNull</span><span class="p">(</span><span class="n">element</span><span class="p">.</span><span class="na">attr</span><span class="p">(</span><span class="s">&quot;href&quot;</span><span class="p">))</span><span class="w"> </span><span class="o">?:</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="kc">null</span>
+</code></pre></div>
+<h3 id="3_1">3. 评分转换<a class="headerlink" href="#3_1" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1">// 将评分转换为 0-10000 范围</span>
+<span class="kd">val</span><span class="w"> </span><span class="nv">rating</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">document</span><span class="p">.</span><span class="na">selectFirst</span><span class="p">(</span><span class="s">&quot;.rating&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="o">?.</span><span class="na">text</span><span class="p">()</span>
+<span class="w">    </span><span class="o">?.</span><span class="na">toFloatOrNull</span><span class="p">()</span>
+<span class="w">    </span><span class="o">?.</span><span class="na">times</span><span class="p">(</span><span class="m">1000</span><span class="p">)</span>
+<span class="w">    </span><span class="o">?.</span><span class="na">toInt</span><span class="p">()</span>
+</code></pre></div>
+<h3 id="4">4. 复用代码<a class="headerlink" href="#4" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1">// 将通用逻辑提取为扩展函数</span>
+<span class="kd">private</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="n">Element</span><span class="p">.</span><span class="nf">toSearchResponse</span><span class="p">():</span><span class="w"> </span><span class="n">SearchResponse? </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">link</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">selectFirst</span><span class="p">(</span><span class="s">&quot;a&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">?:</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="kc">null</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">link</span><span class="p">.</span><span class="na">text</span><span class="p">()</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">href</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fixUrl</span><span class="p">(</span><span class="n">link</span><span class="p">.</span><span class="na">attr</span><span class="p">(</span><span class="s">&quot;href&quot;</span><span class="p">))</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">poster</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">selectFirst</span><span class="p">(</span><span class="s">&quot;img&quot;</span><span class="p">)</span><span class="o">?.</span><span class="na">attr</span><span class="p">(</span><span class="s">&quot;src&quot;</span><span class="p">)</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">newAnimeSearchResponse</span><span class="p">(</span><span class="n">title</span><span class="p">,</span><span class="w"> </span><span class="n">href</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="na">posterUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">poster</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="5">5. 请求头配置<a class="headerlink" href="#5" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">headers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mapOf</span><span class="p">(</span>
+<span class="w">    </span><span class="s">&quot;User-Agent&quot;</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="s">&quot;Mozilla/5.0 ...&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s">&quot;Referer&quot;</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">mainUrl</span>
+<span class="p">)</span>
+
+<span class="c1">// 使用自定义请求头</span>
+<span class="kd">val</span><span class="w"> </span><span class="nv">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">app</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span><span class="w"> </span><span class="n">headers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">headers</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="6">6. 处理分页<a class="headerlink" href="#6" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="kd">override</span><span class="w"> </span><span class="kd">suspend</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">getMainPage</span><span class="p">(</span><span class="n">page</span><span class="p">:</span><span class="w"> </span><span class="kt">Int</span><span class="p">,</span><span class="w"> </span><span class="n">request</span><span class="p">:</span><span class="w"> </span><span class="n">MainPageRequest</span><span class="p">):</span><span class="w"> </span><span class="n">HomePageResponse</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// 根据不同网站的分页方式调整</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">when</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">page</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="na">data</span><span class="w">  </span><span class="c1">// 第一页</span>
+<span class="w">        </span><span class="k">else</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="s">&quot;</span><span class="si">${</span><span class="n">request</span><span class="p">.</span><span class="na">data</span><span class="si">}</span><span class="s">?page=</span><span class="si">$</span><span class="n">page</span><span class="s">&quot;</span><span class="w">  </span><span class="c1">// 后续页</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// ... 处理逻辑</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="7">7. 视频质量标识<a class="headerlink" href="#7" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="kd">val</span><span class="w"> </span><span class="nv">quality</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">when</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">url</span><span class="p">.</span><span class="na">contains</span><span class="p">(</span><span class="s">&quot;1080&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">Qualities</span><span class="p">.</span><span class="na">P1080</span><span class="p">.</span><span class="na">value</span>
+<span class="w">    </span><span class="n">url</span><span class="p">.</span><span class="na">contains</span><span class="p">(</span><span class="s">&quot;720&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">Qualities</span><span class="p">.</span><span class="na">P720</span><span class="p">.</span><span class="na">value</span>
+<span class="w">    </span><span class="n">url</span><span class="p">.</span><span class="na">contains</span><span class="p">(</span><span class="s">&quot;480&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">Qualities</span><span class="p">.</span><span class="na">P480</span><span class="p">.</span><span class="na">value</span>
+<span class="w">    </span><span class="k">else</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">Qualities</span><span class="p">.</span><span class="na">Unknown</span><span class="p">.</span><span class="na">value</span>
+<span class="p">}</span>
+</code></pre></div>
+<hr />
+<h2 id="_25">常见问题与解决方案<a class="headerlink" href="#_25" title="Permanent link">&para;</a></h2>
+<h3 id="1_1">问题 1: 视频链接加密<a class="headerlink" href="#1_1" title="Permanent link">&para;</a></h3>
+<p><strong>解决方案</strong>: 使用浏览器开发者工具分析网络请求，查找解密逻辑</p>
+<div class="highlight"><pre><span></span><code><span class="c1">// Base64 解码示例</span>
+<span class="kd">val</span><span class="w"> </span><span class="nv">decoded</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">String</span><span class="p">(</span><span class="n">Base64</span><span class="p">.</span><span class="na">decode</span><span class="p">(</span><span class="n">encoded</span><span class="p">,</span><span class="w"> </span><span class="n">Base64</span><span class="p">.</span><span class="na">DEFAULT</span><span class="p">))</span>
+
+<span class="c1">// AES 解密（如果需要）</span>
+<span class="c1">// 使用 javax.crypto 包</span>
+</code></pre></div>
+<h3 id="2">问题 2: 动态内容加载<a class="headerlink" href="#2" title="Permanent link">&para;</a></h3>
+<p><strong>解决方案</strong>: 查找 AJAX 请求，直接请求 API</p>
+<div class="highlight"><pre><span></span><code><span class="c1">// 查找网络标签中的 XHR 请求</span>
+<span class="kd">val</span><span class="w"> </span><span class="nv">apiUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;</span><span class="si">$</span><span class="n">mainUrl</span><span class="s">/api/episodes?id=</span><span class="si">$</span><span class="n">showId</span><span class="s">&quot;</span>
+<span class="kd">val</span><span class="w"> </span><span class="nv">json</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">app</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="n">apiUrl</span><span class="p">).</span><span class="na">parsed</span><span class="o">&lt;</span><span class="n">EpisodeData</span><span class="o">&gt;</span><span class="p">()</span>
+</code></pre></div>
+<h3 id="3-cloudflare">问题 3: Cloudflare 保护<a class="headerlink" href="#3-cloudflare" title="Permanent link">&para;</a></h3>
+<p><strong>解决方案</strong>: CloudStream 内置了 Cloudflare 绕过机制</p>
+<div class="highlight"><pre><span></span><code><span class="kd">val</span><span class="w"> </span><span class="nv">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">app</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span><span class="w"> </span><span class="n">interceptor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CloudflareInterceptor</span><span class="p">())</span>
+</code></pre></div>
+<h3 id="4_1">问题 4: 剧集顺序错误<a class="headerlink" href="#4_1" title="Permanent link">&para;</a></h3>
+<p><strong>解决方案</strong>: 使用 <code>reversed()</code> 或手动排序</p>
+<div class="highlight"><pre><span></span><code><span class="kd">val</span><span class="w"> </span><span class="nv">episodes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">episodeList</span><span class="p">.</span><span class="na">reversed</span><span class="p">()</span><span class="w">  </span><span class="c1">// 反转列表</span>
+
+<span class="c1">// 或按集数排序</span>
+<span class="kd">val</span><span class="w"> </span><span class="nv">sorted</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">episodes</span><span class="p">.</span><span class="na">sortedBy</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nb">it</span><span class="p">.</span><span class="na">episode</span><span class="w"> </span><span class="p">}</span>
+</code></pre></div>
+<hr />
+<h2 id="_26">总结<a class="headerlink" href="#_26" title="Permanent link">&para;</a></h2>
+<p>CloudStream 通过其精心设计的插件架构，实现了核心应用与内容源的完全解耦。其四大核心功能（搜索、首页、详情、视频链接）构成了完整的内容提供流程。开发者可以通过实现 <code>MainAPI</code> 接口，快速创建自定义扩展，为用户提供丰富的媒体内容源。</p>
+<h3 id="_27">关键技术要点<a class="headerlink" href="#_27" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Kotlin 协程</strong>: 所有网络请求都是异步的</li>
+<li><strong>JSoup 解析</strong>: HTML 内容提取的核心工具</li>
+<li><strong>扩展隔离</strong>: 每个扩展独立运行，互不干扰</li>
+<li><strong>灵活配置</strong>: 支持多种媒体类型和播放源</li>
+</ol>
+<h3 id="_28">开发建议<a class="headerlink" href="#_28" title="Permanent link">&para;</a></h3>
+<ul>
+<li>首先确认能够提取视频链接（最关键）</li>
+<li>使用浏览器开发者工具分析网站结构</li>
+<li>参考已有扩展的实现方式</li>
+<li>充分测试各种边界情况</li>
+<li>遵循版权法律法规</li>
+</ul>
+<hr />
+<h2 id="_29">参考资源<a class="headerlink" href="#_29" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="https://github.com/recloudstream/cloudstream">CloudStream GitHub 仓库</a></li>
+<li><a href="https://recloudstream.github.io/csdocs/">官方文档</a></li>
+<li><a href="https://recloudstream.github.io/csdocs/devs/gettingstarted/">插件开发指南</a></li>
+<li><a href="https://github.com/recloudstream/TestPlugins">插件模板仓库</a></li>
+<li><a href="https://recloudstream.github.io/dokka/">API 文档</a></li>
+</ul>
+<hr />
+<p><em>本报告基于 CloudStream 项目的公开文档和源代码分析整理，旨在帮助开发者理解项目架构和插件开发流程。</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": [], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
