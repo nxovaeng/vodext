@@ -7,13 +7,13 @@ import com.lagradost.cloudstream3.utils.INFER_TYPE
 import com.lagradost.cloudstream3.utils.newExtractorLink
 import java.net.URLEncoder
 import java.security.MessageDigest
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
-import java.util.concurrent.atomic.AtomicBoolean
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
-import kotlinx.coroutines.TimeoutCancellationException
 import org.json.JSONObject
 import org.jsoup.nodes.Document
 
@@ -281,7 +281,10 @@ open class PipishiProvider : MainAPI() {
                 '{' -> depth++
                 '}' -> {
                     depth--
-                    if (depth == 0) { jsonEnd = i; break }
+                    if (depth == 0) {
+                        jsonEnd = i
+                        break
+                    }
                 }
             }
         }
@@ -336,12 +339,12 @@ open class PipishiProvider : MainAPI() {
         val streamHost =
                 when {
                     sourceName.contains("自营") -> mainUrl
-                    sourceName.contains("有广") -> null
                     else ->
                             runCatching {
-                                val u = java.net.URL(streamUrl)
-                                "${u.protocol}://${u.host}"
-                            }.getOrNull()
+                                        val u = java.net.URL(streamUrl)
+                                        "${u.protocol}://${u.host}"
+                                    }
+                                    .getOrNull()
                 }
 
         // 自营线路 Referer 带 vid 参数，与 API 请求保持一致

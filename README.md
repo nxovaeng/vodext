@@ -23,7 +23,9 @@
 1. 打开 CloudStream 应用
 2. 进入设置 > 扩展设置
 3. 点击"添加仓库"
-4. 输入仓库地址：`https://raw.githubusercontent.com/nxovaeng/vodext/builds/repo.json`
+4. 输入仓库地址
+   - <https://raw.githubusercontent.com/nxovaeng/vodext/builds/repo.json>
+   - <https://vod.zrocf.qzz.io/vodext.json>
 5. 安装插件
 
 ## [了解更多](docs/index.md)

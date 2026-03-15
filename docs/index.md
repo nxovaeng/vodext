@@ -17,8 +17,8 @@ CloudStream 中文影视扩展为您提供优质的中文影视资源支持。
 2. 进入设置 > 扩展设置
 3. 点击"添加仓库"
 4. 输入以下地址之一：
-   - https://raw.githubusercontent.com/nxovaeng/vodext/builds/repo.json
-   - https://vod.zrocf.qzz.io/vodext.json
+   - <https://raw.githubusercontent.com/nxovaeng/vodext/builds/repo.json>
+   - <https://vod.zrocf.qzz.io/vodext.json>
 
 ### 安装扩展
 
@@ -28,13 +28,6 @@ CloudStream 中文影视扩展为您提供优质的中文影视资源支持。
    - MacCMS 影视
    - Animekhor 动漫
 3. 点击"安装"按钮
-
-## 支持的视频源
-
-| 扩展名称 |          支持的网站                 | 视频类型 |
-|---------|----------------------------------- |----------|
-| ApiCMS  | bfzyapi.com, mdzyapi.com           | 影视、动漫 |
-| Animekhor | animekhor.org, donghuaworld.com  | 动漫 (phisher的扩展库) |
 
 ## 常见问题
 
