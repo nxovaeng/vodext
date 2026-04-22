@@ -1,101 +1,114 @@
 package com.Donghuastream
 
-import com.lagradost.cloudstream3.SearchResponse
-import com.lagradost.cloudstream3.SubtitleFile
-import com.lagradost.cloudstream3.TvType
-import com.lagradost.cloudstream3.amap
-import com.lagradost.cloudstream3.app
-import com.lagradost.cloudstream3.base64Decode
-import com.lagradost.cloudstream3.fixUrl
-import com.lagradost.cloudstream3.fixUrlNull
-import com.lagradost.cloudstream3.newMovieSearchResponse
+import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.utils.ExtractorLink
-import com.lagradost.cloudstream3.utils.INFER_TYPE
-import com.lagradost.cloudstream3.utils.getQualityFromName
-import com.lagradost.cloudstream3.utils.httpsify
 import com.lagradost.cloudstream3.utils.loadExtractor
-import com.lagradost.cloudstream3.utils.newExtractorLink
-import org.jsoup.Jsoup
-import org.jsoup.nodes.Element
+import org.json.JSONObject
 
-open class SeaTV : Donghuastream() {
-    override var mainUrl = "https://seatv-24.xyz"
+open class SeaTV : MainAPI() {
+    override var mainUrl = "https://donghuafun.com"
     override var name = "SeaTV"
     override val hasMainPage = true
     override var lang = "zh"
     override val hasDownloadSupport = true
     override val supportedTypes = setOf(TvType.Anime)
 
-    private fun Element.toSearch2Result(): SearchResponse {
-        val title = this.select("div.bsx > a").attr("title")
-        val href = fixUrl(this.select("div.bsx > a").attr("href"))
-        val posterUrl = fixUrlNull(this.select("div.bsx a img").attr("data-src"))
-        return newMovieSearchResponse(title, href, TvType.Movie) { this.posterUrl = posterUrl }
+    override val mainPage = mainPageOf(
+        "20" to "Donghua",
+    )
+
+    override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
+        val url = "$mainUrl/api.php/provide/vod/at/json?ac=videolist&t=${request.data}&pg=$page"
+        val response = app.get(url).text
+        val json = JSONObject(response)
+        val list = json.getJSONArray("list")
+        val home = mutableListOf<SearchResponse>()
+        for (i in 0 until list.length()) {
+            val item = list.getJSONObject(i)
+            home.add(item.toSearchResponse())
+        }
+        return newHomePageResponse(
+            list = HomePageList(name = request.name, list = home, isHorizontalImages = false),
+            hasNext = json.getInt("page") < json.getInt("pagecount")
+        )
     }
 
-    /**
-     * Searches for content.
-     *
-     * @param query The search query.
-     * @return A list of search results.
-     */
+    private fun JSONObject.toSearchResponse(): SearchResponse {
+        val title = getString("vod_name")
+        val id = getInt("vod_id").toString()
+        val poster = getString("vod_pic")
+        return newTvSeriesSearchResponse(title, id, TvType.Anime) {
+            this.posterUrl = poster
+        }
+    }
+
     override suspend fun search(query: String): List<SearchResponse> {
-        val document = app.get("${mainUrl}/?s=$query").document
-
-        val results = document.select("div.listupd > article").mapNotNull { it.toSearch2Result() }
-
+        val url = "$mainUrl/api.php/provide/vod/at/json?ac=videolist&wd=$query"
+        val response = app.get(url).text
+        val json = JSONObject(response)
+        val list = json.optJSONArray("list") ?: return emptyList()
+        val results = mutableListOf<SearchResponse>()
+        for (i in 0 until list.length()) {
+            val item = list.getJSONObject(i)
+            results.add(item.toSearchResponse())
+        }
         return results
     }
 
-    override suspend fun loadLinks(
-            data: String,
-            isCasting: Boolean,
-            subtitleCallback: (SubtitleFile) -> Unit,
-            callback: (ExtractorLink) -> Unit
-    ): Boolean {
-        val document = app.get(data).document
-        document.select(".mobius option").amap { server ->
-            val base64 = server.attr("value").takeIf { it.isNotEmpty() }
-            val doc = base64?.let { base64Decode(it).let(Jsoup::parse) }
-            val iframeUrl = doc?.select("iframe")?.attr("src")?.let(::httpsify)
-            val metaUrl = doc?.select("meta[itemprop=embedUrl]")?.attr("content")?.let(::httpsify)
-            val url = iframeUrl?.takeIf { it.isNotEmpty() } ?: metaUrl.orEmpty()
-            if (url.isNotEmpty()) {
-                when {
-                    url.contains("vidmoly") -> {
-                        val newUrl = url.substringAfter("=\"").substringBefore("\"")
-                        val loadUrl = "http:$newUrl"
-                        loadExtractor(loadUrl, referer = url, subtitleCallback) { link ->
-                            // Filter for quality >= 720p or unknown
-                            if (link.quality >= 720 || link.quality <= 0) {
-                                callback(link)
-                            }
-                        }
-                    }
-                    url.endsWith("mp4") -> {
-                        callback.invoke(
-                                newExtractorLink(
-                                        "All Sub Player",
-                                        "All Sub Player",
-                                        url = url,
-                                        INFER_TYPE
-                                ) {
-                                    this.referer = ""
-                                    this.quality = getQualityFromName("")
-                                }
-                        )
-                    }
-                    else -> {
-                        loadExtractor(url, referer = url, subtitleCallback) { link ->
-                            // Filter for quality >= 720p or unknown
-                            if (link.quality >= 720 || link.quality <= 0) {
-                                callback(link)
-                            }
-                        }
-                    }
+    override suspend fun load(url: String): LoadResponse {
+        val id = if (url.startsWith("http")) {
+            url.substringAfter("/id/").substringBefore(".html")
+        } else {
+            url
+        }
+        val apiUrl = "$mainUrl/api.php/provide/vod/at/json?ac=detail&ids=$id"
+        val response = app.get(apiUrl).text
+        val json = JSONObject(response)
+        val vod = json.getJSONArray("list").getJSONObject(0)
+        
+        val title = vod.getString("vod_name")
+        val poster = vod.getString("vod_pic")
+        val plot = vod.optString("vod_content").replace(Regex("<[^>]*>"), "").trim()
+        val year = vod.optInt("vod_year", 0).takeIf { it > 0 }
+
+        val fromList = vod.getString("vod_play_from").split("$$$")
+        val urlList = vod.getString("vod_play_url").split("$$$")
+        
+        val episodes = mutableListOf<Episode>()
+        
+        // Find "dailymotion" index
+        val dmIndex = fromList.indexOf("dailymotion")
+        if (dmIndex != -1) {
+            val dmUrls = urlList[dmIndex].split("#")
+            dmUrls.forEachIndexed { index, epStr ->
+                val epParts = epStr.split("$")
+                if (epParts.size == 2) {
+                    val epName = epParts[0]
+                    val epData = epParts[1]
+                    episodes.add(newEpisode(epData) {
+                        this.name = epName
+                        this.episode = index + 1
+                    })
                 }
             }
         }
+
+        return newTvSeriesLoadResponse(title, url, TvType.Anime, episodes) {
+            this.posterUrl = poster
+            this.plot = plot
+            this.year = year
+        }
+    }
+
+    override suspend fun loadLinks(
+        data: String,
+        isCasting: Boolean,
+        subtitleCallback: (SubtitleFile) -> Unit,
+        callback: (ExtractorLink) -> Unit
+    ): Boolean {
+        // data is the dailymotion video ID
+        val url = "https://geo.dailymotion.com/player.html?video=$data"
+        loadExtractor(url, referer = mainUrl, subtitleCallback, callback)
         return true
     }
 }
