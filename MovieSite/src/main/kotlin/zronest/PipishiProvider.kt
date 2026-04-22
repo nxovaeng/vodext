@@ -43,6 +43,9 @@ open class PipishiProvider : MainAPI() {
 
         // 全局 Cookie（用于反爬绕过后保持会话）
         @Volatile private var globalCookie = ""
+
+        private const val USER_AGENT =
+                "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36"
     }
 
     // ========================================================================
@@ -305,7 +308,8 @@ open class PipishiProvider : MainAPI() {
                                         "Content-Type" to "application/x-www-form-urlencoded",
                                         "Origin" to mainUrl,
                                         "Referer" to "$mainUrl/lionplay/index.php?vid=$vid",
-                                        "Cookie" to globalCookie
+                                        "Cookie" to globalCookie,
+                                        "User-Agent" to USER_AGENT
                                 ),
                         referer = "$mainUrl/lionplay/index.php?vid=$vid"
                 )
@@ -369,16 +373,14 @@ open class PipishiProvider : MainAPI() {
                                         "Origin" to streamHost,
                                         "Accept" to "*/*",
                                         "Accept-Language" to "zh-CN,zh;q=0.9,en;q=0.8",
-                                        "User-Agent" to
-                                                "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36"
+                                        "User-Agent" to USER_AGENT
                                 )
                     } else {
                         this.headers =
                                 mapOf(
                                         "Accept" to "*/*",
                                         "Accept-Language" to "zh-CN,zh;q=0.9,en;q=0.8",
-                                        "User-Agent" to
-                                                "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36"
+                                        "User-Agent" to USER_AGENT
                                 )
                     }
                 }
@@ -394,8 +396,7 @@ open class PipishiProvider : MainAPI() {
         Log.d(TAG, "Fetching: $url")
         val headers =
                 mutableMapOf(
-                        "User-Agent" to
-                                "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+                        "User-Agent" to USER_AGENT,
                         "Accept" to
                                 "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
                         "Accept-Language" to "en-US,en;q=0.9",
