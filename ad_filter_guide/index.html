@@ -1,0 +1,1801 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="插件说明与下载">
+      
+      
+      
+        <link rel="canonical" href="https://<username>.github.io/<repo>/ad_filter_guide/">
+      
+      
+        <link rel="prev" href="../dev/">
+      
+      
+        <link rel="next" href="../ad_filter_dev/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>广告过滤器使用文档 - CloudStream 插件文档</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#adfilterinterceptor" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href=".." title="CloudStream 插件文档" class="md-header__button md-logo" aria-label="CloudStream 插件文档" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            CloudStream 插件文档
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              广告过滤器使用文档
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="CloudStream 插件文档" class="md-nav__button md-logo" aria-label="CloudStream 插件文档" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    CloudStream 插件文档
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    使用指南
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    开发指南
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cloudstream_analysis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CloudStream分析
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tvbox_analysis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TVBox分析
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dev/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API知识
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    广告过滤器使用文档
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    广告过滤器使用文档
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        📋 概述
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🎯 核心功能
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🎯 核心功能">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-tvbox" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. TVBox 规则匹配
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 智能特征识别
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        📖 规则说明
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📖 规则说明">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        规则类型
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="规则类型">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 时长匹配规则
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-discontinuity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. DISCONTINUITY 模式
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-url" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. URL 模式匹配
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. 加密方式切换
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🚀 使用方法
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🚀 使用方法">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        方式 1: 自动启用（推荐）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        方式 2: 自定义启用
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        方式 3: 扩展自定义规则
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔍 工作原理
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔍 工作原理">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        评分机制
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        处理流程
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        📊 统计与调试
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📊 统计与调试">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        启用调试日志
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        日志输出示例
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🧪 测试指南
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🧪 测试指南">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 手动测试
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 对比测试
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. 效果验证
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        📝 规则贡献指南
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📝 规则贡献指南">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 分析广告特征
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 测试正则表达式
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. 添加规则
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. 测试验证
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_14" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ⚙️ 高级配置
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="⚙️ 高级配置">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        调整过滤阈值
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_16" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        禁用特定检测
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_17" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        自定义关键词
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_18" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔧 故障排除
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔧 故障排除">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        问题 1: 正常内容被过滤
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        问题 2: 广告未被过滤
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        问题 3: 性能问题
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_19" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        📚 参考资源
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ad_filter_dev/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    广告过滤器开发文档
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vip_parser_dev/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    解析播放开发文档
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        📋 概述
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🎯 核心功能
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🎯 核心功能">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-tvbox" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. TVBox 规则匹配
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 智能特征识别
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        📖 规则说明
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📖 规则说明">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        规则类型
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="规则类型">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 时长匹配规则
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-discontinuity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. DISCONTINUITY 模式
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-url" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. URL 模式匹配
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. 加密方式切换
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🚀 使用方法
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🚀 使用方法">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        方式 1: 自动启用（推荐）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        方式 2: 自定义启用
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        方式 3: 扩展自定义规则
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔍 工作原理
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔍 工作原理">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        评分机制
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        处理流程
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        📊 统计与调试
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📊 统计与调试">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        启用调试日志
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        日志输出示例
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🧪 测试指南
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🧪 测试指南">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 手动测试
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 对比测试
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. 效果验证
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        📝 规则贡献指南
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📝 规则贡献指南">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 分析广告特征
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 测试正则表达式
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. 添加规则
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. 测试验证
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_14" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ⚙️ 高级配置
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="⚙️ 高级配置">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        调整过滤阈值
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_16" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        禁用特定检测
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_17" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        自定义关键词
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_18" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔧 故障排除
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔧 故障排除">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        问题 1: 正常内容被过滤
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        问题 2: 广告未被过滤
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        问题 3: 性能问题
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_19" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        📚 参考资源
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="adfilterinterceptor">AdFilterInterceptor 广告过滤器使用文档<a class="headerlink" href="#adfilterinterceptor" title="Permanent link">&para;</a></h1>
+<h2 id="_1">📋 概述<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<p><code>AdFilterInterceptor</code> 是一个强大的 M3U8 广告过滤拦截器，用于 CloudStream 扩展。它结合了 TVBox 的规则匹配和智能特征识别，能够自动过滤视频流中的广告切片。</p>
+<h2 id="_2">🎯 核心功能<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
+<h3 id="1-tvbox">1. TVBox 规则匹配<a class="headerlink" href="#1-tvbox" title="Permanent link">&para;</a></h3>
+<p>基于多个 TVBox 配置整理的广告过滤规则，支持以下资源站：
+- 暴风资源 (bfzy)
+- 量子资源 (lz)
+- 非凡资源 (ffzy)
+- 索尼资源 (suonizy)
+- 快看资源 (kuaikan)
+- 乐视云 (leshiyuncdn)
+- 1080 资源
+- 555 电影
+- 海外看 (haiwaikan)
+- 星星资源
+- 奇虎资源 (qihubf)
+- U酷资源 (ukzy)
+- ikun 资源
+- 卧龙资源</p>
+<h3 id="2">2. 智能特征识别<a class="headerlink" href="#2" title="Permanent link">&para;</a></h3>
+<p>自动检测以下异常特征：
+- ✅ <strong>时长异常</strong>：广告切片通常有固定的时长特征
+- ✅ <strong>域名突变</strong>：广告切片可能来自不同的域名
+- ✅ <strong>序号跳跃</strong>：广告插播会导致切片序号不连续
+- ✅ <strong>文件名模式</strong>：广告切片有特定的命名模式
+- ✅ <strong>DISCONTINUITY 检测</strong>：识别广告插播点
+- ✅ <strong>关键词匹配</strong>：识别包含广告关键词的 URL</p>
+<h2 id="_3">📖 规则说明<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
+<h3 id="_4">规则类型<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h3>
+<h4 id="1">1. 时长匹配规则<a class="headerlink" href="#1" title="Permanent link">&para;</a></h4>
+<p>广告切片通常有固定的时长，例如：
+<div class="highlight"><pre><span></span><code>&quot;15.92&quot;  → 乐视云广告时长：15.92 秒
+&quot;17.99&quot;  → 非凡广告时长：17.99 秒
+&quot;14.45&quot;  → 非凡广告时长：14.45 秒
+&quot;17.19&quot;  → 量子广告时长：17.19 秒
+</code></pre></div></p>
+<p>在 m3u8 文件中体现为：
+<div class="highlight"><pre><span></span><code>#EXTINF:15.92,
+http://leshiyuncdn.com/ad_segment.ts  ← 匹配到 15.92 秒，判定为广告
+</code></pre></div></p>
+<h4 id="2-discontinuity">2. DISCONTINUITY 模式<a class="headerlink" href="#2-discontinuity" title="Permanent link">&para;</a></h4>
+<p>广告插播通常在两个 <code>#EXT-X-DISCONTINUITY</code> 标签之间：
+<div class="highlight"><pre><span></span><code>#EXT-X-DISCONTINUITY
+#EXTINF:6.4,
+http://vip.ffzy.com/ad_12345.ts  ← 广告切片
+#EXT-X-DISCONTINUITY
+#EXTINF:10.0,
+http://vip.ffzy.com/video_001.ts  ← 正常内容
+</code></pre></div></p>
+<h4 id="3-url">3. URL 模式匹配<a class="headerlink" href="#3-url" title="Permanent link">&para;</a></h4>
+<p>特定的文件名或路径模式：
+<div class="highlight"><pre><span></span><code>adjump.*\.ts       → 暴风广告文件名包含 &quot;adjump&quot;
+p1ayer.*\.ts       → 索尼广告文件名包含 &quot;p1ayer&quot;（混淆的 player）
+1171057.*\.ts      → 非凡广告特定哈希
+</code></pre></div></p>
+<h4 id="4">4. 加密方式切换<a class="headerlink" href="#4" title="Permanent link">&para;</a></h4>
+<p>某些资源站的广告使用：
+<div class="highlight"><pre><span></span><code>#EXT-X-KEY:METHOD=NONE    ← 广告不加密
+#EXTINF:2.4,
+ad_segment.ts
+#EXT-X-DISCONTINUITY
+#EXT-X-KEY:METHOD=AES-128 ← 正常内容加密
+</code></pre></div></p>
+<h2 id="_5">🚀 使用方法<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h2>
+<h3 id="1_1">方式 1: 自动启用（推荐）<a class="headerlink" href="#1_1" title="Permanent link">&para;</a></h3>
+<p>如果你的 Provider 继承自 <code>BaseVodProvider</code>，广告过滤器会<strong>自动启用</strong>，无需任何额外代码：</p>
+<div class="highlight"><pre><span></span><code><span class="kd">class</span><span class="w"> </span><span class="nc">BfzyProvider</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">BaseVodProvider</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">override</span><span class="w"> </span><span class="kd">var</span><span class="w"> </span><span class="nv">mainUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;https://bfzyapi.com&quot;</span>
+<span class="w">    </span><span class="kd">override</span><span class="w"> </span><span class="kd">var</span><span class="w"> </span><span class="nv">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;暴风资源&quot;</span>
+
+<span class="w">    </span><span class="c1">// 无需任何额外代码，AdFilterInterceptor 已自动启用！</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="2_1">方式 2: 自定义启用<a class="headerlink" href="#2_1" title="Permanent link">&para;</a></h3>
+<p>如果你的 Provider 直接继承 <code>MainAPI</code>，需要手动添加拦截器：</p>
+<div class="highlight"><pre><span></span><code><span class="kd">class</span><span class="w"> </span><span class="nc">MyProvider</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">MainAPI</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">override</span><span class="w"> </span><span class="kd">var</span><span class="w"> </span><span class="nv">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;My Provider&quot;</span>
+<span class="w">    </span><span class="kd">override</span><span class="w"> </span><span class="kd">var</span><span class="w"> </span><span class="nv">mainUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;https://example.com&quot;</span>
+
+<span class="w">    </span><span class="c1">// 重写此方法以启用广告过滤</span>
+<span class="w">    </span><span class="kd">override</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">getVideoInterceptor</span><span class="p">(</span><span class="n">extractorLink</span><span class="p">:</span><span class="w"> </span><span class="n">ExtractorLink</span><span class="p">):</span><span class="w"> </span><span class="n">Interceptor</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">AdFilterInterceptor</span><span class="p">()</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// ... 其他方法 ...</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="3">方式 3: 扩展自定义规则<a class="headerlink" href="#3" title="Permanent link">&para;</a></h3>
+<p>如果需要添加自己的规则，可以创建自定义拦截器：</p>
+<div class="highlight"><pre><span></span><code><span class="kd">class</span><span class="w"> </span><span class="nc">CustomAdFilterInterceptor</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">AdFilterInterceptor</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// 可以重写方法来添加自定义逻辑</span>
+<span class="w">    </span><span class="kd">override</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">intercept</span><span class="p">(</span><span class="n">chain</span><span class="p">:</span><span class="w"> </span><span class="n">Interceptor</span><span class="p">.</span><span class="na">Chain</span><span class="p">):</span><span class="w"> </span><span class="n">Response</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// 调用父类的过滤逻辑</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">super</span><span class="p">.</span><span class="na">intercept</span><span class="p">(</span><span class="n">chain</span><span class="p">)</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<h2 id="_6">🔍 工作原理<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h2>
+<h3 id="_7">评分机制<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h3>
+<p>过滤器使用<strong>评分系统</strong>综合判断切片是否为广告：</p>
+<table>
+<thead>
+<tr>
+<th>检测项</th>
+<th>分数</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>TVBox 正则匹配</td>
+<td>+50</td>
+<td>匹配到配置的规则</td>
+</tr>
+<tr>
+<td>DISCONTINUITY 块</td>
+<td>+30</td>
+<td>在广告插播块内</td>
+</tr>
+<tr>
+<td>时长异常</td>
+<td>+20</td>
+<td>与平均时长偏差 &gt;50%</td>
+</tr>
+<tr>
+<td>URL 关键词</td>
+<td>+40</td>
+<td>包含 ad、adjump 等</td>
+</tr>
+<tr>
+<td>域名突变</td>
+<td>+25</td>
+<td>域名与前一个不同</td>
+</tr>
+<tr>
+<td>文件名模式异常</td>
+<td>+15</td>
+<td>匹配广告文件名模式</td>
+</tr>
+<tr>
+<td>序号跳跃</td>
+<td>+10</td>
+<td>切片序号不连续</td>
+</tr>
+</tbody>
+</table>
+<p><strong>阈值：分数 ≥ 40 判定为广告</strong></p>
+<h3 id="_8">处理流程<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>graph TB
+    A[播放器请求 m3u8] --&gt; B[OkHttp 拦截]
+    B --&gt; C{是 m3u8?}
+    C --&gt;|否| D[直接返回]
+    C --&gt;|是| E[解析内容]
+    E --&gt; F[遍历切片]
+    F --&gt; G{评分系统}
+    G --&gt;|分数 &lt; 40| H[保留切片]
+    G --&gt;|分数 ≥ 40| I[过滤切片]
+    H --&gt; J[重组 m3u8]
+    I --&gt; J
+    J --&gt; K[返回清洗后内容]
+</code></pre></div>
+<h2 id="_9">📊 统计与调试<a class="headerlink" href="#_9" title="Permanent link">&para;</a></h2>
+<h3 id="_10">启用调试日志<a class="headerlink" href="#_10" title="Permanent link">&para;</a></h3>
+<p>在 <code>AdFilterInterceptor.kt</code> 中设置：
+<div class="highlight"><pre><span></span><code><span class="kd">companion</span><span class="w"> </span><span class="kd">object</span><span class="w"> </span><span class="err">{</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">DEBUG</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span><span class="w">  </span><span class="c1">// 启用调试日志</span>
+<span class="p">}</span>
+</code></pre></div></p>
+<h3 id="_11">日志输出示例<a class="headerlink" href="#_11" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>D/AdFilterInterceptor: Processing m3u8: https://vip.ffzy.com/20240106/xxx/index.m3u8
+D/AdFilterInterceptor: Original lines: 245
+D/AdFilterInterceptor: Regex match for: segment_1171057.ts
+D/AdFilterInterceptor: AD DETECTED (score: 50): segment_1171057.ts
+D/AdFilterInterceptor: Duration abnormal: 6.4 vs avg 10.2
+D/AdFilterInterceptor: AD DETECTED (score: 70): ad_segment.ts
+D/AdFilterInterceptor: Filtered 12 lines from m3u8
+</code></pre></div>
+<h2 id="_12">🧪 测试指南<a class="headerlink" href="#_12" title="Permanent link">&para;</a></h2>
+<h3 id="1_2">1. 手动测试<a class="headerlink" href="#1_2" title="Permanent link">&para;</a></h3>
+<p>使用 Android Studio 的 Logcat 查看过滤效果：
+<div class="highlight"><pre><span></span><code><span class="c1"># 过滤 AdFilterInterceptor 日志</span>
+adb<span class="w"> </span>logcat<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>AdFilterInterceptor
+</code></pre></div></p>
+<h3 id="2_2">2. 对比测试<a class="headerlink" href="#2_2" title="Permanent link">&para;</a></h3>
+<p><strong>测试前（未启用过滤器）</strong>：
+- 播放视频，观察是否有广告
+- 记录广告出现的位置和时长</p>
+<p><strong>测试后（启用过滤器）</strong>：
+- 播放相同视频
+- 检查广告是否被过滤
+- 查看日志确认过滤了多少切片</p>
+<h3 id="3_1">3. 效果验证<a class="headerlink" href="#3_1" title="Permanent link">&para;</a></h3>
+<p><strong>成功标志</strong>：
+- ✅ 视频中不再出现广告
+- ✅ 日志显示 "Filtered X lines from m3u8"
+- ✅ 播放流畅，无卡顿</p>
+<p><strong>可能的问题</strong>：
+- ❌ 正常内容被误过滤 → 需要调整阈值或规则
+- ❌ 广告未被过滤 → 需要添加新规则</p>
+<h2 id="_13">📝 规则贡献指南<a class="headerlink" href="#_13" title="Permanent link">&para;</a></h2>
+<p>如果你发现新的广告模式，可以按以下步骤添加规则：</p>
+<h3 id="1_3">1. 分析广告特征<a class="headerlink" href="#1_3" title="Permanent link">&para;</a></h3>
+<p>下载 m3u8 文件并分析：
+<div class="highlight"><pre><span></span><code><span class="c1"># 下载 m3u8 文件</span>
+curl<span class="w"> </span>-o<span class="w"> </span>playlist.m3u8<span class="w"> </span><span class="s2">&quot;https://example.com/video.m3u8&quot;</span>
+
+<span class="c1"># 查看内容</span>
+cat<span class="w"> </span>playlist.m3u8
+</code></pre></div></p>
+<p>查找广告切片的特征：
+- 固定的时长
+- 特殊的文件名模式
+- DISCONTINUITY 标记
+- 域名变化</p>
+<h3 id="2_3">2. 测试正则表达式<a class="headerlink" href="#2_3" title="Permanent link">&para;</a></h3>
+<p>使用在线工具测试正则：
+- <a href="https://regex101.com/">Regex101</a>
+- 选择 "ECMAScript (JavaScript)" flavor</p>
+<h3 id="3_2">3. 添加规则<a class="headerlink" href="#3_2" title="Permanent link">&para;</a></h3>
+<p>在 <code>AD_FILTER_RULES</code> 中添加新规则：
+<div class="highlight"><pre><span></span><code><span class="n">AdFilterRule</span><span class="p">(</span>
+<span class="w">    </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;新资源站&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="n">hosts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">listOf</span><span class="p">(</span><span class="s">&quot;example.com&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;cdn.example.com&quot;</span><span class="p">),</span>
+<span class="w">    </span><span class="n">regex</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">listOf</span><span class="p">(</span>
+<span class="w">        </span><span class="c1">// 时长匹配</span>
+<span class="w">        </span><span class="s">&quot;&quot;&quot;15\.92&quot;&quot;&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="c1">// DISCONTINUITY 块</span>
+<span class="w">        </span><span class="s">&quot;&quot;&quot;#EXT-X-DISCONTINUITY\r*\n*#EXTINF:6\.4,[\s\S]*?#EXT-X-DISCONTINUITY&quot;&quot;&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="c1">// 文件名模式</span>
+<span class="w">        </span><span class="s">&quot;&quot;&quot;#EXTINF.*?\s+.*?ad.*?\.ts&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="p">)</span>
+<span class="p">)</span>
+</code></pre></div></p>
+<h3 id="4_1">4. 测试验证<a class="headerlink" href="#4_1" title="Permanent link">&para;</a></h3>
+<p>编译并测试新规则是否有效。</p>
+<h2 id="_14">⚙️ 高级配置<a class="headerlink" href="#_14" title="Permanent link">&para;</a></h2>
+<h3 id="_15">调整过滤阈值<a class="headerlink" href="#_15" title="Permanent link">&para;</a></h3>
+<p>如果发现误过滤或漏过滤，可以调整阈值：</p>
+<div class="highlight"><pre><span></span><code><span class="c1">// 在 isAdSegment 方法中</span>
+<span class="kd">val</span><span class="w"> </span><span class="nv">isAd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">adScore</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="m">40</span><span class="w">  </span><span class="c1">// 默认阈值</span>
+<span class="c1">// 调整为 50 会更严格，减少误过滤</span>
+<span class="c1">// 调整为 30 会更宽松，过滤更多疑似广告</span>
+</code></pre></div>
+<h3 id="_16">禁用特定检测<a class="headerlink" href="#_16" title="Permanent link">&para;</a></h3>
+<p>如果某项检测导致问题，可以注释掉：</p>
+<div class="highlight"><pre><span></span><code><span class="c1">// === 规则4: URL 关键词检测 ===</span>
+<span class="c1">// if (containsAdKeywords(tsUrl)) {</span>
+<span class="c1">//     adScore += 40</span>
+<span class="c1">// }</span>
+</code></pre></div>
+<h3 id="_17">自定义关键词<a class="headerlink" href="#_17" title="Permanent link">&para;</a></h3>
+<p>在 <code>containsAdKeywords</code> 方法中添加：</p>
+<div class="highlight"><pre><span></span><code><span class="kd">val</span><span class="w"> </span><span class="nv">adKeywords</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">listOf</span><span class="p">(</span>
+<span class="w">    </span><span class="s">&quot;ad&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;ads&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;advertisement&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="c1">// 添加你发现的新关键词</span>
+<span class="w">    </span><span class="s">&quot;promo&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;banner&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;popup&quot;</span>
+<span class="p">)</span>
+</code></pre></div>
+<h2 id="_18">🔧 故障排除<a class="headerlink" href="#_18" title="Permanent link">&para;</a></h2>
+<h3 id="1_4">问题 1: 正常内容被过滤<a class="headerlink" href="#1_4" title="Permanent link">&para;</a></h3>
+<p><strong>症状</strong>：播放时部分正常内容丢失</p>
+<p><strong>解决方案</strong>：
+1. 检查日志，查看哪些切片被误判
+2. 调高过滤阈值（如从 40 改为 50）
+3. 关闭某些误判率高的检测规则</p>
+<h3 id="2_4">问题 2: 广告未被过滤<a class="headerlink" href="#2_4" title="Permanent link">&para;</a></h3>
+<p><strong>症状</strong>：仍然看到广告</p>
+<p><strong>解决方案</strong>：
+1. 下载 m3u8 文件分析广告特征
+2. 添加新的过滤规则
+3. 调低过滤阈值（谨慎使用）</p>
+<h3 id="3_3">问题 3: 性能问题<a class="headerlink" href="#3_3" title="Permanent link">&para;</a></h3>
+<p><strong>症状</strong>：播放卡顿或加载慢</p>
+<p><strong>解决方案</strong>：
+1. 设置 <code>DEBUG = false</code> 减少日志输出
+2. 简化复杂的正则表达式
+3. 减少规则数量（只保留常用资源站）</p>
+<h2 id="_19">📚 参考资源<a class="headerlink" href="#_19" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="https://recloudstream.github.io/csdocs/">CloudStream 官方文档</a></li>
+<li><a href="https://tools.ietf.org/html/rfc8216">m3u8 格式规范</a></li>
+<li><a href="https://square.github.io/okhttp/interceptors/">OkHttp Interceptor 文档</a></li>
+</ul>
+<hr />
+<p><strong>最后更新</strong>：2026-01-06<br />
+<strong>版本</strong>：1.0.0</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": [], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

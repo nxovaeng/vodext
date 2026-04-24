@@ -1,0 +1,143 @@
+[
+    {
+        "iconUrl": "https://i3.wp.com/animekhor.org/wp-content/uploads/2022/02/cropped-logo-180x180.png",
+        "jarFileSize": 103403,
+        "fileHash": "sha256-307f6393fce3c39879f0f63ee78bcdeafe2e71e9036c0a956c6d049550a9db5b",
+        "apiVersion": 1,
+        "repositoryUrl": "https://github.com/nxovaeng/vodext",
+        "fileSize": 23959,
+        "status": 1,
+        "language": "zh",
+        "authors": [
+            "Phisher98"
+        ],
+        "tvTypes": [
+            "AnimeMovie",
+            "Anime"
+        ],
+        "version": 9,
+        "internalName": "Animekhor",
+        "jarUrl": "https://raw.githubusercontent.com/nxovaeng/vodext/builds/Animekhor.jar",
+        "description": "Anime and Movies",
+        "url": "https://raw.githubusercontent.com/nxovaeng/vodext/builds/Animekhor.cs3",
+        "name": "Animekhor",
+        "jarHash": "sha256-140369e1764e5546e3a6167e02c43309591f08678ab2d46b738d1031e0226d33"
+    },
+    {
+        "iconUrl": "https://vod.zrocf.qzz.io/static/fflogo.png",
+        "jarFileSize": 179063,
+        "fileHash": "sha256-4233ec044be3e82b5fd94fcd6d4385e3cbfd2e33b427913583f33afab14749c3",
+        "apiVersion": 1,
+        "repositoryUrl": "https://github.com/nxovaeng/vodext",
+        "fileSize": 43781,
+        "status": 1,
+        "language": "zh",
+        "authors": [
+            "nxovaeng"
+        ],
+        "tvTypes": [
+            "Movie",
+            "TvSeries",
+            "AnimeMovie",
+            "Anime"
+        ],
+        "version": 9,
+        "internalName": "ApiCMS",
+        "jarUrl": "https://raw.githubusercontent.com/nxovaeng/vodext/builds/ApiCMS.jar",
+        "description": "TvSeries Anime and Movies",
+        "url": "https://raw.githubusercontent.com/nxovaeng/vodext/builds/ApiCMS.cs3",
+        "name": "ApiCMS",
+        "jarHash": "sha256-4b6b2db6d8a70e8e03e8374939662427a159fce96197b548d6b65da3e55be81a"
+    },
+    {
+        "iconUrl": "https://vod.zrocf.qzz.io/static/long.png",
+        "jarFileSize": 201959,
+        "fileHash": "sha256-12a8365e6e64804826c6eb4f288403cc4b9fdbadd23d8087e633cb7e9c2830f2",
+        "apiVersion": 1,
+        "repositoryUrl": "https://github.com/nxovaeng/vodext",
+        "fileSize": 41095,
+        "status": 1,
+        "language": "zh",
+        "authors": [
+            "Phisher98"
+        ],
+        "tvTypes": [
+            "Anime"
+        ],
+        "version": 14,
+        "internalName": "Donghuastream",
+        "jarUrl": "https://raw.githubusercontent.com/nxovaeng/vodext/builds/Donghuastream.jar",
+        "description": "Contains SeaTV (Chinese)",
+        "url": "https://raw.githubusercontent.com/nxovaeng/vodext/builds/Donghuastream.cs3",
+        "name": "Donghuastream",
+        "jarHash": "sha256-56c5aa2d3f70d9be7e443ea7de017046e950e6621105c6af73f57af08034e025"
+    },
+    {
+        "iconUrl": "https://vod.zrocf.qzz.io/static/tvlogo.png",
+        "fileHash": "sha256-d59a4f42ed0fc9bb9ba4e336259e7c8abf13bbba779505c5c150284029df6eaa",
+        "apiVersion": 1,
+        "repositoryUrl": "https://github.com/nxovaeng/vodext",
+        "fileSize": 22448,
+        "status": 1,
+        "language": "zh",
+        "authors": [
+            "nxovaeng"
+        ],
+        "tvTypes": [
+            "Live"
+        ],
+        "version": 1,
+        "internalName": "IPTV",
+        "description": "\u4e2d\u56fdIPTV\u76f4\u64ad\u6e90 - \u652f\u6301\u592e\u89c6\u3001\u536b\u89c6\u7b49\u9891\u9053",
+        "url": "https://raw.githubusercontent.com/nxovaeng/vodext/builds/IPTV.cs3",
+        "name": "IPTV"
+    },
+    {
+        "iconUrl": "https://vod.zrocf.qzz.io/static/mtlogo.png",
+        "jarFileSize": 214215,
+        "fileHash": "sha256-9dfb7b9120385699072802ca117c09261cf90b38c2983fefcc10293c60750732",
+        "apiVersion": 1,
+        "repositoryUrl": "https://github.com/nxovaeng/vodext",
+        "fileSize": 50032,
+        "status": 1,
+        "language": "zh",
+        "authors": [
+            "nxovaeng"
+        ],
+        "tvTypes": [
+            "Movie",
+            "TvSeries",
+            "AnimeMovie",
+            "Anime"
+        ],
+        "version": 9,
+        "internalName": "MovieSite",
+        "jarUrl": "https://raw.githubusercontent.com/nxovaeng/vodext/builds/MovieSite.jar",
+        "description": "TvSeries Anime and Movies",
+        "url": "https://raw.githubusercontent.com/nxovaeng/vodext/builds/MovieSite.cs3",
+        "name": "MovieSite",
+        "jarHash": "sha256-56f57ce5f989a5625d8b8ba3fa27fcd239c3ff011e03a23d28800253966bdbbf"
+    },
+    {
+        "iconUrl": "https://vod.zrocf.qzz.io/static/netflix.png",
+        "fileHash": "sha256-e2d0e567f8d926243ee9075305876dd4982a578aab966603d95a5a2e0bb583e8",
+        "apiVersion": 1,
+        "repositoryUrl": "https://github.com/nxovaeng/vodext",
+        "fileSize": 49002,
+        "status": 1,
+        "authors": [
+            "megix"
+        ],
+        "tvTypes": [
+            "Movie",
+            "TvSeries",
+            "AsianDrama",
+            "Anime"
+        ],
+        "version": 34,
+        "internalName": "NetfixMirror",
+        "description": "Netflix, PrimeVideo, JioHotstar(Hotstar, Disney, Paramount, HBO, Peacock) Content in Multiple Languages",
+        "url": "https://raw.githubusercontent.com/nxovaeng/vodext/builds/NetfixMirror.cs3",
+        "name": "NetfixMirror"
+    }
+]
