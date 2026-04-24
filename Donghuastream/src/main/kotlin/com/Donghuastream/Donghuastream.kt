@@ -165,7 +165,14 @@ open class Donghuastream : MainAPI() {
     ): Boolean {
         val html = app.get(data).document
 
-        val options = html.select("option[data-index]")
+        // 尝试多种选择器以适应网站变化
+        var options = html.select("option[data-index]")
+        if (options.isEmpty()) {
+            options = html.select("option[value]")
+        }
+        if (options.isEmpty()) {
+            options = html.select("select option")
+        }
 
         coroutineScope {
             options.forEach { option ->

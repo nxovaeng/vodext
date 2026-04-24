@@ -107,7 +107,7 @@ open class SeaTV : MainAPI() {
         callback: (ExtractorLink) -> Unit
     ): Boolean {
         // data is the dailymotion video ID
-        val url = "https://geo.dailymotion.com/player.html?video=$data"
+        val url = "https://www.dailymotion.com/video/$data"
         loadExtractor(url, referer = mainUrl, subtitleCallback, callback)
         return true
     }

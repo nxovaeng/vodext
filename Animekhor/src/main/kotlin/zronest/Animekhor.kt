@@ -176,7 +176,14 @@ open class Animekhor : MainAPI() {
     ): Boolean {
         val document = app.get(data).document
         coroutineScope {
-            document.select(".mobius option").forEach { server ->
+            // 尝试多种选择器以适应网站变化
+            val servers = document.select(".mobius option").ifEmpty {
+                document.select("select[class*=mobius] option")
+            }.ifEmpty {
+                document.select("select option[value]")
+            }
+            
+            servers.forEach { server ->
                 launch {
                     try {
                         withTimeout(10_000L) {
