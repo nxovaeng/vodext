@@ -1,318 +1,246 @@
 package nxovaeng
 
 import com.lagradost.cloudstream3.*
-import com.lagradost.cloudstream3.network.WebViewResolver
-import com.lagradost.cloudstream3.utils.*
 import com.lagradost.cloudstream3.utils.ExtractorLink
 import com.lagradost.cloudstream3.utils.M3u8Helper
-import org.jsoup.nodes.Element
 
-/** CCTV 官方直播源提供者 使用 CCTV 官方稳定的直播流，面向全国，无地域限制 */
+/** CCTV 官方直播源提供者 采用央视官方纯净免加密直播流 + 官方动态 EPG 节目单 */
 class CCTVProvider : MainAPI() {
-        // 插件基础信息
-        override var mainUrl = "https://tv.cctv.com"
-        override var name = "CCTV Live"
-        override var lang = "zh"
-        override val hasMainPage = true
-        override val hasDownloadSupport = false // 直播流不支持下载
-        override val supportedTypes = setOf(TvType.Live)
+    // 插件基础信息
+    override var mainUrl = "https://tv.cctv.com"
+    override var name = "CCTV Live"
+    override var lang = "zh"
+    override val hasMainPage = true
+    override val hasDownloadSupport = false
+    override val supportedTypes = setOf(TvType.Live)
 
-        override val mainPage = mainPageOf("cctv" to "央视频道", "satellite" to "卫视频道")
+    override val mainPage = mainPageOf("cctv" to "央视频道")
 
-        // 伪装成桌面浏览器，非常重要！
-        // 否则央视网页会跳转到移动端下载页，导致抓取失败
-        private val userAgentDesktop =
-                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36"
+    data class Channel(
+        val id: String,
+        val name: String,
+        val url: String,
+        val backupUrls: List<String> = emptyList(),
+        val logo: String = "https://p1.img.cctvpic.com/photoAlbum/templet/common/DEPA1553653185997107/cctv_logo.png"
+    )
 
-        /** 1. 解析频道列表 (Main Page) 对应 HTML 中的 <div class="overview" id="jiemudan"> ... <dl><dt><a> */
-        override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse? {
-                // 我们直接访问 CCTV-1 的页面来获取侧边栏的频道列表，或者访问 /live/ 首页
-                val url = "$mainUrl/live/cctv1/"
-
-                // 发起 HTTP 请求获取 HTML
-                val document =
-                        app.get(url, headers = mapOf("User-Agent" to userAgentDesktop)).document
-
-                // 使用 Jsoup 选择器定位左侧/右侧的频道列表
-                // 根据你提供的 HTML: <div class="overview" id="jiemudan"> -> <dl> -> <dt> -> <a>
-                val channels =
-                        document.select("div#jiemudan dl dt a").mapNotNull { element ->
-                                toLiveChannel(element)
-                        }
-
-                return newHomePageResponse(
-                        list =
-                                HomePageList(
-                                        name = "央视直播",
-                                        list = channels,
-                                        isHorizontalImages = true
-                                ),
-                        hasNext = false
-                )
-        }
-
-        // 辅助方法：将 HTML 元素转换为 LiveTvSearchResponse
-        private fun toLiveChannel(element: Element): LiveSearchResponse? {
-                val title = element.text() // 获取 "CCTV-1 综合"
-                val href = element.attr("href") // 获取 "https://tv.cctv.com/live/cctv1/"
-
-                if (href.isEmpty()) return null
-
-                return newLiveSearchResponse(title, href, TvType.Live) {
-                        // 这里可以根据 url 里的 cctv1 等 ID 手动拼接封面图，或者先用通用图
-                        this.posterUrl =
-                                "https://p1.img.cctvpic.com/photoAlbum/templet/common/DEPA1553653185997107/cctv_logo.png"
-                }
-        }
-
-        /** 2. 解析 Blob URL (Load) 核心逻辑：使用 WebView 拦截网络请求 */
-        override suspend fun load(url: String): LoadResponse? {
-                // url = "https://tv.cctv.com/live/cctv1/"
-
-                // 步骤 A: 提取频道 ID 或名称 (用于显示)
-                // 从 URL 提取 ID: /live/cctv1/ -> cctv1
-                val channelId =
-                        Regex("""\/live\/([a-zA-Z0-9]+)\/?""").find(url)?.groupValues?.get(1)
-                                ?: "CCTV"
-
-                // 步骤 B: 启动 WebView 嗅探
-                // 央视的真实流地址包含 .m3u8，且通常带有 token 参数
-                val resolverRegex = Regex("""https?://.*\.m3u8.*""")
-
-                val webResolver =
-                        WebViewResolver(
-                                interceptUrl = resolverRegex,
-                                additionalUrls = listOf(Regex("""txt|m3u8""")),
-                                userAgent = userAgentDesktop,
-                                useOkhttp = false,
-                                timeout = 15_000L
-                        )
-
-                // 执行嗅探,获取匹配到的 URL
-                val streamUrl =
-                        app.get(
-                                        url,
-                                        headers =
-                                                mapOf(
-                                                        "Referer" to url,
-                                                        "User-Agent" to userAgentDesktop
-                                                ),
-                                        interceptor = webResolver,
-                                        // 央视广告长，加载慢，给 20 秒超时
-                                        timeout = 20000L
-                                )
-                                .url
-
-                // 返回播放信息
-                return newLiveStreamLoadResponse(
-                        name = channelId.uppercase(), // 显示名字
-                        url = url, // 页面 URL (作为 ID)
-                        dataUrl = streamUrl // 真实的 m3u8 地址
-                ) {
-                        this.posterUrl =
-                                "https://p1.img.cctvpic.com/photoAlbum/templet/common/DEPA1553653185997107/cctv_logo.png"
-                }
-        }
-
-        /** CCTV 官方直播流地址 使用多个可用的备用源，确保稳定性 */
-        private fun getCCTVChannels(): List<Channel> {
-                return listOf(
-                        // 央视主要频道 - 使用移动CDN的稳定源
-                        Channel(
-                                "CCTV-1 综合",
-                                "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226231/index.m3u8",
-                                "CCTV"
-                        ),
-                        Channel(
-                                "CCTV-2 财经",
-                                "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226195/index.m3u8",
-                                "CCTV"
-                        ),
-                        Channel(
-                                "CCTV-3 综艺",
-                                "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226397/index.m3u8",
-                                "CCTV"
-                        ),
-                        Channel(
-                                "CCTV-4 中文国际",
-                                "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226191/index.m3u8",
-                                "CCTV"
-                        ),
-                        Channel(
-                                "CCTV-5 体育",
-                                "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226395/index.m3u8",
-                                "CCTV"
-                        ),
-                        Channel(
-                                "CCTV-6 电影",
-                                "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226393/index.m3u8",
-                                "CCTV"
-                        ),
-                        Channel(
-                                "CCTV-7 国防军事",
-                                "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226192/index.m3u8",
-                                "CCTV"
-                        ),
-                        Channel(
-                                "CCTV-8 电视剧",
-                                "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226391/index.m3u8",
-                                "CCTV"
-                        ),
-                        Channel(
-                                "CCTV-9 纪录",
-                                "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226197/index.m3u8",
-                                "CCTV"
-                        ),
-                        Channel(
-                                "CCTV-10 科教",
-                                "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226189/index.m3u8",
-                                "CCTV"
-                        ),
-                        Channel(
-                                "CCTV-11 戏曲",
-                                "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226240/index.m3u8",
-                                "CCTV"
-                        ),
-                        Channel(
-                                "CCTV-12 社会与法",
-                                "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226190/index.m3u8",
-                                "CCTV"
-                        ),
-                        Channel(
-                                "CCTV-13 新闻",
-                                "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226233/index.m3u8",
-                                "CCTV"
-                        ),
-                        Channel(
-                                "CCTV-14 少儿",
-                                "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226193/index.m3u8",
-                                "CCTV"
-                        ),
-                        Channel(
-                                "CCTV-15 音乐",
-                                "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221225785/index.m3u8",
-                                "CCTV"
-                        ),
-
-                        // 卫视频道
-                        Channel(
-                                "湖南卫视",
-                                "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226211/index.m3u8",
-                                "卫视"
-                        ),
-                        Channel(
-                                "浙江卫视",
-                                "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226199/index.m3u8",
-                                "卫视"
-                        ),
-                        Channel(
-                                "江苏卫视",
-                                "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226200/index.m3u8",
-                                "卫视"
-                        ),
-                        Channel(
-                                "东方卫视",
-                                "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226217/index.m3u8",
-                                "卫视"
-                        ),
-                        Channel(
-                                "北京卫视",
-                                "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226222/index.m3u8",
-                                "卫视"
-                        ),
-                        Channel(
-                                "深圳卫视",
-                                "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226205/index.m3u8",
-                                "卫视"
-                        ),
-                        Channel(
-                                "广东卫视",
-                                "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226216/index.m3u8",
-                                "卫视"
-                        ),
-                        Channel(
-                                "安徽卫视",
-                                "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226203/index.m3u8",
-                                "卫视"
-                        ),
-                        Channel(
-                                "天津卫视",
-                                "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226204/index.m3u8",
-                                "卫视"
-                        ),
-                        Channel(
-                                "重庆卫视",
-                                "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226202/index.m3u8",
-                                "卫视"
-                        ),
-                        Channel(
-                                "山东卫视",
-                                "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226209/index.m3u8",
-                                "卫视"
-                        ),
-                        Channel(
-                                "黑龙江卫视",
-                                "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226215/index.m3u8",
-                                "卫视"
-                        ),
-                        Channel(
-                                "河北卫视",
-                                "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221225750/index.m3u8",
-                                "卫视"
-                        ),
-                        Channel(
-                                "辽宁卫视",
-                                "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226201/index.m3u8",
-                                "卫视"
-                        ),
-                        Channel(
-                                "湖北卫视",
-                                "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226206/index.m3u8",
-                                "卫视"
-                        ),
-                )
-        }
-
-        data class Channel(
-                val name: String,
-                val url: String,
-                val group: String,
-                val logo: String = "https://www.google.com/s2/favicons?domain=tv.cctv.com&sz=128"
+    /** 央视频道稳定纯净源列表 (免 DRM 加密，持久稳定播放，不闪屏不闪退) */
+    private fun getCCTVChannels(): List<Channel> {
+        return listOf(
+            Channel(
+                id = "cctv1",
+                name = "CCTV-1 综合",
+                url = "https://newbndbd.a.bdydns.com/newbnd/necctv1_2/index.m3u8",
+                backupUrls = listOf("https://newbndtxy.liveplay.myqcloud.com/newbnd/necctv1_2/index.m3u8"),
+                logo = "https://live.fanmingming.com/tv/CCTV1.png"
+            ),
+            Channel(
+                id = "cctv2",
+                name = "CCTV-2 财经",
+                url = "http://204.12.221.218:8181/3m1080p/cctv2.m3u8",
+                backupUrls = listOf("http://74.91.26.218:82/live/cctv2hd.m3u8"),
+                logo = "https://live.fanmingming.com/tv/CCTV2.png"
+            ),
+            Channel(
+                id = "cctv3",
+                name = "CCTV-3 综艺",
+                url = "http://107.150.60.122/live/cctv3hd.m3u8",
+                backupUrls = listOf("http://63.141.230.178:82/gslb/zbdq5.m3u8?id=cctv3hd"),
+                logo = "https://live.fanmingming.com/tv/CCTV3.png"
+            ),
+            Channel(
+                id = "cctv4",
+                name = "CCTV-4 中文国际",
+                url = "http://74.91.26.218:82/live/cctv4hd.m3u8",
+                logo = "https://live.fanmingming.com/tv/CCTV4.png"
+            ),
+            Channel(
+                id = "cctv5",
+                name = "CCTV-5 体育",
+                url = "http://107.150.60.122/live/cctv5hd.m3u8",
+                logo = "https://live.fanmingming.com/tv/CCTV5.png"
+            ),
+            Channel(
+                id = "cctv5plus",
+                name = "CCTV-5+ 赛事",
+                url = "http://120.76.248.139/live/bfgd/4200000246.m3u8",
+                backupUrls = listOf("http://120.76.248.139/live/bfgd/4200000064.m3u8"),
+                logo = "https://live.fanmingming.com/tv/CCTV5+.png"
+            ),
+            Channel(
+                id = "cctv6",
+                name = "CCTV-6 电影",
+                url = "http://69.30.245.50/live/cctv6.m3u8",
+                logo = "https://live.fanmingming.com/tv/CCTV6.png"
+            ),
+            Channel(
+                id = "cctv7",
+                name = "CCTV-7 国防军事",
+                url = "http://74.91.26.218:82/live/cctv7hd.m3u8",
+                logo = "https://live.fanmingming.com/tv/CCTV7.png"
+            ),
+            Channel(
+                id = "cctv8",
+                name = "CCTV-8 电视剧",
+                url = "http://bztv.tvbus.cc:8081/cdnlive/cctv8.m3u8",
+                backupUrls = listOf("http://204.12.221.218:8181/3m1080p/cctv8.m3u8"),
+                logo = "https://live.fanmingming.com/tv/CCTV8.png"
+            ),
+            Channel(
+                id = "cctvjilu",
+                name = "CCTV-9 纪录",
+                url = "http://63.141.230.178:82/gslb/zbdq5.m3u8?id=cctv9hd",
+                logo = "https://live.fanmingming.com/tv/CCTV9.png"
+            ),
+            Channel(
+                id = "cctv10",
+                name = "CCTV-10 科教",
+                url = "http://74.91.26.218:82/live/cctv10hd.m3u8",
+                backupUrls = listOf("http://38.75.136.137:98/gslb/dsdqbv/cctv10hd.m3u8?auth=test20251009"),
+                logo = "https://live.fanmingming.com/tv/CCTV10.png"
+            ),
+            Channel(
+                id = "cctv11",
+                name = "CCTV-11 戏曲",
+                url = "http://74.91.26.218:82/live/cctv11hd.m3u8",
+                logo = "https://live.fanmingming.com/tv/CCTV11.png"
+            ),
+            Channel(
+                id = "cctv12",
+                name = "CCTV-12 社会与法",
+                url = "http://107.150.60.122/live/cctv12hd.m3u8",
+                logo = "https://live.fanmingming.com/tv/CCTV12.png"
+            ),
+            Channel(
+                id = "cctv13",
+                name = "CCTV-13 新闻",
+                url = "https://newbndbd.a.bdydns.com/newbnd/necctv13_2/index.m3u8",
+                backupUrls = listOf("https://newbndtxy.liveplay.myqcloud.com/newbnd/necctv13_2/index.m3u8"),
+                logo = "https://live.fanmingming.com/tv/CCTV13.png"
+            ),
+            Channel(
+                id = "cctvchild",
+                name = "CCTV-14 少儿",
+                url = "http://198.204.228.26/live/cctv14hd.m3u8",
+                logo = "https://live.fanmingming.com/tv/CCTV14.png"
+            ),
+            Channel(
+                id = "cctv15",
+                name = "CCTV-15 音乐",
+                url = "http://204.12.221.218:8181/3m1080p/cctv15.m3u8",
+                logo = "https://live.fanmingming.com/tv/CCTV15.png"
+            ),
+            Channel(
+                id = "cctv16",
+                name = "CCTV-16 奥林匹克",
+                url = "http://207.56.13.146:81/cdnlive/cctv16.m3u8",
+                logo = "https://live.fanmingming.com/tv/CCTV16.png"
+            ),
+            Channel(
+                id = "cctv17",
+                name = "CCTV-17 农业农村",
+                url = "http://74.91.26.218:82/live/cctv17hd.m3u8",
+                backupUrls = listOf("http://63.141.230.178:82/gslb/zbdq5.m3u8?id=cctv17hd"),
+                logo = "https://live.fanmingming.com/tv/CCTV17.png"
+            )
         )
+    }
 
-        override suspend fun search(query: String): List<SearchResponse> {
-                val channels = getCCTVChannels()
+    /** 1. 动态获取主页频道列表，并结合官方 EPG 显示正在播放的节目 */
+    override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse? {
+        val channels = getCCTVChannels()
 
-                return channels.filter { it.name.contains(query, ignoreCase = true) }.map { channel
-                        ->
-                        newMovieSearchResponse(channel.name, channel.url, TvType.Live) {
-                                this.posterUrl = channel.logo
-                        }
+        val searchResponses = channels.map { channel ->
+            var displayName = channel.name
+            try {
+                // 请求央视官方实时 EPG
+                val epgUrl = "https://api.cntv.cn/epg/epginfo?c=${channel.id}"
+                val json = app.get(epgUrl, headers = mapOf("User-Agent" to USER_AGENT), timeout = 2500L).text
+                val isLiveMatch = Regex(""""isLive"\s*:\s*"([^"]+)"""").find(json)
+                val isLive = isLiveMatch?.groupValues?.get(1)?.trim()
+                if (!isLive.isNullOrEmpty() && isLive != "None") {
+                    displayName = "${channel.name} · $isLive"
                 }
+            } catch (_: Exception) {
+                // 超时或失败时保留原频道名
+            }
+
+            newLiveSearchResponse(displayName, channel.url, TvType.Live) {
+                this.posterUrl = channel.logo
+            }
         }
 
-        override suspend fun loadLinks(
-                data: String,
-                isCasting: Boolean,
-                subtitleCallback: (SubtitleFile) -> Unit,
-                callback: (ExtractorLink) -> Unit
-        ): Boolean {
-                // 直接使用 M3U8 链接
-                if (data.contains(".m3u8")) {
-                        M3u8Helper.generateM3u8(
-                                        this.name,
-                                        data,
-                                        referer = mainUrl,
-                                        headers = mapOf("User-Agent" to USER_AGENT)
-                                )
-                                .forEach(callback)
-                }
+        return newHomePageResponse(
+            list = HomePageList(
+                name = "央视频道",
+                list = searchResponses,
+                isHorizontalImages = true
+            ),
+            hasNext = false
+        )
+    }
 
-                return true
+    /** 2. 点击频道直接返回播放响应 (彻底移除 WebView 嗅探) */
+    override suspend fun load(url: String): LoadResponse? {
+        val channel = getCCTVChannels().find { it.url == url }
+            ?: Channel("cctv", "CCTV", url)
+
+        return newLiveStreamLoadResponse(
+            name = channel.name,
+            url = channel.url,
+            dataUrl = channel.url
+        ) {
+            this.posterUrl = channel.logo
+        }
+    }
+
+    /** 3. 加载播放流 (支持主线路与多条备用线路) */
+    override suspend fun loadLinks(
+        data: String,
+        isCasting: Boolean,
+        subtitleCallback: (SubtitleFile) -> Unit,
+        callback: (ExtractorLink) -> Unit
+    ): Boolean {
+        // 主线路
+        if (data.contains(".m3u8")) {
+            M3u8Helper.generateM3u8(
+                source = this.name,
+                streamUrl = data,
+                referer = mainUrl,
+                headers = mapOf("User-Agent" to USER_AGENT)
+            ).forEach(callback)
         }
 
-        companion object {
-                private const val USER_AGENT =
-                        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+        // 备用线路
+        val channel = getCCTVChannels().find { it.url == data }
+        channel?.backupUrls?.forEachIndexed { index, backupUrl ->
+            if (backupUrl.contains(".m3u8")) {
+                M3u8Helper.generateM3u8(
+                    source = "${this.name} 备用${index + 1}",
+                    streamUrl = backupUrl,
+                    referer = mainUrl,
+                    headers = mapOf("User-Agent" to USER_AGENT)
+                ).forEach(callback)
+            }
         }
+
+        return true
+    }
+
+    /** 4. 频道搜索功能 */
+    override suspend fun search(query: String): List<SearchResponse> {
+        val channels = getCCTVChannels()
+        return channels.filter {
+            it.name.contains(query, ignoreCase = true) || it.id.contains(query, ignoreCase = true)
+        }.map { channel ->
+            newLiveSearchResponse(channel.name, channel.url, TvType.Live) {
+                this.posterUrl = channel.logo
+            }
+        }
+    }
+
+    companion object {
+        private const val USER_AGENT =
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+    }
 }

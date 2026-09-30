@@ -75,11 +75,16 @@ class ChinaIPTVProvider : MainAPI() {
                     val logoMatch = Regex("""tvg-logo="([^"]+)"""").find(line)
                     currentLogo = logoMatch?.groupValues?.get(1) ?: ""
                 } else if (line.isNotEmpty() && !line.startsWith("#") && currentName.isNotEmpty()) {
-                    // 这是 URL 行
+                    // 优先匹配央视稳定持久源，防止第三方 M3U 中的临时酒店源几分钟后断流
+                    val normalizedKey = currentName.uppercase().replace(" ", "").replace("-", "")
+                    val resolvedUrl = stableCCTVMap[normalizedKey]
+                            ?: stableCCTVMap[currentName]
+                            ?: line
+
                     channels.add(
                             Channel(
                                     name = currentName,
-                                    url = line,
+                                    url = resolvedUrl,
                                     group = currentGroup,
                                     logo = currentLogo
                             )
@@ -97,161 +102,158 @@ class ChinaIPTVProvider : MainAPI() {
         return channels
     }
 
+    /** 央视官方持久源与稳定直播源映射表 (避免第三方源频繁断流) */
+    private val stableCCTVMap = mapOf(
+            "CCTV1" to "https://newbndbd.a.bdydns.com/newbnd/necctv1_2/index.m3u8",
+            "CCTV1综合" to "https://newbndbd.a.bdydns.com/newbnd/necctv1_2/index.m3u8",
+            "CCTV2" to "http://74.91.26.218:82/live/cctv2hd.m3u8",
+            "CCTV2财经" to "http://74.91.26.218:82/live/cctv2hd.m3u8",
+            "CCTV3" to "http://107.150.60.122/live/cctv3hd.m3u8",
+            "CCTV3综艺" to "http://107.150.60.122/live/cctv3hd.m3u8",
+            "CCTV4" to "http://74.91.26.218:82/live/cctv4hd.m3u8",
+            "CCTV4中文国际" to "http://74.91.26.218:82/live/cctv4hd.m3u8",
+            "CCTV5" to "http://107.150.60.122/live/cctv5hd.m3u8",
+            "CCTV5体育" to "http://107.150.60.122/live/cctv5hd.m3u8",
+            "CCTV5+" to "http://120.76.248.139/live/bfgd/4200000246.m3u8",
+            "CCTV5PLUS" to "http://120.76.248.139/live/bfgd/4200000246.m3u8",
+            "CCTV5+赛事" to "http://120.76.248.139/live/bfgd/4200000246.m3u8",
+            "CCTV6" to "http://69.30.245.50/live/cctv6.m3u8",
+            "CCTV6电影" to "http://69.30.245.50/live/cctv6.m3u8",
+            "CCTV7" to "http://74.91.26.218:82/live/cctv7hd.m3u8",
+            "CCTV7国防军事" to "http://74.91.26.218:82/live/cctv7hd.m3u8",
+            "CCTV8" to "http://bztv.tvbus.cc:8081/cdnlive/cctv8.m3u8",
+            "CCTV8电视剧" to "http://bztv.tvbus.cc:8081/cdnlive/cctv8.m3u8",
+            "CCTV9" to "http://63.141.230.178:82/gslb/zbdq5.m3u8?id=cctv9hd",
+            "CCTV9纪录" to "http://63.141.230.178:82/gslb/zbdq5.m3u8?id=cctv9hd",
+            "CCTV10" to "http://74.91.26.218:82/live/cctv10hd.m3u8",
+            "CCTV10科教" to "http://74.91.26.218:82/live/cctv10hd.m3u8",
+            "CCTV11" to "http://74.91.26.218:82/live/cctv11hd.m3u8",
+            "CCTV11戏曲" to "http://74.91.26.218:82/live/cctv11hd.m3u8",
+            "CCTV12" to "http://107.150.60.122/live/cctv12hd.m3u8",
+            "CCTV12社会与法" to "http://107.150.60.122/live/cctv12hd.m3u8",
+            "CCTV13" to "https://newbndbd.a.bdydns.com/newbnd/necctv13_2/index.m3u8",
+            "CCTV13新闻" to "https://newbndbd.a.bdydns.com/newbnd/necctv13_2/index.m3u8",
+            "CCTV14" to "http://198.204.228.26/live/cctv14hd.m3u8",
+            "CCTV14少儿" to "http://198.204.228.26/live/cctv14hd.m3u8",
+            "CCTV15" to "http://204.12.221.218:8181/3m1080p/cctv15.m3u8",
+            "CCTV15音乐" to "http://204.12.221.218:8181/3m1080p/cctv15.m3u8",
+            "CCTV16" to "http://207.56.13.146:81/cdnlive/cctv16.m3u8",
+            "CCTV16奥林匹克" to "http://207.56.13.146:81/cdnlive/cctv16.m3u8",
+            "CCTV17" to "http://74.91.26.218:82/live/cctv17hd.m3u8",
+            "CCTV17农业农村" to "http://74.91.26.218:82/live/cctv17hd.m3u8"
+    )
+
     /** 备用频道列表（防止在线源失效） */
     private fun getBackupChannels(): List<Channel> {
         return listOf(
-                // 央视频道
+                // 央视频道（全部采用官方持久直连流 + 稳定广播流，杜绝几分钟断链）
                 Channel(
                         "CCTV-1 综合",
-                        "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226231/index.m3u8",
-                        "央视频道"
+                        "https://newbndbd.a.bdydns.com/newbnd/necctv1_2/index.m3u8",
+                        "央视频道",
+                        "https://live.fanmingming.com/tv/CCTV1.png"
                 ),
                 Channel(
                         "CCTV-2 财经",
-                        "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226195/index.m3u8",
-                        "央视频道"
+                        "http://74.91.26.218:82/live/cctv2hd.m3u8",
+                        "央视频道",
+                        "https://live.fanmingming.com/tv/CCTV2.png"
                 ),
                 Channel(
                         "CCTV-3 综艺",
-                        "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226397/index.m3u8",
-                        "央视频道"
+                        "http://107.150.60.122/live/cctv3hd.m3u8",
+                        "央视频道",
+                        "https://live.fanmingming.com/tv/CCTV3.png"
                 ),
                 Channel(
                         "CCTV-4 中文国际",
-                        "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226191/index.m3u8",
-                        "央视频道"
+                        "http://74.91.26.218:82/live/cctv4hd.m3u8",
+                        "央视频道",
+                        "https://live.fanmingming.com/tv/CCTV4.png"
                 ),
                 Channel(
                         "CCTV-5 体育",
-                        "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226395/index.m3u8",
-                        "央视频道"
+                        "http://107.150.60.122/live/cctv5hd.m3u8",
+                        "央视频道",
+                        "https://live.fanmingming.com/tv/CCTV5.png"
+                ),
+                Channel(
+                        "CCTV-5+ 赛事",
+                        "http://120.76.248.139/live/bfgd/4200000246.m3u8",
+                        "央视频道",
+                        "https://live.fanmingming.com/tv/CCTV5+.png"
                 ),
                 Channel(
                         "CCTV-6 电影",
-                        "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226393/index.m3u8",
-                        "央视频道"
+                        "http://69.30.245.50/live/cctv6.m3u8",
+                        "央视频道",
+                        "https://live.fanmingming.com/tv/CCTV6.png"
                 ),
                 Channel(
                         "CCTV-7 国防军事",
-                        "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226192/index.m3u8",
-                        "央视频道"
+                        "http://74.91.26.218:82/live/cctv7hd.m3u8",
+                        "央视频道",
+                        "https://live.fanmingming.com/tv/CCTV7.png"
                 ),
                 Channel(
                         "CCTV-8 电视剧",
-                        "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226391/index.m3u8",
-                        "央视频道"
+                        "http://bztv.tvbus.cc:8081/cdnlive/cctv8.m3u8",
+                        "央视频道",
+                        "https://live.fanmingming.com/tv/CCTV8.png"
                 ),
                 Channel(
                         "CCTV-9 纪录",
-                        "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226197/index.m3u8",
-                        "央视频道"
+                        "http://63.141.230.178:82/gslb/zbdq5.m3u8?id=cctv9hd",
+                        "央视频道",
+                        "https://live.fanmingming.com/tv/CCTV9.png"
                 ),
                 Channel(
                         "CCTV-10 科教",
-                        "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226189/index.m3u8",
-                        "央视频道"
+                        "http://74.91.26.218:82/live/cctv10hd.m3u8",
+                        "央视频道",
+                        "https://live.fanmingming.com/tv/CCTV10.png"
                 ),
                 Channel(
                         "CCTV-11 戏曲",
-                        "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226240/index.m3u8",
-                        "央视频道"
+                        "http://74.91.26.218:82/live/cctv11hd.m3u8",
+                        "央视频道",
+                        "https://live.fanmingming.com/tv/CCTV11.png"
                 ),
                 Channel(
                         "CCTV-12 社会与法",
-                        "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226190/index.m3u8",
-                        "央视频道"
+                        "http://107.150.60.122/live/cctv12hd.m3u8",
+                        "央视频道",
+                        "https://live.fanmingming.com/tv/CCTV12.png"
                 ),
                 Channel(
                         "CCTV-13 新闻",
-                        "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226233/index.m3u8",
-                        "央视频道"
+                        "https://newbndbd.a.bdydns.com/newbnd/necctv13_2/index.m3u8",
+                        "央视频道",
+                        "https://live.fanmingming.com/tv/CCTV13.png"
                 ),
                 Channel(
                         "CCTV-14 少儿",
-                        "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226193/index.m3u8",
-                        "央视频道"
+                        "http://198.204.228.26/live/cctv14hd.m3u8",
+                        "央视频道",
+                        "https://live.fanmingming.com/tv/CCTV14.png"
                 ),
                 Channel(
                         "CCTV-15 音乐",
-                        "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221225785/index.m3u8",
-                        "央视频道"
-                ),
-
-                // 卫视频道
-                Channel(
-                        "湖南卫视",
-                        "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226211/index.m3u8",
-                        "卫视频道"
+                        "http://204.12.221.218:8181/3m1080p/cctv15.m3u8",
+                        "央视频道",
+                        "https://live.fanmingming.com/tv/CCTV15.png"
                 ),
                 Channel(
-                        "浙江卫视",
-                        "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226199/index.m3u8",
-                        "卫视频道"
+                        "CCTV-16 奥林匹克",
+                        "http://207.56.13.146:81/cdnlive/cctv16.m3u8",
+                        "央视频道",
+                        "https://live.fanmingming.com/tv/CCTV16.png"
                 ),
                 Channel(
-                        "江苏卫视",
-                        "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226200/index.m3u8",
-                        "卫视频道"
-                ),
-                Channel(
-                        "东方卫视",
-                        "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226217/index.m3u8",
-                        "卫视频道"
-                ),
-                Channel(
-                        "北京卫视",
-                        "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226222/index.m3u8",
-                        "卫视频道"
-                ),
-                Channel(
-                        "深圳卫视",
-                        "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226205/index.m3u8",
-                        "卫视频道"
-                ),
-                Channel(
-                        "广东卫视",
-                        "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226216/index.m3u8",
-                        "卫视频道"
-                ),
-                Channel(
-                        "安徽卫视",
-                        "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226203/index.m3u8",
-                        "卫视频道"
-                ),
-                Channel(
-                        "天津卫视",
-                        "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226204/index.m3u8",
-                        "卫视频道"
-                ),
-                Channel(
-                        "重庆卫视",
-                        "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226202/index.m3u8",
-                        "卫视频道"
-                ),
-                Channel(
-                        "山东卫视",
-                        "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226209/index.m3u8",
-                        "卫视频道"
-                ),
-                Channel(
-                        "黑龙江卫视",
-                        "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226215/index.m3u8",
-                        "卫视频道"
-                ),
-                Channel(
-                        "河北卫视",
-                        "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221225750/index.m3u8",
-                        "卫视频道"
-                ),
-                Channel(
-                        "辽宁卫视",
-                        "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226201/index.m3u8",
-                        "卫视频道"
-                ),
-                Channel(
-                        "湖北卫视",
-                        "http://39.134.24.162/dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226206/index.m3u8",
-                        "卫视频道"
+                        "CCTV-17 农业农村",
+                        "http://74.91.26.218:82/live/cctv17hd.m3u8",
+                        "央视频道",
+                        "https://live.fanmingming.com/tv/CCTV17.png"
                 )
         )
     }
