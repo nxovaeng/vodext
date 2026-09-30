@@ -165,7 +165,7 @@ class CCTVProvider : MainAPI() {
                 // 超时或失败时保留原频道名
             }
 
-            newLiveSearchResponse(displayName, channel.url, TvType.Live) {
+            newMovieSearchResponse(displayName, channel.url, TvType.Live) {
                 this.posterUrl = channel.logo
             }
         }
@@ -185,9 +185,10 @@ class CCTVProvider : MainAPI() {
         val channel = getCCTVChannels().find { it.url == url }
             ?: Channel("cctv", "CCTV", url)
 
-        return newLiveStreamLoadResponse(
+        return newMovieLoadResponse(
             name = channel.name,
             url = channel.url,
+            type = TvType.Live,
             dataUrl = channel.url
         ) {
             this.posterUrl = channel.logo
@@ -233,7 +234,7 @@ class CCTVProvider : MainAPI() {
         return channels.filter {
             it.name.contains(query, ignoreCase = true) || it.id.contains(query, ignoreCase = true)
         }.map { channel ->
-            newLiveSearchResponse(channel.name, channel.url, TvType.Live) {
+            newMovieSearchResponse(channel.name, channel.url, TvType.Live) {
                 this.posterUrl = channel.logo
             }
         }
