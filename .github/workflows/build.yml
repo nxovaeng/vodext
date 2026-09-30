@@ -34,11 +34,13 @@ jobs:
         uses: actions/setup-java@v5
         with:
           java-version: 17
-          distribution: adopt
+          distribution: temurin
           cache: gradle
 
       - name: Setup Android SDK
-        uses: android-actions/setup-android@v3.2.2
+        uses: android-actions/setup-android@v4
+        with:
+          packages: 'platform-tools platforms;android-33 build-tools;33.0.2'
 
       # 安装构建工具（例如 MkDocs 或 Pandoc）
       - name: Install MkDocs
