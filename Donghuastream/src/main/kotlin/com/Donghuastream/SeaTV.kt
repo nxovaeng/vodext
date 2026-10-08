@@ -4,6 +4,7 @@ import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.utils.ExtractorLink
 import com.lagradost.cloudstream3.utils.loadExtractor
 import org.json.JSONObject
+import java.net.URLEncoder
 
 open class SeaTV : MainAPI() {
     override var mainUrl = "https://donghuafun.com"
@@ -34,66 +35,114 @@ open class SeaTV : MainAPI() {
     }
 
     private fun JSONObject.toSearchResponse(): SearchResponse {
-        val title = getString("vod_name")
-        val id = getInt("vod_id").toString()
-        val poster = getString("vod_pic")
+        val title = optString("vod_name")
+        val id = optInt("vod_id", 0).toString()
+        val poster = optString("vod_pic")
         return newTvSeriesSearchResponse(title, id, TvType.Anime) {
             this.posterUrl = poster
         }
     }
 
     override suspend fun search(query: String): List<SearchResponse> {
-        val url = "$mainUrl/api.php/provide/vod/at/json?ac=videolist&wd=$query"
-        val response = app.get(url).text
-        val json = JSONObject(response)
-        val list = json.optJSONArray("list") ?: return emptyList()
-        val results = mutableListOf<SearchResponse>()
-        for (i in 0 until list.length()) {
-            val item = list.getJSONObject(i)
-            results.add(item.toSearchResponse())
+        // 1. 先走 API 搜索（英文有效，JSON 快）
+        val apiResults = searchApi(query)
+        if (apiResults.isNotEmpty()) return apiResults
+
+        // 2. API 不支持中文搜索，回退到网页搜索
+        //    /index.php/vod/search/wd/关键词.html 服务端支持中文
+        return searchHtml(query)
+    }
+
+    private suspend fun searchApi(query: String): List<SearchResponse> {
+        return try {
+            val encoded = URLEncoder.encode(query, "UTF-8")
+            val url = "$mainUrl/api.php/provide/vod/at/json?ac=videolist&wd=$encoded"
+            val json = JSONObject(app.get(url).text)
+            val list = json.optJSONArray("list") ?: return emptyList()
+            List(list.length()) { i -> list.getJSONObject(i).toSearchResponse() }
+        } catch (_: Exception) {
+            emptyList()
         }
-        return results
+    }
+
+    private suspend fun searchHtml(query: String): List<SearchResponse> {
+        return try {
+            val encoded = URLEncoder.encode(query.trim(), "UTF-8").replace("+", "%20")
+            val doc = app.get("$mainUrl/index.php/vod/search/wd/$encoded.html").document
+            doc.select("div.public-list-box").mapNotNull { box ->
+                val a = box.selectFirst("a.public-list-exp") ?: return@mapNotNull null
+                val title = a.attr("title").ifEmpty {
+                    box.selectFirst("a.time-title")?.attr("title") ?: ""
+                }.trim()
+                val href = fixUrl(a.attr("href"))
+                if (title.isEmpty() || href.isEmpty()) return@mapNotNull null
+                val poster = fixUrlNull(
+                    a.selectFirst("img")?.let { img ->
+                        img.attr("data-src").ifEmpty { img.attr("src") }
+                    }
+                )
+                newTvSeriesSearchResponse(title, href, TvType.Anime) {
+                    this.posterUrl = poster
+                }
+            }.distinctBy { it.url }.take(50)
+        } catch (_: Exception) {
+            emptyList()
+        }
     }
 
     override suspend fun load(url: String): LoadResponse {
-        val id = if (url.startsWith("http")) {
-            url.substringAfter("/id/").substringBefore(".html")
-        } else {
-            url
-        }
+        // url 可能是 "245" / "https://donghuafun.com/245" / ".../id/245.html"
+        // 旧的 substringAfter("/id/") 永远匹配不到，导致 ids 参数错误、detail 返回空列表
+        val id = url.substringAfterLast("/")
+            .substringBefore(".html")
+            .filter { it.isDigit() }
+            .ifEmpty { url.filter { it.isDigit() } }
+        if (id.isEmpty()) throw ErrorLoadingException("invalid url: $url")
+
         val apiUrl = "$mainUrl/api.php/provide/vod/at/json?ac=detail&ids=$id"
         val response = app.get(apiUrl).text
         val json = JSONObject(response)
-        val vod = json.getJSONArray("list").getJSONObject(0)
-        
-        val title = vod.getString("vod_name")
-        val poster = vod.getString("vod_pic")
+        val arr = json.optJSONArray("list")
+        if (arr == null || arr.length() == 0) throw ErrorLoadingException("vod not found: $id")
+        val vod = arr.getJSONObject(0)
+
+        val title = vod.optString("vod_name")
+        val poster = vod.optString("vod_pic")
         val plot = vod.optString("vod_content").replace(Regex("<[^>]*>"), "").trim()
         val year = vod.optInt("vod_year", 0).takeIf { it > 0 }
 
-        val fromList = vod.getString("vod_play_from").split("$$$")
-        val urlList = vod.getString("vod_play_url").split("$$$")
-        
+        val fromList = vod.optString("vod_play_from").split("$$$")
+        val urlList = vod.optString("vod_play_url").split("$$$")
+
+        // 优先 dailymotion 线路（集数最全）；没有则退回集数最多的线路
+        var srcIndex = fromList.indexOfFirst { it.contains("dailymotion", ignoreCase = true) }
+        if (srcIndex == -1 || srcIndex >= urlList.size) {
+            srcIndex = urlList.indices.maxByOrNull { urlList[it].split("#").size } ?: -1
+        }
+
         val episodes = mutableListOf<Episode>()
-        
-        // Find "dailymotion" index
-        val dmIndex = fromList.indexOf("dailymotion")
-        if (dmIndex != -1) {
-            val dmUrls = urlList[dmIndex].split("#")
-            dmUrls.forEachIndexed { index, epStr ->
+        if (srcIndex != -1) {
+            urlList[srcIndex].split("#").forEachIndexed { index, epStr ->
                 val epParts = epStr.split("$")
-                if (epParts.size == 2) {
-                    val epName = epParts[0]
-                    val epData = epParts[1]
-                    episodes.add(newEpisode(epData) {
-                        this.name = epName
-                        this.episode = index + 1
+                if (epParts.size == 2 && epParts[1].isNotBlank()) {
+                    val epName = epParts[0].trim()
+                    val epData = epParts[1].trim()
+                    // 从 "EP07" 解析真实集号（源站是倒序的）；解析失败则用索引
+                    val epNum = Regex("""EP\s*0*(\d+)""", RegexOption.IGNORE_CASE)
+                        .find(epName)?.groupValues?.get(1)?.toIntOrNull()
+                        ?: (index + 1)
+                    // fix = false：epData 是 dailymotion 视频 ID，不是 URL，不能被 fixUrl 加前缀
+                    episodes.add(newEpisode(epData, fix = false) {
+                        this.name = epName.ifEmpty { "EP$epNum" }
+                        this.episode = epNum
                     })
                 }
             }
         }
+        // 按集号升序
+        val sorted = episodes.sortedBy { it.episode ?: Int.MAX_VALUE }
 
-        return newTvSeriesLoadResponse(title, url, TvType.Anime, episodes) {
+        return newTvSeriesLoadResponse(title, url, TvType.Anime, sorted) {
             this.posterUrl = poster
             this.plot = plot
             this.year = year
@@ -106,8 +155,10 @@ open class SeaTV : MainAPI() {
         subtitleCallback: (SubtitleFile) -> Unit,
         callback: (ExtractorLink) -> Unit
     ): Boolean {
-        // data is the dailymotion video ID
-        val url = "https://www.dailymotion.com/video/$data"
+        // data 是 dailymotion 视频 ID；防御性地去掉可能带上的 url 前缀（旧构建 fixUrl 加的）
+        val videoId = data.substringAfterLast("/").trim()
+        if (videoId.isEmpty()) return false
+        val url = "https://www.dailymotion.com/video/$videoId"
         loadExtractor(url, referer = mainUrl, subtitleCallback, callback)
         return true
     }
