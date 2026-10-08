@@ -5,6 +5,7 @@ import com.lagradost.cloudstream3.utils.ExtractorLink
 import com.lagradost.cloudstream3.utils.M3u8Helper
 import com.lagradost.cloudstream3.utils.StringUtils.encodeUrl
 import com.lagradost.cloudstream3.utils.loadExtractor
+import kotlin.random.Random
 import org.json.JSONObject
 
 open class SeaTV : MainAPI() {
@@ -147,8 +148,12 @@ open class SeaTV : MainAPI() {
                     "$lineName\$$epData"
                 }
             }.joinToString("#")
+            // 附加随机 nonce：dailymotion 的 sec 签名有时效，而 app 会缓存 loadLinks 结果；
+            // data 变化使缓存失效，保证每次打开详情页后播放时都重新解析出新鲜签名。
+            // loadLinks 解析时 "_nonce=..." 段无 "$"，自然被跳过。
+            val dataWithNonce = if (data.isNotEmpty()) "$data#_nonce=${Random.nextLong()}" else data
             // fix = false：data 是 "线路$数据#..." 协议串，不是 URL
-            newEpisode(data, fix = false, initializer = {
+            newEpisode(dataWithNonce, fix = false, initializer = {
                 this.name = epName
                 this.episode = num
             })
