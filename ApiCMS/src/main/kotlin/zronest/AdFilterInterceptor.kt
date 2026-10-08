@@ -72,11 +72,28 @@ class AdFilterInterceptor : Interceptor {
 
     /** 过滤广告切片的核心逻辑 */
     private fun filterAdSegments(m3u8Content: String, url: String): String {
-        val lines = m3u8Content.lines()
-        val filtered = mutableListOf<String>()
-
         // 获取匹配的规则
         val rule = getMatchingRule(url)
+
+        // 预处理：块级正则删除整个广告段（TVBox 方式），在逐段分析之前执行；
+        // 逐段匹配拿不到 DISCONTINUITY 上下文，块模式放那里是死代码
+        var content = m3u8Content
+        if (rule != null) {
+            for (pattern in rule.blockRegex) {
+                try {
+                    val newContent = Regex(pattern).replace(content, "")
+                    if (DEBUG && newContent.length != content.length) {
+                        Log.d(TAG, "Block regex removed ${content.length - newContent.length} chars")
+                    }
+                    content = newContent
+                } catch (e: Exception) {
+                    if (DEBUG) Log.e(TAG, "Block regex error: ${e.message}")
+                }
+            }
+        }
+
+        val lines = content.lines()
+        val filtered = mutableListOf<String>()
 
         // 用于特征检测
         val statistics = SegmentStatistics()
@@ -383,8 +400,16 @@ class AdFilterInterceptor : Interceptor {
         }
     }
 
-    /** 广告过滤规则数据类 */
-    data class AdFilterRule(val name: String, val hosts: List<String>, val regex: List<String>)
+    /** 广告过滤规则数据类
+     * @param regex 逐段模式：只对 "#EXTINF\n<tsUrl>" 两行做匹配
+     * @param blockRegex 块级模式：对整个 m3u8 文本做匹配，用于删除 DISCONTINUITY 广告段
+     */
+    data class AdFilterRule(
+        val name: String,
+        val hosts: List<String>,
+        val regex: List<String>,
+        val blockRegex: List<String> = emptyList()
+    )
 
     /**
      * 广告过滤规则列表（整理自多个 TVBox 配置）
@@ -404,7 +429,10 @@ class AdFilterInterceptor : Interceptor {
                             regex =
                                     listOf(
                                             // 文件名包含 adjump 的切片
-                                            """#EXTINF.*?\s+.*?adjump.*?\.ts""",
+                                            """#EXTINF.*?\s+.*?adjump.*?\.ts"""
+                                    ),
+                            blockRegex =
+                                    listOf(
                                             // DISCONTINUITY 块，时长 3 秒
                                             """#EXT-X-DISCONTINUITY\r*\n*#EXTINF:3,[\s\S]*?#EXT-X-DISCONTINUITY"""
                                     )
@@ -416,16 +444,19 @@ class AdFilterInterceptor : Interceptor {
                             hosts = listOf("vip.lz", "hd.lz", ".cdnlz", "v.cdnlz"),
                             regex =
                                     listOf(
-                                            // DISCONTINUITY 块，时长 7.166667 秒
-                                            """#EXT-X-DISCONTINUITY\r*\n*#EXTINF:7\.166667,[\s\S]*?#EXT-X-DISCONTINUITY""",
-                                            // DISCONTINUITY 块，时长 4.066667 秒
-                                            """#EXT-X-DISCONTINUITY\r*\n*#EXTINF:4\.066667,[\s\S]*?#EXT-X-DISCONTINUITY""",
                                             // 特征时长：17.19 秒
                                             """17\.19""",
                                             // 特征时长：18.5333 秒
                                             """18\.5333""",
                                             // 长哈希文件名（18 位以上）
-                                            """#EXTINF.*?\s+[a-z0-9]{18,}\.ts""",
+                                            """#EXTINF.*?\s+[a-z0-9]{18,}\.ts"""
+                                    ),
+                            blockRegex =
+                                    listOf(
+                                            // DISCONTINUITY 块，时长 7.166667 秒
+                                            """#EXT-X-DISCONTINUITY\r*\n*#EXTINF:7\.166667,[\s\S]*?#EXT-X-DISCONTINUITY""",
+                                            // DISCONTINUITY 块，时长 4.066667 秒
+                                            """#EXT-X-DISCONTINUITY\r*\n*#EXTINF:4\.066667,[\s\S]*?#EXT-X-DISCONTINUITY""",
                                             """#EXT-X-DISCONTINUITY\r*\n*#EXTINF.*?\s+[a-z0-9]{18,}\.ts[\s\S]*?#EXT-X-DISCONTINUITY"""
                                     )
                     ),
@@ -443,10 +474,6 @@ class AdFilterInterceptor : Interceptor {
                                     ),
                             regex =
                                     listOf(
-                                            // DISCONTINUITY 块，时长 6.4 秒
-                                            """#EXT-X-DISCONTINUITY\r*\n*#EXTINF:6\.400000,[\s\S]*?#EXT-X-DISCONTINUITY""",
-                                            // DISCONTINUITY 块，时长 6.666667 秒
-                                            """#EXT-X-DISCONTINUITY\r*\n*#EXTINF:6\.666667,[\s\S]*?#EXT-X-DISCONTINUITY""",
                                             // 特定哈希特征：1171057
                                             """#EXTINF.*?\s+.*?1171(057).*?\.ts""",
                                             // 特定哈希特征：6d7b077
@@ -458,7 +485,14 @@ class AdFilterInterceptor : Interceptor {
                                             // 特征时长：14.45 秒
                                             """14\.45""",
                                             // 特征时长：25.1 秒
-                                            """25\.1""",
+                                            """25\.1"""
+                                    ),
+                            blockRegex =
+                                    listOf(
+                                            // DISCONTINUITY 块，时长 6.4 秒
+                                            """#EXT-X-DISCONTINUITY\r*\n*#EXTINF:6\.400000,[\s\S]*?#EXT-X-DISCONTINUITY""",
+                                            // DISCONTINUITY 块，时长 6.666667 秒
+                                            """#EXT-X-DISCONTINUITY\r*\n*#EXTINF:6\.666667,[\s\S]*?#EXT-X-DISCONTINUITY""",
                                             // DISCONTINUITY 块模式（8 行内容）
                                             """#EXT-X-DISCONTINUITY(?:\n.*?){8}\n#EXT-X-DISCONTINUITY""",
                                             // DISCONTINUITY 块模式（10 行内容）
@@ -472,8 +506,6 @@ class AdFilterInterceptor : Interceptor {
                             hosts = listOf("suonizy"),
                             regex =
                                     listOf(
-                                            // DISCONTINUITY 块，时长 1 秒
-                                            """#EXT-X-DISCONTINUITY\r*\n*#EXTINF:1\.000000,[\s\S]*?#EXT-X-DISCONTINUITY""",
                                             // 文件名包含 p1ayer（混淆的 player）
                                             """#EXTINF.*?\s+.*?p1ayer.*?\.ts""",
                                             // 路径包含 /video/original/
@@ -482,6 +514,11 @@ class AdFilterInterceptor : Interceptor {
                                             """15\.1666""",
                                             // 特征时长：15.2666 秒
                                             """15\.2666"""
+                                    ),
+                            blockRegex =
+                                    listOf(
+                                            // DISCONTINUITY 块，时长 1 秒
+                                            """#EXT-X-DISCONTINUITY\r*\n*#EXTINF:1\.000000,[\s\S]*?#EXT-X-DISCONTINUITY"""
                                     )
                     ),
 
@@ -489,7 +526,8 @@ class AdFilterInterceptor : Interceptor {
                     AdFilterRule(
                             name = "快看",
                             hosts = listOf("kuaikan"),
-                            regex =
+                            regex = emptyList(),
+                            blockRegex =
                                     listOf(
                                             // 未加密的 DISCONTINUITY 块，时长 5 秒
                                             """#EXT-X-KEY:METHOD=NONE\r*\n*#EXTINF:5,[\s\S]*?#EXT-X-DISCONTINUITY""",
@@ -556,7 +594,8 @@ class AdFilterInterceptor : Interceptor {
                     AdFilterRule(
                             name = "星星",
                             hosts = listOf("aws.ulivetv.net"),
-                            regex =
+                            regex = emptyList(),
+                            blockRegex =
                                     listOf(
                                             // DISCONTINUITY 块，时长 8 秒
                                             """#EXT-X-DISCONTINUITY\r*\n*#EXTINF:8,[\s\S]*?#EXT-X-DISCONTINUITY"""
@@ -567,7 +606,8 @@ class AdFilterInterceptor : Interceptor {
                     AdFilterRule(
                             name = "奇虎",
                             hosts = listOf("qihubf"),
-                            regex =
+                            regex = emptyList(),
+                            blockRegex =
                                     listOf(
                                             // 加密方式切换：NONE -> AES-128
                                             """#EXT-X-DISCONTINUITY\r*\n*#EXT-X-KEY:METHOD=NONE\r*\n*#EXTINF:2,[\s\S]*?#EXT-X-DISCONTINUITY\r*\n*#EXT-X-KEY:METHOD=AES-128""",
@@ -580,7 +620,8 @@ class AdFilterInterceptor : Interceptor {
                     AdFilterRule(
                             name = "U酷",
                             hosts = listOf("ukzy"),
-                            regex =
+                            regex = emptyList(),
+                            blockRegex =
                                     listOf(
                                             // 未加密的 DISCONTINUITY 块
                                             """#EXT-X-DISCONTINUITY\r*\n*#EXT-X-KEY:METHOD=NONE\r*\n*#EXTINF:.*?,[\s\S]*?#EXT-X-DISCONTINUITY"""
@@ -591,7 +632,8 @@ class AdFilterInterceptor : Interceptor {
                     AdFilterRule(
                             name = "ikun",
                             hosts = listOf("bfikuncdn"),
-                            regex =
+                            regex = emptyList(),
+                            blockRegex =
                                     listOf(
                                             // 未加密的 DISCONTINUITY 块
                                             """#EXT-X-DISCONTINUITY\r*\n*#EXT-X-KEY:METHOD=NONE\r*\n*#EXTINF:.*?,[\s\S]*?#EXT-X-DISCONTINUITY"""
@@ -602,10 +644,24 @@ class AdFilterInterceptor : Interceptor {
                     AdFilterRule(
                             name = "卧龙",
                             hosts = listOf("cdn.wl"),
-                            regex =
+                            regex = emptyList(),
+                            blockRegex =
                                     listOf(
                                             // 通用 DISCONTINUITY 块
                                             """#EXT-X-DISCONTINUITY\r*\n*#EXTINF:.*?,[\s\S]*?#EXT-X-DISCONTINUITY"""
+                                    )
+                    ),
+
+                    // ========== 魔都资源 (mdzy) ==========
+                    // 实测 2026-10-08：广告为 DISCONTINUITY + KEY:METHOD=NONE 块，
+                    // 内含 6 个相对路径切片（/20260917/...），正常切片全是绝对路径
+                    AdFilterRule(
+                            name = "魔都",
+                            hosts = listOf("modujx", "mdzy"),
+                            regex = emptyList(),
+                            blockRegex =
+                                    listOf(
+                                            """#EXT-X-DISCONTINUITY\r?\n#EXT-X-KEY:METHOD=NONE\r?\n(?:#EXTINF:[^\r\n]*\r?\n/[^\r\n]*\r?\n)+"""
                                     )
                     )
             )
