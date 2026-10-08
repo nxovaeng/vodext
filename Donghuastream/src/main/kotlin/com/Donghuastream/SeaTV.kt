@@ -159,7 +159,10 @@ open class SeaTV : MainAPI() {
             })
         }.sortedBy { it.episode ?: Int.MAX_VALUE }
 
-        return newTvSeriesLoadResponse(title, url, TvType.Anime, episodes) {
+        // 返回站内真实详情页地址：app 的"在浏览器打开"用 LoadResponse.url，
+        // 透传裸 id 会拼出 https://donghuafun.com/25 这种不存在的地址
+        val detailUrl = "$mainUrl/index.php/vod/detail/id/$id.html"
+        return newTvSeriesLoadResponse(title, detailUrl, TvType.Anime, episodes) {
             this.posterUrl = poster
             this.plot = plot
             this.year = year
