@@ -99,12 +99,16 @@ abstract class BaseVodProvider : MainAPI() {
 
                     if (!lineName.isNullOrEmpty() && !playUrl.isNullOrEmpty()) {
                         // 如果本身就是 m3u8 地址，直接使用
+                        // 注意：generateM3u8 的第 1 个参数是 ExtractorLink.source，
+                        // 播放器靠它 getApiFromNameNull() 找回 provider 取拦截器，
+                        // 必须传 provider 名（之前传线路名导致 AdFilterInterceptor 永不生效）；
+                        // 显示名则带上线路以区分。
                         if (playUrl.contains(".m3u8")) {
                             M3u8Helper.generateM3u8(
-                                            lineName,
+                                            name,
                                             playUrl,
                                             sourceReferer(lineName),
-                                            name = name
+                                            name = "$name · $lineName"
                                     )
                                     .forEach(callback)
                         } else {
@@ -142,7 +146,8 @@ abstract class BaseVodProvider : MainAPI() {
         val m3u8Match = m3u8Regex.find(pageContent)
         val m3u8Url = m3u8Match?.groupValues?.get(1)
         if (m3u8Url != null) {
-            M3u8Helper.generateM3u8(lineName, m3u8Url, referer, name = name).forEach(callback)
+            M3u8Helper.generateM3u8(name, m3u8Url, referer, name = "$name · $lineName")
+                    .forEach(callback)
         } else {
             // fallback: try loadExtractor
             loadExtractor(
