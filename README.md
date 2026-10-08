@@ -15,8 +15,9 @@
 
 | 扩展名称 |  支持的网站              | 类型 | 状态 |
 |---------|-------------------------|------|------|
-| ApiCMS | bfzyapi.com, mdzyapi.com | 影视、动漫 | ✅ 正常 |
-| MovieSite | pipishi.com, dadaqu.com | 影视、动漫 | ✅ 正常 |
+| ApiCMS | bfzyapi.com, mdzyapi.com 等 6 站+聚合 | 影视、动漫 | ✅ 正常 |
+| Donghuastream | donghuastream.org, donghuafun.com, animekhor.org, donghuaworld.com | 动漫 | ✅ 正常 |
+| IPTV | CCTV 官方源 | 直播 | ✅ 正常 |
 
 ## 安装方法
 
