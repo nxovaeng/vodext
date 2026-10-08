@@ -3,6 +3,7 @@ package nxovaeng
 import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.utils.ExtractorLink
 import com.lagradost.cloudstream3.utils.M3u8Helper
+import org.json.JSONObject
 
 /** CCTV 官方直播源提供者 采用央视官方纯净免加密直播流 + 官方动态 EPG 节目单 */
 class CCTVProvider : MainAPI() {
@@ -156,8 +157,9 @@ class CCTVProvider : MainAPI() {
                 // 请求央视官方实时 EPG
                 val epgUrl = "https://api.cntv.cn/epg/epginfo?c=${channel.id}"
                 val json = app.get(epgUrl, headers = mapOf("User-Agent" to USER_AGENT), timeout = 2500L).text
-                val isLiveMatch = Regex(""""isLive"\s*:\s*"([^"]+)"""").find(json)
-                val isLive = isLiveMatch?.groupValues?.get(1)?.trim()
+                // 用 JSONObject 解析（自动解码 \uXXXX 转义）；
+                // 之前用正则截 raw 文本，会把 "\u85cf\u950b..." 原样显示出来
+                val isLive = JSONObject(json).optJSONObject(channel.id)?.optString("isLive")?.trim()
                 if (!isLive.isNullOrEmpty() && isLive != "None") {
                     displayName = "${channel.name} · $isLive"
                 }
@@ -174,7 +176,8 @@ class CCTVProvider : MainAPI() {
             list = HomePageList(
                 name = "央视频道",
                 list = searchResponses,
-                isHorizontalImages = true
+                // 频道 logo 是方形，用竖图模式；横图模式（16:9）会裁切变形
+                isHorizontalImages = false
             ),
             hasNext = false
         )
