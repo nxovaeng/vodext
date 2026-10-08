@@ -176,8 +176,8 @@ class CCTVProvider : MainAPI() {
             list = HomePageList(
                 name = "央视频道",
                 list = searchResponses,
-                // 频道 logo 是方形，用竖图模式；横图模式（16:9）会裁切变形
-                isHorizontalImages = false
+                // 频道 logo 实测 640x320（2:1 横图），用横图模式；竖图模式会把横图裁得只剩中间一条
+                isHorizontalImages = true
             ),
             hasNext = false
         )
