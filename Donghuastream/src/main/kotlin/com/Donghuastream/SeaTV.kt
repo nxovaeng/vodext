@@ -2,9 +2,9 @@ package com.Donghuastream
 
 import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.utils.ExtractorLink
+import com.lagradost.cloudstream3.utils.StringUtils.encodeUrl
 import com.lagradost.cloudstream3.utils.loadExtractor
 import org.json.JSONObject
-import java.net.URLEncoder
 
 open class SeaTV : MainAPI() {
     override var mainUrl = "https://donghuafun.com"
@@ -55,8 +55,7 @@ open class SeaTV : MainAPI() {
 
     private suspend fun searchApi(query: String): List<SearchResponse> {
         return try {
-            val encoded = URLEncoder.encode(query, "UTF-8")
-            val url = "$mainUrl/api.php/provide/vod/at/json?ac=videolist&wd=$encoded"
+            val url = "$mainUrl/api.php/provide/vod/at/json?ac=videolist&wd=${query.encodeUrl()}"
             val json = JSONObject(app.get(url).text)
             val list = json.optJSONArray("list") ?: return emptyList()
             List(list.length()) { i -> list.getJSONObject(i).toSearchResponse() }
@@ -67,7 +66,8 @@ open class SeaTV : MainAPI() {
 
     private suspend fun searchHtml(query: String): List<SearchResponse> {
         return try {
-            val encoded = URLEncoder.encode(query.trim(), "UTF-8").replace("+", "%20")
+            // Ktor 的 encodeURLParameter（跨平台），空格编为 %20，path 里可直接用
+            val encoded = query.trim().encodeUrl()
             val doc = app.get("$mainUrl/index.php/vod/search/wd/$encoded.html").document
             doc.select("div.public-list-box").mapNotNull { box ->
                 val a = box.selectFirst("a.public-list-exp") ?: return@mapNotNull null
