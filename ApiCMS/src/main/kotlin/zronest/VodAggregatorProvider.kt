@@ -203,10 +203,10 @@ class VodAggregatorProvider : BaseVodProvider() {
                             }
                             .joinToString(episodeSeparator)
             // fix=false：data 是 "名$url#..." 协议串，不是 URL
-            newEpisode(data, fix = false) {
+            newEpisode(data, fix = false, initializer = {
                 this.name = epName
                 this.episode = num
-            }
+            })
         }
 
         // 复用首站的元数据（标题/海报/简介/演员等）

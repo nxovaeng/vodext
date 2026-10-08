@@ -132,10 +132,10 @@ open class SeaTV : MainAPI() {
                         .find(epName)?.groupValues?.get(1)?.toIntOrNull()
                         ?: (index + 1)
                     // fix = false：epData 是 dailymotion 视频 ID，不是 URL，不能被 fixUrl 加前缀
-                    episodes.add(newEpisode(epData, fix = false) {
+                    episodes.add(newEpisode(epData, fix = false, initializer = {
                         this.name = epName.ifEmpty { "EP$epNum" }
                         this.episode = epNum
-                    })
+                    }))
                 }
             }
         }
