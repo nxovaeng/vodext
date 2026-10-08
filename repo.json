@@ -1,0 +1,9 @@
+{
+  "name": "vodext",
+  "iconUrl": "https://vod.zrocf.qzz.io/static/wolong.png",
+  "description": "CloudStream extensions",
+  "manifestVersion": 1,
+  "pluginLists": [
+     "https://raw.githubusercontent.com/nxovaeng/vodext/builds/plugins.json"
+  ]
+}
