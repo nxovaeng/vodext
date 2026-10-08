@@ -2,6 +2,7 @@ package com.Donghuastream
 
 import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.utils.ExtractorLink
+import com.lagradost.cloudstream3.utils.M3u8Helper
 import com.lagradost.cloudstream3.utils.StringUtils.encodeUrl
 import com.lagradost.cloudstream3.utils.loadExtractor
 import org.json.JSONObject
@@ -114,35 +115,46 @@ open class SeaTV : MainAPI() {
         val fromList = vod.optString("vod_play_from").split("$$$")
         val urlList = vod.optString("vod_play_url").split("$$$")
 
-        // 优先 dailymotion 线路（集数最全）；没有则退回集数最多的线路
-        var srcIndex = fromList.indexOfFirst { it.contains("dailymotion", ignoreCase = true) }
-        if (srcIndex == -1 || srcIndex >= urlList.size) {
-            srcIndex = urlList.indices.maxByOrNull { urlList[it].split("#").size } ?: -1
-        }
-
-        val episodes = mutableListOf<Episode>()
-        if (srcIndex != -1) {
-            urlList[srcIndex].split("#").forEachIndexed { index, epStr ->
-                val epParts = epStr.split("$")
-                if (epParts.size == 2 && epParts[1].isNotBlank()) {
-                    val epName = epParts[0].trim()
-                    val epData = epParts[1].trim()
-                    // 从 "EP07" 解析真实集号（源站是倒序的）；解析失败则用索引
+        // 解析每条线路的剧集：(线路名, [(集号, 集名, 数据)])
+        // 数据可能是 dailymotion 视频 ID、rumble/ganjing 视频 ID，或直接 URL
+        val lineEpisodes = fromList.indices.mapNotNull { li ->
+            if (li >= urlList.size) return@mapNotNull null
+            val lineName = fromList[li].trim().ifEmpty { "线路${li + 1}" }
+            val eps = urlList[li].split("#").mapNotNull { epStr ->
+                val parts = epStr.split("$", limit = 2)
+                if (parts.size == 2 && parts[1].isNotBlank()) {
+                    val epName = parts[0].trim()
+                    val epData = parts[1].trim()
+                    // 从 "EP07" 解析真实集号（源站是倒序的）；解析失败先记 null，后面用索引补
                     val epNum = Regex("""EP\s*0*(\d+)""", RegexOption.IGNORE_CASE)
                         .find(epName)?.groupValues?.get(1)?.toIntOrNull()
-                        ?: (index + 1)
-                    // fix = false：epData 是 dailymotion 视频 ID，不是 URL，不能被 fixUrl 加前缀
-                    episodes.add(newEpisode(epData, fix = false, initializer = {
-                        this.name = epName.ifEmpty { "EP$epNum" }
-                        this.episode = epNum
-                    }))
-                }
+                    Triple(epNum, epName, epData)
+                } else null
+            }.mapIndexed { index, (num, name, data) ->
+                Triple(num ?: (index + 1), name.ifEmpty { "EP${num ?: (index + 1)}" }, data)
             }
+            if (eps.isEmpty()) null else lineName to eps
         }
-        // 按集号升序
-        val sorted = episodes.sortedBy { it.episode ?: Int.MAX_VALUE }
 
-        return newTvSeriesLoadResponse(title, url, TvType.Anime, sorted) {
+        // 按集号对齐合并各线路；每集 data 为 "线路名$数据#..."，loadLinks 拆分后即多播放源
+        val allNums = lineEpisodes.flatMap { (_, eps) -> eps.map { it.first } }.toSortedSet()
+        val episodes = allNums.map { num ->
+            val epName = lineEpisodes.firstNotNullOfOrNull { (_, eps) ->
+                eps.find { it.first == num }?.second
+            } ?: "EP$num"
+            val data = lineEpisodes.mapNotNull { (lineName, eps) ->
+                eps.find { it.first == num }?.third?.let { epData ->
+                    "$lineName\$$epData"
+                }
+            }.joinToString("#")
+            // fix = false：data 是 "线路$数据#..." 协议串，不是 URL
+            newEpisode(data, fix = false, initializer = {
+                this.name = epName
+                this.episode = num
+            })
+        }.sortedBy { it.episode ?: Int.MAX_VALUE }
+
+        return newTvSeriesLoadResponse(title, url, TvType.Anime, episodes) {
             this.posterUrl = poster
             this.plot = plot
             this.year = year
@@ -155,11 +167,52 @@ open class SeaTV : MainAPI() {
         subtitleCallback: (SubtitleFile) -> Unit,
         callback: (ExtractorLink) -> Unit
     ): Boolean {
-        // data 是 dailymotion 视频 ID；防御性地去掉可能带上的 url 前缀（旧构建 fixUrl 加的）
-        val videoId = data.substringAfterLast("/").trim()
-        if (videoId.isEmpty()) return false
-        val url = "https://www.dailymotion.com/video/$videoId"
-        loadExtractor(url, referer = mainUrl, subtitleCallback, callback)
+        // data 为 "线路名$数据#..."，拆分后每条线路即一个播放源
+        data.split("#").forEach { part ->
+            try {
+                val lineName = part.substringBefore("$").trim()
+                val rawData = part.substringAfter("$").trim()
+                if (lineName.isEmpty() || rawData.isEmpty()) return@forEach
+
+                when {
+                    // dailymotion 线路：rawData 是视频 ID；
+                    // 防御性地去掉旧构建 fixUrl 可能加上的 url 前缀
+                    lineName.contains("dailymotion", ignoreCase = true) -> {
+                        val videoId = rawData.substringAfterLast("/").trim()
+                        if (videoId.isNotEmpty()) {
+                            loadExtractor(
+                                "https://www.dailymotion.com/video/$videoId",
+                                referer = mainUrl,
+                                subtitleCallback, callback
+                            )
+                        }
+                    }
+                    // 直接 URL（rumble m3u8 等），保持完整
+                    rawData.startsWith("http") -> {
+                        if (rawData.contains(".m3u8")) {
+                            // source 传 provider 名（播放器靠它找回 provider 取拦截器）
+                            M3u8Helper.generateM3u8(
+                                name, rawData, mainUrl,
+                                name = "$name · $lineName"
+                            ).forEach(callback)
+                        } else {
+                            loadExtractor(rawData, referer = mainUrl, subtitleCallback, callback)
+                        }
+                    }
+                    // rumble 视频 ID
+                    lineName.contains("rumble", ignoreCase = true) -> {
+                        loadExtractor(
+                            "https://rumble.com/$rawData",
+                            referer = mainUrl,
+                            subtitleCallback, callback
+                        )
+                    }
+                    // ganjing 等其他 ID 暂不支持，跳过
+                    else -> {}
+                }
+            } catch (_: Exception) {
+            }
+        }
         return true
     }
 }
