@@ -23,8 +23,8 @@ import com.lagradost.cloudstream3.newTvSeriesLoadResponse
 import com.lagradost.cloudstream3.newTvSeriesSearchResponse
 import com.lagradost.cloudstream3.utils.ExtractorLink
 import com.lagradost.cloudstream3.utils.M3u8Helper
+import com.lagradost.cloudstream3.utils.StringUtils.encodeUrl
 import com.lagradost.cloudstream3.utils.loadExtractor
-import java.net.URLEncoder
 import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
 
@@ -39,6 +39,12 @@ abstract class BaseVodProvider : MainAPI() {
     override fun getVideoInterceptor(extractorLink: ExtractorLink): Interceptor {
         return AdFilterInterceptor()
     }
+
+    /**
+     * 解析播放源时的 referer；聚合 Provider 按 "站点@线路" 标签前缀取对应站点的 mainUrl。
+     * 默认返回本站 mainUrl。
+     */
+    protected open fun sourceReferer(lineName: String): String = mainUrl
 
     val lineSeparator: String = "$$$"
     val episodeSeparator: String = "#"
@@ -58,7 +64,7 @@ abstract class BaseVodProvider : MainAPI() {
     }
 
     override suspend fun search(query: String): List<SearchResponse> {
-        val encoded = URLEncoder.encode(query, "UTF-8")
+        val encoded = query.encodeUrl()
         val url = "$mainUrl/api.php/provide/vod/?ac=detail&wd=$encoded"
         val result = app.get(url).parsed<VideoDetail>()
 
@@ -94,7 +100,12 @@ abstract class BaseVodProvider : MainAPI() {
                     if (!lineName.isNullOrEmpty() && !playUrl.isNullOrEmpty()) {
                         // 如果本身就是 m3u8 地址，直接使用
                         if (playUrl.contains(".m3u8")) {
-                            M3u8Helper.generateM3u8(lineName, playUrl, mainUrl, name = name)
+                            M3u8Helper.generateM3u8(
+                                            lineName,
+                                            playUrl,
+                                            sourceReferer(lineName),
+                                            name = name
+                                    )
                                     .forEach(callback)
                         } else {
                             extractPlayUrl(playUrl, lineName, subtitleCallback, callback)
@@ -123,6 +134,7 @@ abstract class BaseVodProvider : MainAPI() {
             subtitleCallback: (SubtitleFile) -> Unit,
             callback: (ExtractorLink) -> Unit
     ) {
+        val referer = sourceReferer(lineName)
         // 尝试从 playUrl 中提取实际的播放地址
         val pageContent = app.get(playUrl).text
         // 使用正则表达式提取 m3u8 地址
@@ -130,15 +142,50 @@ abstract class BaseVodProvider : MainAPI() {
         val m3u8Match = m3u8Regex.find(pageContent)
         val m3u8Url = m3u8Match?.groupValues?.get(1)
         if (m3u8Url != null) {
-            M3u8Helper.generateM3u8(lineName, m3u8Url, mainUrl, name = name).forEach(callback)
+            M3u8Helper.generateM3u8(lineName, m3u8Url, referer, name = name).forEach(callback)
         } else {
             // fallback: try loadExtractor
             loadExtractor(
                     playUrl,
-                    referer = mainUrl,
+                    referer = referer,
                     subtitleCallback = subtitleCallback,
                     callback = callback
             )
+        }
+    }
+
+    /**
+     * 跨站 helper：给聚合 Provider 用。VideoDetail 是 private，在类内部解析，
+     * 对外只暴露 VideoItem（public）。
+     */
+    protected suspend fun fetchSiteDetail(siteUrl: String, id: String): VideoItem? {
+        return try {
+            app.get("$siteUrl/api.php/provide/vod/?ac=detail&ids=$id")
+                    .parsed<VideoDetail>()
+                    .list
+                    .firstOrNull()
+        } catch (_: Exception) {
+            null
+        }
+    }
+
+    protected suspend fun searchSite(siteUrl: String, query: String): List<VideoItem> {
+        return try {
+            app.get("$siteUrl/api.php/provide/vod/?ac=detail&wd=${query.encodeUrl()}")
+                    .parsed<VideoDetail>()
+                    .list
+        } catch (_: Exception) {
+            emptyList()
+        }
+    }
+
+    protected suspend fun listSite(siteUrl: String, page: Int): List<VideoItem> {
+        return try {
+            app.get("$siteUrl/api.php/provide/vod/?ac=detail&pg=$page")
+                    .parsed<VideoDetail>()
+                    .list
+        } catch (_: Exception) {
+            emptyList()
         }
     }
 
@@ -218,6 +265,10 @@ abstract class BaseVodProvider : MainAPI() {
     }
 
     suspend fun VideoItem.toLoadResponse(url: String): LoadResponse {
+        return toLoadResponse(url, getEpisodes())
+    }
+
+    suspend fun VideoItem.toLoadResponse(url: String, episodeList: List<Episode>): LoadResponse {
         val type = mapTypeByName(type_name)
 
         val actors =
@@ -228,9 +279,9 @@ abstract class BaseVodProvider : MainAPI() {
                 }
                         ?: emptyList()
 
-        val episodeList = getEpisodes()
-
-        return if (type == TvType.Movie && episodeList.count() <= 1) {
+        // 修复：episodeList 为空时 episodeList.first() 会抛 NoSuchElementException；
+        // 空列表走剧集分支，客户端会显示 comingSoon
+        return if (type == TvType.Movie && episodeList.size == 1) {
             this@BaseVodProvider.newMovieLoadResponse(
                     vod_name,
                     url,
@@ -256,7 +307,8 @@ abstract class BaseVodProvider : MainAPI() {
     }
 
     /**
-     * 将 Api 采集的扁平化数据源 (vod_play_from, vod_play_url) 进行转置。
+     * 将 Api 采集的扁平化数据源 (vod_play_from, vod_play_url) 进行转置，
+     * 返回 (集号, 集名, 多线路数据) 三元组；不过 newEpisode/fixUrl，供聚合复用。
      * * 原始数据: 线路: "线路1$$$线路2" 剧集: "第1集$url_A1#第2集$url_A2$$$第1集$url_B1#第2集$url_B2"
      *
      * * 目标 (转置后): 只显示一个列表 "剧集":
@@ -264,13 +316,18 @@ abstract class BaseVodProvider : MainAPI() {
      * - 第2集 (data: "线路1$url_A2#线路2$url_B2")
      * * 这样，当 loadLinks 接收到 data 时，它就能解析出所有来源。
      */
-    fun VideoItem.getEpisodes(): List<Episode> {
+    fun VideoItem.getEpisodeTriples(): List<Triple<Int, String, String>> {
         if (vod_play_url.isNullOrEmpty()) return emptyList()
 
         // 1. 解析原始数据
+        // 修复：vod_play_from 为空字符串时 split 会得到 [""]，filter 后变空列表，
+        // 此时不能直接用空列表（会导致与播放列表数量 mismatch），回退到默认线路
         val sources =
-                vod_play_from?.split(lineSeparator)?.map { it.trim() }?.filter { it.isNotEmpty() }
-                        ?: listOf("默认线路")
+                vod_play_from
+                        ?.split(lineSeparator)
+                        ?.map { it.trim() }
+                        ?.filter { it.isNotEmpty() }
+                        .let { if (it.isNullOrEmpty()) listOf("默认线路") else it }
         val playLists = vod_play_url.split(lineSeparator)
 
         if (sources.size != playLists.size) {
@@ -308,44 +365,47 @@ abstract class BaseVodProvider : MainAPI() {
         val maxEpisodes = allEpisodeData.maxOfOrNull { it.size } ?: 0
         if (maxEpisodes == 0) return emptyList()
 
-        val mergedEpisodes =
-                (0 until maxEpisodes).map { episodeIndex ->
-                    // 这是"第 episodeIndex + 1 集"
+        return (0 until maxEpisodes).map { episodeIndex ->
+            // 这是"第 episodeIndex + 1 集"
 
-                    // 3a. 决定这一集的统一名称
-                    // 查找第一个不为空的剧集名称作为代表
-                    val episodeName =
-                            allEpisodeData.firstNotNullOfOrNull {
-                                it.getOrNull(episodeIndex)?.first
-                            } // 取第一个有效的
-                             ?: "第 ${episodeIndex + 1} 集" // 实在没有就用索引
+            // 3a. 决定这一集的统一名称
+            // 查找第一个不为空的剧集名称作为代表
+            val episodeName =
+                    allEpisodeData.firstNotNullOfOrNull {
+                        it.getOrNull(episodeIndex)?.first
+                    } // 取第一个有效的
+                     ?: "第 ${episodeIndex + 1} 集" // 实在没有就用索引
 
-                    // 3b. 组合所有线路的 URL, 保持与原来一致，与电影返回兼容, 方便统一解析
-                    // 使用 "#" 作为线路分隔符, "$" 作为线路名和URL的分隔符
-                    // 格式: "线路1$url_A1#线路2$url_B1"
-                    val dataString =
-                            sources.indices
-                                    .mapNotNull { sourceIndex ->
-                                        // 尝试获取这条线路的、这一集的 URL
-                                        allEpisodeData
-                                                .getOrNull(sourceIndex)
-                                                ?.getOrNull(episodeIndex)
-                                                ?.second
-                                                ?.let { url ->
-                                                    val sourceName = sources[sourceIndex]
-                                                    "$sourceName$nameUrlSeparator$url" // 组合
-                                                }
-                                    }
-                                    .joinToString(episodeSeparator)
+            // 3b. 组合所有线路的 URL, 保持与原来一致，与电影返回兼容, 方便统一解析
+            // 使用 "#" 作为线路分隔符, "$" 作为线路名和URL的分隔符
+            // 格式: "线路1$url_A1#线路2$url_B1"
+            val dataString =
+                    sources.indices
+                            .mapNotNull { sourceIndex ->
+                                // 尝试获取这条线路的、这一集的 URL
+                                allEpisodeData
+                                        .getOrNull(sourceIndex)
+                                        ?.getOrNull(episodeIndex)
+                                        ?.second
+                                        ?.let { url ->
+                                            val sourceName = sources[sourceIndex]
+                                            "$sourceName$nameUrlSeparator$url" // 组合
+                                        }
+                            }
+                            .joinToString(episodeSeparator)
 
-                    // 3c. 创建 Episode 对象
-                    this@BaseVodProvider.newEpisode(dataString) {
-                        this.name = episodeName
-                        this.episode = episodeIndex + 1
-                    }
-                }
+            Triple(episodeIndex + 1, episodeName, dataString)
+        }
+    }
 
-        return mergedEpisodes
+    fun VideoItem.getEpisodes(): List<Episode> {
+        return getEpisodeTriples().map { (num, name, data) ->
+            // 3c. 创建 Episode 对象
+            this@BaseVodProvider.newEpisode(data) {
+                this.name = name
+                this.episode = num
+            }
+        }
     }
 
     data class KeywordRule(val keyword: String, val type: TvType, val priority: Int)
