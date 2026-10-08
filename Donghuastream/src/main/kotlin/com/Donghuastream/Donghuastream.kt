@@ -108,17 +108,21 @@ open class Donghuastream : MainAPI() {
             val Eppage = document.selectFirst(".eplister li > a")?.attr("href") ?: ""
             val doc = app.get(Eppage).document
             val episodes =
-                    doc.select("div.episodelist > ul > li").map { info ->
+                    doc.select("div.episodelist > ul > li").mapNotNull { info ->
                         val href1 = info.select("a").attr("href")
-                        val episode =
-                                info.select("a span")
-                                        .text()
-                                        .substringAfter("-")
-                                        .substringBeforeLast("-")
+                        if (href1.isEmpty()) return@mapNotNull null
+                        val spanText = info.select("a span").text()
+                        val linkTitle = info.select("a").attr("title").ifEmpty { spanText }
+                        // 从 "Eps 13 ..." 或 "Episode 13" 提取真实集号；
+                        // 旧的 substringAfter("-") 切出来的是标题后半段，toIntOrNull 全是 null
+                        val epNum = Regex("""(?:Eps|Episode)\s*0*(\d+)""", RegexOption.IGNORE_CASE)
+                            .find(spanText)?.groupValues?.get(1)?.toIntOrNull()
+                            ?: Regex("""(?:Eps|Episode)\s*0*(\d+)""", RegexOption.IGNORE_CASE)
+                                .find(linkTitle)?.groupValues?.get(1)?.toIntOrNull()
                         val posterr = info.selectFirst("a img")?.attr("data-src") ?: ""
                         newEpisode(href1) {
-                            this.name = episode.replace(title, "", ignoreCase = true)
-                            this.episode = episode.toIntOrNull()
+                            this.name = linkTitle.ifEmpty { "Episode ${epNum ?: ""}".trim() }
+                            this.episode = epNum
                             this.posterUrl = posterr
                         }
                     }

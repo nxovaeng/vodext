@@ -1,4 +1,4 @@
-package zronest
+package com.Donghuastream
 
 import com.lagradost.cloudstream3.HomePageList
 import com.lagradost.cloudstream3.HomePageResponse
@@ -128,15 +128,19 @@ open class Animekhor : MainAPI() {
             val doc = app.get(Eppage).document
             val epposter = doc.select("meta[property=og:image]").attr("content")
             val episodes =
-                    doc.select("div.episodelist > ul > li").map { info ->
+                    doc.select("div.episodelist > ul > li").mapNotNull { info ->
                         val href1 = info.select("a").attr("href")
-                        val episode =
-                                info.select("a span")
-                                        .text()
-                                        .substringAfter("-")
-                                        .substringBeforeLast("-")
+                        if (href1.isEmpty()) return@mapNotNull null
+                        val spanText = info.select("a span").text()
+                        val linkTitle = info.select("a").attr("title").ifEmpty { spanText }
+                        // 从 "Eps 13 ..." 或 "Episode 13" 提取真实集号
+                        val epNum = Regex("""(?:Eps|Episode)\s*0*(\d+)""", RegexOption.IGNORE_CASE)
+                            .find(spanText)?.groupValues?.get(1)?.toIntOrNull()
+                            ?: Regex("""(?:Eps|Episode)\s*0*(\d+)""", RegexOption.IGNORE_CASE)
+                                .find(linkTitle)?.groupValues?.get(1)?.toIntOrNull()
                         newEpisode(href1) {
-                            this.name = episode
+                            this.name = linkTitle.ifEmpty { "Episode ${epNum ?: ""}".trim() }
+                            this.episode = epNum
                             this.posterUrl = epposter
                         }
                     }
@@ -198,14 +202,9 @@ open class Animekhor : MainAPI() {
                                 url = httpsify(url)
                             }
 
-                            // Filter out known bad hosts
+                            // Filter out known bad hosts（跨平台：直接字符串匹配，不用 java.net.URI）
                             val blacklistedHosts = listOf("short.icu", "upns.live", "p2pstream.vip")
-                            try {
-                                val host = java.net.URI(url).host
-                                if (host != null && blacklistedHosts.any { host.contains(it) }) {
-                                    return@withTimeout
-                                }
-                            } catch (e: Exception) {
+                            if (blacklistedHosts.any { url.contains(it, ignoreCase = true) }) {
                                 return@withTimeout
                             }
 

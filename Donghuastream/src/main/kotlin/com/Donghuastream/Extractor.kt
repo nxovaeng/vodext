@@ -6,6 +6,9 @@ import com.lagradost.cloudstream3.app
 import com.lagradost.cloudstream3.extractors.Filesim
 import com.lagradost.cloudstream3.extractors.StreamSB
 import com.lagradost.cloudstream3.extractors.StreamWishExtractor
+import com.lagradost.cloudstream3.extractors.VidHidePro
+import com.lagradost.cloudstream3.extractors.VidStack
+import com.lagradost.cloudstream3.extractors.VidhideExtractor
 import com.lagradost.cloudstream3.newSubtitleFile
 import com.lagradost.cloudstream3.utils.ExtractorApi
 import com.lagradost.cloudstream3.utils.ExtractorLink
@@ -17,6 +20,8 @@ import com.lagradost.cloudstream3.utils.Qualities
 import com.lagradost.cloudstream3.utils.getQualityFromName
 import com.lagradost.cloudstream3.utils.httpsify
 import com.lagradost.cloudstream3.utils.newExtractorLink
+
+// ========== Donghuastream 系 ==========
 
 open class Vtbe : ExtractorApi() {
     override var name = "Vtbe"
@@ -112,57 +117,6 @@ open class Ultrahd : ExtractorApi() {
     }
 }
 
-class Rumble : ExtractorApi() {
-    override var name = "Rumble"
-    override var mainUrl = "https://rumble.com"
-    override val requiresReferer = true
-
-    override suspend fun getUrl(
-            url: String,
-            referer: String?,
-            subtitleCallback: (SubtitleFile) -> Unit,
-            callback: (ExtractorLink) -> Unit
-    ) {
-        val response = app.get(url, referer = referer ?: "$mainUrl/")
-        val document = response.document
-
-        val playerScript = document.selectFirst("script:containsData(jwplayer)")?.data() ?: return
-
-        // Extract sources (mp4 or m3u8)
-        val sourceRegex = """"file"\s*:\s*"(https:[^"]+\.(?:mp4|m3u8)[^"]*)"""".toRegex()
-        val sources = sourceRegex.findAll(playerScript)
-
-        for ((index, source) in sources.withIndex()) {
-            val fileUrl = source.groupValues[1].replace("\\/", "/")
-            if (fileUrl.contains(".mp4")) {
-                callback.invoke(
-                        newExtractorLink(
-                                name,
-                                "$name Video Server ${index+1}",
-                                url = fileUrl,
-                                INFER_TYPE
-                        ) {
-                            this.referer = ""
-                            this.quality = getQualityFromName("")
-                        }
-                )
-            } else M3u8Helper.generateM3u8(name, fileUrl, mainUrl).forEach(callback)
-        }
-
-        // Extract subtitle tracks
-        val trackRegex =
-                """"file"\s*:\s*"(https:[^"]+\.vtt[^"]*)"\s*,\s*"label"\s*:\s*"([^"]+)"""".toRegex()
-        val tracks = trackRegex.findAll(playerScript)
-
-        for (track in tracks) {
-            val fileUrl = track.groupValues[1].replace("\\/", "/")
-            val label = track.groupValues[2]
-
-            subtitleCallback.invoke(newSubtitleFile(label, fileUrl))
-        }
-    }
-}
-
 open class PlayStreamplay : ExtractorApi() {
     override var name = "All sub player"
     override var mainUrl = "https://play.streamplay.co.in"
@@ -241,4 +195,95 @@ open class PlayStreamplay : ExtractorApi() {
             val label: String,
             val default: Boolean?,
     )
+}
+
+// ========== Animekhor 系 ==========
+
+class embedwish : StreamWishExtractor() {
+    override var mainUrl = "https://embedwish.com"
+}
+
+class P2pstream : VidStack() {
+    override var mainUrl = "https://animekhor.p2pstream.vip"
+}
+
+class Filelions : VidhideExtractor() {
+    override var name = "Filelions"
+    override var mainUrl = "https://filelions.live"
+}
+
+class Swhoi : StreamWishExtractor() {
+    override var mainUrl = "https://swhoi.com"
+    override val requiresReferer = true
+}
+
+class VidHidePro5 : VidHidePro() {
+    override val mainUrl = "https://vidhidevip.com"
+    override val requiresReferer = true
+}
+
+class PlayerDonghuaworld : Rumble() {
+    override var mainUrl = "https://player.donghuaworld.in"
+    override val requiresReferer = true
+}
+
+open class Rumble : ExtractorApi() {
+    override var name = "Rumble"
+    override var mainUrl = "https://rumble.com"
+    override val requiresReferer = true
+
+    override suspend fun getUrl(
+            url: String,
+            referer: String?,
+            subtitleCallback: (SubtitleFile) -> Unit,
+            callback: (ExtractorLink) -> Unit
+    ) {
+        val response = app.get(url, referer = referer ?: "$mainUrl/")
+        val document = response.document
+
+        val playerScript = document.selectFirst("script:containsData(jwplayer)")?.data()
+            ?: return
+
+        // Extract sources (mp4 or m3u8)
+        val sourceRegex = """"file"\s*:\s*"(https:[^"]+\.(?:mp4|m3u8)[^"]*)"""".toRegex()
+        val sources = sourceRegex.findAll(playerScript)
+
+        for ((index, source) in sources.withIndex()) {
+            val fileUrl = source.groupValues[1].replace("\\/", "/")
+            if (fileUrl.contains(".mp4")) {
+                callback.invoke(
+                    newExtractorLink(
+                        name,
+                        "$name Video Server ${index + 1}",
+                        url = fileUrl,
+                        INFER_TYPE
+                    ) {
+                        this.referer = ""
+                        this.quality = getQualityFromName("")
+                    }
+                )
+            } else if (fileUrl.endsWith(".m3u8")) {
+                M3u8Helper.generateM3u8(name, fileUrl, mainUrl).forEach(callback)
+            } else {
+                val fallback = "${mainUrl}/hls-vod/${
+                    url.substringAfter("/embed/v").substringBefore("/")
+                }/playlist.m3u8?u=0&b=0"
+                M3u8Helper.generateM3u8(name, fallback, mainUrl).forEach(callback)
+            }
+        }
+
+        // Extract subtitle tracks
+        val trackRegex =
+            """"file"\s*:\s*"(https:[^"]+\.vtt[^"]*)"\s*,\s*"label"\s*:\s*"([^"]+)"""".toRegex()
+        val tracks = trackRegex.findAll(playerScript)
+
+        for (track in tracks) {
+            val fileUrl = track.groupValues[1].replace("\\/", "/")
+            val label = track.groupValues[2]
+
+            subtitleCallback.invoke(
+                newSubtitleFile(label, fileUrl)
+            )
+        }
+    }
 }

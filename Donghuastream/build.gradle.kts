@@ -4,7 +4,7 @@ version = 14
 cloudstream {
     // All of these properties are optional, you can safely remove them
 
-    description = "Contains SeaTV (Chinese)"
+    description = "动漫合集：Donghuastream / SeaTV / Animekhor / Donghuaword"
     language = "zh"
     authors = listOf("Phisher98")
 
