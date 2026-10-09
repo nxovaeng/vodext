@@ -2,10 +2,10 @@ package nxovaeng
 
 import com.lagradost.cloudstream3.TvType
 
-/** 卧龙资源站，会屏蔽非中国ip访问 */
-class WolongProvider : BaseVodProvider() {
-    override var mainUrl = "https://wolongzy.cc"
-    override var name = "卧龙资源"
+/** 索尼资源站点提供者实现 */
+class SuoniProvider : BaseVodProvider() {
+    override var mainUrl = "https://suoniapi.com"
+    override var name = "索尼资源"
 
     override val supportedTypes = setOf(TvType.Movie, TvType.TvSeries, TvType.Anime)
 
@@ -14,7 +14,7 @@ class WolongProvider : BaseVodProvider() {
             buildMainPageLazy(
                     categoryNames = listOf("最新更新", "国产剧", "国产动漫", "动作片"),
                     fallbackPages =
-                            listOf("" to "最新更新", "t=5" to "电影", "t=12" to "电视剧", "t=25" to "动漫")
+                            listOf("" to "最新更新", "t=1" to "电影", "t=2" to "电视剧", "t=4" to "动漫")
             )
 
     override val mainPage

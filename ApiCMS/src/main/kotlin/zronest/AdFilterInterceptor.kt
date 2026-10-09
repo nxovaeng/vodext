@@ -470,6 +470,7 @@ class AdFilterInterceptor : Interceptor {
                                             "hd.ffzy",
                                             "super.ffzy",
                                             "svipsvip.ffzy",
+                                            "ffzyapi",
                                             ".ffzy"
                                     ),
                             regex =
@@ -503,7 +504,7 @@ class AdFilterInterceptor : Interceptor {
                     // ========== 索尼资源 (suonizy) ==========
                     AdFilterRule(
                             name = "索尼",
-                            hosts = listOf("suonizy"),
+                            hosts = listOf("suonizy", "suoniapi"),
                             regex =
                                     listOf(
                                             // 文件名包含 p1ayer（混淆的 player）
@@ -640,24 +641,12 @@ class AdFilterInterceptor : Interceptor {
                                     )
                     ),
 
-                    // ========== 卧龙资源 ==========
-                    AdFilterRule(
-                            name = "卧龙",
-                            hosts = listOf("cdn.wl"),
-                            regex = emptyList(),
-                            blockRegex =
-                                    listOf(
-                                            // 通用 DISCONTINUITY 块
-                                            """#EXT-X-DISCONTINUITY\r*\n*#EXTINF:.*?,[\s\S]*?#EXT-X-DISCONTINUITY"""
-                                    )
-                    ),
-
                     // ========== 魔都资源 (mdzy) ==========
                     // 实测 2026-10-08：广告为 DISCONTINUITY + KEY:METHOD=NONE 块，
                     // 内含 6 个相对路径切片（/20260917/...），正常切片全是绝对路径
                     AdFilterRule(
                             name = "魔都",
-                            hosts = listOf("modujx", "mdzy"),
+                            hosts = listOf("modujx", "mdzy", "moduapi"),
                             regex = emptyList(),
                             blockRegex =
                                     listOf(

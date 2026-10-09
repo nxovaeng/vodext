@@ -12,9 +12,11 @@ class ApiCMSPlugin : BasePlugin() {
         registerMainAPI(JisuProvider())
         registerMainAPI(BfzyProvider())
         registerMainAPI(MdzyProvider())
-        registerMainAPI(WolongProvider())
         registerMainAPI(IKunProvider())
         registerMainAPI(MaotaiProvider())
+        registerMainAPI(FfzyProvider())
+        registerMainAPI(SuoniProvider())
+        registerMainAPI(ModuCaijiProvider())
         // 注册 extractor
         registerExtractorAPI(JisuExtractor())
     }
