@@ -4,7 +4,7 @@ import com.lagradost.cloudstream3.TvType
 
 /** U酷资源站点提供者实现（Cogent 洛杉矶） */
 class UkuProvider : BaseVodProvider() {
-    override var mainUrl = "https://api.ukuapi.com"
+    override var mainUrl = "https://api.ukuapi88.com" // 2026-10-09：站方换域名，旧 api.ukuapi.com 301 到此
     override var name = "U酷资源"
 
     override val supportedTypes = setOf(TvType.Movie, TvType.TvSeries, TvType.Anime)
