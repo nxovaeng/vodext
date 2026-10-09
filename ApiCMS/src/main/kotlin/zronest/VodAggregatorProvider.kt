@@ -49,6 +49,10 @@ class VodAggregatorProvider : BaseVodProvider() {
                         VodSite("非凡", "https://api.ffzyapi.com"),
                         VodSite("索尼", "https://suoniapi.com"),
                         VodSite("魔都采集", "https://caiji.moduapi.cc"),
+                        VodSite("金鹰", "https://jyzyapi.com"),
+                        VodSite("樱花", "https://m3u8.apiyhzy.com"),
+                        VodSite("红牛", "https://hongniuzy2.com"),
+                        VodSite("U酷", "https://api.ukuapi.com"),
                 )
         private val siteMap = sites.associateBy { it.name }
 

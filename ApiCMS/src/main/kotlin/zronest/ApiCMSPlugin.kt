@@ -17,6 +17,10 @@ class ApiCMSPlugin : BasePlugin() {
         registerMainAPI(FfzyProvider())
         registerMainAPI(SuoniProvider())
         registerMainAPI(ModuCaijiProvider())
+        registerMainAPI(JinyingProvider())
+        registerMainAPI(YinghuaProvider())
+        registerMainAPI(HongniuProvider())
+        registerMainAPI(UkuProvider())
         // 注册 extractor
         registerExtractorAPI(JisuExtractor())
     }
