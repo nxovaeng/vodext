@@ -652,6 +652,24 @@ class AdFilterInterceptor : Interceptor {
                                     listOf(
                                             """#EXT-X-DISCONTINUITY\r?\n#EXT-X-KEY:METHOD=NONE\r?\n(?:#EXTINF:[^\r\n]*\r?\n/[^\r\n]*\r?\n)+"""
                                     )
-                    )
+                    ),
+
+                    // ========== 光速 (guangsu) ==========
+                    // 占位：无规则=透传，待拿到真实 m3u8 样本后再写 blockRegex
+                    AdFilterRule(
+                            name = "光速",
+                            hosts = listOf("gsuus"),
+                            regex = emptyList(),
+                            blockRegex = emptyList()
+                    ),
+
+                    // ========== 速播 (subocj) ==========
+                    // 占位：无规则=透传，待拿到真实 m3u8 样本后再写 blockRegex
+                    AdFilterRule(
+                            name = "速播",
+                            hosts = listOf("xluuss"),
+                            regex = emptyList(),
+                            blockRegex = emptyList()
+                    ),
             )
 }
