@@ -1,0 +1,217 @@
+package nxovaeng
+
+import com.lagradost.cloudstream3.Episode
+import com.lagradost.cloudstream3.HomePageList
+import com.lagradost.cloudstream3.HomePageResponse
+import com.lagradost.cloudstream3.LoadResponse
+import com.lagradost.cloudstream3.MainAPI
+import com.lagradost.cloudstream3.MainPageRequest
+import com.lagradost.cloudstream3.SearchResponse
+import com.lagradost.cloudstream3.SubtitleFile
+import com.lagradost.cloudstream3.TvType
+import com.lagradost.cloudstream3.app
+import com.lagradost.cloudstream3.mainPageOf
+import com.lagradost.cloudstream3.newEpisode
+import com.lagradost.cloudstream3.newHomePageResponse
+import com.lagradost.cloudstream3.newMovieLoadResponse
+import com.lagradost.cloudstream3.newMovieSearchResponse
+import com.lagradost.cloudstream3.newTvSeriesLoadResponse
+import com.lagradost.cloudstream3.newTvSeriesSearchResponse
+import com.lagradost.cloudstream3.utils.ExtractorLink
+import com.lagradost.cloudstream3.utils.M3u8Helper
+import com.lagradost.cloudstream3.utils.Qualities
+
+/** 瓜子影视（App 私有协议，移植自 cluntop/tvbox py/guazi.py） */
+class GuaziProvider : MainAPI() {
+    override var mainUrl = "https://apinew.uozvr.com"
+    override var name = "瓜子影视"
+    override var lang = "zh"
+    override val hasMainPage = true
+    override val supportedTypes = setOf(TvType.Movie, TvType.TvSeries, TvType.Anime)
+
+    private val api = GuaziApi()
+
+    // type_id: 电影=1 电视剧=2 动漫=4 综艺=3 短剧=64
+    override val mainPage = mainPageOf(
+        "1" to "电影",
+        "2" to "电视剧",
+        "4" to "动漫",
+        "3" to "综艺",
+        "64" to "短剧",
+    )
+
+    override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
+        val data = api.request(
+            mapOf(
+                "area" to "0",
+                "year" to "0",
+                "pageSize" to "30",
+                "sort" to "d_id",
+                "page" to page.toString(),
+                "tid" to request.data
+            ),
+            "/App/IndexList/indexList"
+        )
+        val list = data?.getAsJsonArray("list")?.mapNotNull { item ->
+            val obj = item.asJsonObject
+            val vodId = obj.get("vod_id")?.asString ?: return@mapNotNull null
+            val continu = obj.get("vod_continu")?.asInt ?: 0
+            val name = obj.get("vod_name")?.asString ?: ""
+            val pic = obj.get("vod_pic")?.asString ?: ""
+            val remarks = if (continu == 0) "电影" else "更新至${continu}集"
+            // id 拼 continu，load 时拆分（沿用 py 版格式）
+            val id = "$vodId/$continu"
+            if (request.data == "1") {
+                newMovieSearchResponse(name, id, TvType.Movie) {
+                    this.posterUrl = pic
+                }
+            } else {
+                newTvSeriesSearchResponse(name, id, TvType.TvSeries) {
+                    this.posterUrl = pic
+                }
+            }
+        } ?: emptyList()
+
+        return newHomePageResponse(
+            listOf(HomePageList(request.name, list)),
+            hasNext = true
+        )
+    }
+
+    override suspend fun search(query: String): List<SearchResponse> {
+        val data = api.request(
+            mapOf("keywords" to query, "order_val" to "1", "page" to "1"),
+            "/App/Index/findMoreVod"
+        )
+        return data?.getAsJsonArray("list")?.mapNotNull { item ->
+            val obj = item.asJsonObject
+            val vodId = obj.get("vod_id")?.asString ?: return@mapNotNull null
+            val continu = obj.get("vod_continu")?.asInt ?: 0
+            val name = obj.get("vod_name")?.asString ?: ""
+            val pic = obj.get("vod_pic")?.asString ?: ""
+            newMovieSearchResponse(name, "$vodId/$continu", TvType.Movie) {
+                this.posterUrl = pic
+            }
+        } ?: emptyList()
+    }
+
+    override suspend fun load(url: String): LoadResponse {
+        val vodId = url.substringBefore("/")
+        val t = (System.currentTimeMillis() / 1000).toString()
+        val auth = api.authParams()
+
+        // 1. 详情
+        val qdata = api.request(
+            mapOf(
+                "token_id" to auth["token_id"]!!,
+                "vod_id" to vodId,
+                "mobile_time" to t,
+                "token" to auth["token"]!!
+            ),
+            "/App/IndexPlay/playInfo"
+        )
+        // 2. 播放源
+        val jdata = api.request(
+            mapOf("vurl_cloud_id" to "2", "vod_d_id" to vodId),
+            "/App/Resource/Vurl/show"
+        )
+
+        val vod = qdata?.getAsJsonObject("vodInfo")
+            ?: throw Exception("获取详情失败")
+        val name = vod.get("vod_name")?.asString ?: ""
+        val pic = vod.get("vod_pic")?.asString
+        val year = vod.get("vod_year")?.asInt
+        val plot = vod.get("vod_use_content")?.asString?.trim()
+
+        // 解析播放列表：每集 data = "param||res1@res2"（py 版格式）
+        val episodes = mutableListOf<Episode>()
+        jdata?.getAsJsonArray("list")?.forEachIndexed { index, item ->
+            val playMap = item.asJsonObject.getAsJsonObject("play") ?: return@forEachIndexed
+            val names = mutableListOf<String>()
+            val params = mutableListOf<String>()
+            for ((k, v) in playMap.entrySet()) {
+                val param = v.asJsonObject.get("param")?.asString
+                if (!param.isNullOrEmpty()) {
+                    names.add(k)
+                    params.add(param)
+                }
+            }
+            if (params.isNotEmpty()) {
+                val playName =
+                    if (jdata.getAsJsonArray("list").size() == 1) name
+                    else (index + 1).toString()
+                // data 格式：param||res1@res2，loadLinks 时解析
+                val data = "${params.last()}||${names.joinToString("@")}"
+                episodes.add(newEpisode(data) {
+                    this.name = playName
+                    this.episode = index + 1
+                })
+            }
+        }
+
+        return if (episodes.size <= 1) {
+            newMovieLoadResponse(name, url, TvType.Movie, episodes.firstOrNull()?.data ?: "") {
+                this.posterUrl = pic
+                this.year = year
+                this.plot = plot
+            }
+        } else {
+            newTvSeriesLoadResponse(name, url, TvType.TvSeries, episodes) {
+                this.posterUrl = pic
+                this.year = year
+                this.plot = plot
+            }
+        }
+    }
+
+    override suspend fun loadLinks(
+        data: String,
+        isCasting: Boolean,
+        subtitleCallback: (SubtitleFile) -> Unit,
+        callback: (ExtractorLink) -> Unit
+    ): Boolean {
+        // data 格式：param||res1@res2
+        val parts = data.split("||")
+        if (parts.size < 2) return false
+        val paramStr = parts[0]
+        val resolutions = parts[1].split("@")
+
+        // 解析 param 为 map，取最高清晰度
+        val params = paramStr.split("&").mapNotNull {
+            val kv = it.split("=", limit = 2)
+            if (kv.size == 2) kv[0] to kv[1] else null
+        }.toMap().toMutableMap()
+        val bestResolution = resolutions
+            .mapNotNull { it.toIntOrNull() }
+            .maxOrNull()?.toString()
+            ?: resolutions.firstOrNull()
+        if (bestResolution != null) {
+            params["resolution"] = bestResolution
+        }
+
+        val result = api.request(params, "/App/Resource/VurlDetail/showOne")
+        val playUrl = result?.get("url")?.asString ?: return false
+        if (playUrl.isBlank()) return false
+
+        return if (playUrl.contains(".m3u8")) {
+            M3u8Helper.generateM3u8(
+                name,
+                playUrl,
+                mainUrl,
+            ).forEach(callback)
+            true
+        } else {
+            callback(
+                ExtractorLink(
+                    source = name,
+                    name = name,
+                    url = playUrl,
+                    referer = mainUrl,
+                    quality = Qualities.Unknown.value,
+                    isM3u8 = false
+                )
+            )
+            true
+        }
+    }
+}
