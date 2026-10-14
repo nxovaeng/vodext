@@ -18,8 +18,10 @@ import com.lagradost.cloudstream3.newMovieSearchResponse
 import com.lagradost.cloudstream3.newTvSeriesLoadResponse
 import com.lagradost.cloudstream3.newTvSeriesSearchResponse
 import com.lagradost.cloudstream3.utils.ExtractorLink
+import com.lagradost.cloudstream3.utils.ExtractorLinkType
 import com.lagradost.cloudstream3.utils.M3u8Helper
 import com.lagradost.cloudstream3.utils.Qualities
+import com.lagradost.cloudstream3.utils.newExtractorLink
 
 /** 瓜子影视（App 私有协议，移植自 cluntop/tvbox py/guazi.py） */
 class GuaziProvider : MainAPI() {
@@ -202,14 +204,11 @@ class GuaziProvider : MainAPI() {
             true
         } else {
             callback(
-                ExtractorLink(
-                    source = name,
-                    name = name,
-                    url = playUrl,
-                    referer = mainUrl,
-                    quality = Qualities.Unknown.value,
-                    isM3u8 = false
-                )
+                newExtractorLink(name, name, playUrl) {
+                    this.referer = mainUrl
+                    this.quality = Qualities.Unknown.value
+                    this.type = ExtractorLinkType.VIDEO
+                }
             )
             true
         }
