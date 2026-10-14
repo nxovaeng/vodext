@@ -96,6 +96,21 @@ jobs:
           echo "android.targetSdk=${TARGET_SDK_VERSION}" >> local.properties
           echo "android.minSdk=${MIN_SDK_VERSION}" >> local.properties
 
+      # JitPack 上的 com.github.recloudstream:gradle:master-SNAPSHOT 是 292 字节空包（2026-10-06 构建坏包），
+      # configuration 阶段 apply 插件即崩。这里从源码构建并 publishToMavenLocal，
+      # buildscript 的 mavenLocal()（排第一）会优先命中本地产物，不再走 JitPack。
+      - name: Build recloudstream/gradle from source
+        run: |
+          git clone https://github.com/recloudstream/gradle /tmp/recloudstream-gradle
+          cd /tmp/recloudstream-gradle
+          git checkout 32895aedb6  # 上游 master 最新（2026-07-02 起无提交），锁死防漂移
+          # 本地发布坐标必须与 buildscript 请求一致：com.github.recloudstream:gradle:master-SNAPSHOT
+          sed -i 's|^group = .*|group = "com.github.recloudstream"|' build.gradle.kts
+          sed -i '/^group = /a version = "master-SNAPSHOT"' build.gradle.kts
+          grep -E '^(group|version) = ' build.gradle.kts
+          chmod +x gradlew
+          ./gradlew publishToMavenLocal --no-daemon -x test
+
       - name: Build Plugins
         run: |
           chmod +x gradlew

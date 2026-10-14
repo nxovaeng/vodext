@@ -7,6 +7,9 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
 buildscript {
     repositories {
+        // JitPack 的 com.github.recloudstream:gradle:master-SNAPSHOT 目前是空包（292 字节），
+        // CI 里从源码构建发布到本地 maven（见 workflow 的 Build recloudstream/gradle from source），放第一位优先命中
+        mavenLocal()
         google()
         mavenCentral()
         maven("https://jitpack.io")
