@@ -60,7 +60,17 @@ object GuaziCrypto {
         }
     }
 
-    /** RSA 私钥解密，返回明文；失败返回 null */
+    /**
+     * RSA 私钥解密，返回明文；失败返回 null。
+     *
+     * 注意：GuaziApi 里内嵌的私钥 PEM 头写着 "BEGIN RSA PRIVATE KEY"（PKCS#1），
+     * 但经 openssl asn1parse 确认，其 DER 实际是 PKCS#8 PrivateKeyInfo 结构
+     * （SEQUENCE { INTEGER 0, SEQ{OID rsaEncryption, NULL}, OCTET STRING{PKCS#1} }），
+     * 只是标签写错了 —— 所以这里用 PKCS8EncodedKeySpec 是对的，不要"修正"成 PKCS#1 解析。
+     * 另：该私钥与 RSA_PUBLIC_KEY 本来就不是一对（openssl 对过 modulus），这是协议设计：
+     * 公钥是服务端的（客户端用它加密请求 keys），私钥是客户端的（服务端用其配对公钥加密响应 keys），
+     * 两对密钥各司其职，不必也不应相同。
+     */
     fun rsaDecrypt(base64Text: String, privateKeyPem: String): String? {
         return try {
             val pem = privateKeyPem
