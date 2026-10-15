@@ -9,22 +9,72 @@ import javax.crypto.spec.IvParameterSpec
 import javax.crypto.spec.SecretKeySpec
 import java.util.Base64
 
-/** 瓜子影视加解密工具（移植自 guazi.py，兼容 Android 与 Java 运行环境） */
+/** 瓜子影视加解密工具（移植自 guazi.py，纯 Kotlin/Java 实现，完全兼容跨平台 JAR） */
 object GuaziCrypto {
+
+    private const val BASE64_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+    private val BASE64_INV = IntArray(256) { -1 }.apply {
+        for (i in BASE64_CHARS.indices) {
+            this[BASE64_CHARS[i].code] = i
+        }
+        this['='.code] = 0
+    }
+
+    private fun pureBase64Encode(bytes: ByteArray): String {
+        val sb = StringBuilder((bytes.size + 2) / 3 * 4)
+        var i = 0
+        while (i < bytes.size) {
+            val b0 = bytes[i++].toInt() and 0xFF
+            val b1 = if (i < bytes.size) bytes[i++].toInt() and 0xFF else -1
+            val b2 = if (i < bytes.size) bytes[i++].toInt() and 0xFF else -1
+
+            val c0 = b0 ushr 2
+            val c1 = ((b0 and 0x03) shl 4) or (if (b1 >= 0) b1 ushr 4 else 0)
+            val c2 = if (b1 >= 0) ((b1 and 0x0F) shl 2) or (if (b2 >= 0) b2 ushr 6 else 0) else -1
+            val c3 = if (b2 >= 0) b2 and 0x3F else -1
+
+            sb.append(BASE64_CHARS[c0])
+            sb.append(BASE64_CHARS[c1])
+            sb.append(if (c2 >= 0) BASE64_CHARS[c2] else '=')
+            sb.append(if (c3 >= 0) BASE64_CHARS[c3] else '=')
+        }
+        return sb.toString()
+    }
+
+    private fun pureBase64Decode(str: String): ByteArray {
+        val clean = str.filter { it in BASE64_CHARS || it == '=' }
+        if (clean.isEmpty()) return ByteArray(0)
+        val pad = clean.takeLastWhile { it == '=' }.length
+        val outLen = (clean.length * 6) / 8 - pad
+        val out = ByteArray(outLen)
+        var outIdx = 0
+        var i = 0
+        while (i < clean.length) {
+            val c0 = BASE64_INV[clean[i++].code]
+            val c1 = BASE64_INV[clean[i++].code]
+            val c2 = BASE64_INV[clean[i++].code]
+            val c3 = BASE64_INV[clean[i++].code]
+
+            if (outIdx < outLen) out[outIdx++] = ((c0 shl 2) or (c1 ushr 4)).toByte()
+            if (outIdx < outLen) out[outIdx++] = (((c1 and 0x0F) shl 4) or (c2 ushr 2)).toByte()
+            if (outIdx < outLen) out[outIdx++] = (((c2 and 0x03) shl 6) or c3).toByte()
+        }
+        return out
+    }
 
     private fun decodeBase64(str: String): ByteArray {
         return try {
-            android.util.Base64.decode(str, android.util.Base64.DEFAULT)
-        } catch (_: Throwable) {
             java.util.Base64.getDecoder().decode(str)
+        } catch (_: Throwable) {
+            pureBase64Decode(str)
         }
     }
 
     private fun encodeBase64(bytes: ByteArray): String {
         return try {
-            android.util.Base64.encodeToString(bytes, android.util.Base64.NO_WRAP)
-        } catch (_: Throwable) {
             java.util.Base64.getEncoder().encodeToString(bytes)
+        } catch (_: Throwable) {
+            pureBase64Encode(bytes)
         }
     }
 
