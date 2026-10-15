@@ -191,10 +191,10 @@ class GuaziProvider : MainAPI() {
                 val playName = if (isSingleEpisode) name else (index + 1).toString()
                 // data 格式：param||res1@res2，loadLinks 时解析（fix = false 禁止 CloudStream 自动拼主域名）
                 val data = "${params.last()}||${names.joinToString("@")}"
-                episodes.add(newEpisode(data, fix = false) {
+                episodes.add(newEpisode(data, fix = false, initializer = {
                     this.name = playName
                     this.episode = index + 1
-                })
+                }))
             }
         }
 
