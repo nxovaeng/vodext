@@ -24,6 +24,8 @@ import com.lagradost.cloudstream3.utils.ExtractorLinkType
 import com.lagradost.cloudstream3.utils.M3u8Helper
 import com.lagradost.cloudstream3.utils.Qualities
 import com.lagradost.cloudstream3.utils.newExtractorLink
+import okhttp3.Interceptor
+import okhttp3.Response
 
 /** 瓜子影视（App 私有协议，移植自 cluntop/tvbox py/guazi.py，基于 CatVodSpider 规范） */
 class GuaziProvider : MainAPI() {
@@ -34,6 +36,19 @@ class GuaziProvider : MainAPI() {
     override val supportedTypes = setOf(TvType.Movie, TvType.TvSeries, TvType.Anime)
 
     private val api = GuaziApi()
+
+    /** 注入播放请求头，确保 m3u8 及 ts 分片请求均带上 UA 和 Referer，防止 CDN 403 拦截 */
+    override fun getVideoInterceptor(extractorLink: ExtractorLink): Interceptor {
+        return object : Interceptor {
+            override fun intercept(chain: Interceptor.Chain): Response {
+                val request = chain.request().newBuilder()
+                    .header("User-Agent", "Lavf/57.83.100")
+                    .header("Referer", "http://WJiZxLXA2.com/")
+                    .build()
+                return chain.proceed(request)
+            }
+        }
+    }
 
     // type_id: 电影=1 电视剧=2 动漫=4 综艺=3 短剧=64
     override val mainPage = mainPageOf(
@@ -123,19 +138,20 @@ class GuaziProvider : MainAPI() {
         val t = (System.currentTimeMillis() / 1000).toString()
         val auth = api.authParams()
 
-        // 1. 详情
+        // 1. 详情（同时传递 vod_id 与 vod_d_id 保证兼容）
         val qdata = api.request(
             mapOf(
                 "token_id" to (auth["token_id"] ?: ""),
                 "vod_id" to vodId,
+                "vod_d_id" to vodId,
                 "mobile_time" to t,
                 "token" to (auth["token"] ?: "")
             ),
             "/App/IndexPlay/playInfo"
         )
-        // 2. 播放源
+        // 2. 播放源（同时传递 vod_d_id 与 vod_id 保证兼容）
         val jdata = api.request(
-            mapOf("vurl_cloud_id" to "2", "vod_d_id" to vodId),
+            mapOf("vurl_cloud_id" to "2", "vod_d_id" to vodId, "vod_id" to vodId),
             "/App/Resource/Vurl/show"
         )
 
@@ -173,9 +189,9 @@ class GuaziProvider : MainAPI() {
             }
             if (params.isNotEmpty()) {
                 val playName = if (isSingleEpisode) name else (index + 1).toString()
-                // data 格式：param||res1@res2，loadLinks 时解析
+                // data 格式：param||res1@res2，loadLinks 时解析（fix = false 禁止 CloudStream 自动拼主域名）
                 val data = "${params.last()}||${names.joinToString("@")}"
-                episodes.add(newEpisode(data) {
+                episodes.add(newEpisode(data, fix = false) {
                     this.name = playName
                     this.episode = index + 1
                 })
@@ -217,14 +233,32 @@ class GuaziProvider : MainAPI() {
         // data 格式：param||res1@res2
         val parts = data.split("||")
         if (parts.size < 2) return false
-        val paramStr = parts[0]
+        val rawParamStr = parts[0]
         val resolutions = parts[1].split("@")
 
-        // 解析 param 为 map，取最高清晰度
-        val params = paramStr.split("&").mapNotNull {
+        // 关键修复：剥离可能被 CloudStream fixUrl 自动补全的域名/路径前缀（如 https://apinew.uozvr.com/）
+        val cleanParamStr = when {
+            rawParamStr.contains("vod_d_id=") -> "vod_d_id=" + rawParamStr.substringAfter("vod_d_id=")
+            rawParamStr.contains("vod_id=") -> "vod_id=" + rawParamStr.substringAfter("vod_id=")
+            rawParamStr.contains("?") -> rawParamStr.substringAfter("?")
+            rawParamStr.contains("://") -> rawParamStr.substringAfter("://").substringAfter("/")
+            else -> rawParamStr
+        }
+
+        // 解析 param 为 map
+        val params = cleanParamStr.split("&").mapNotNull {
             val kv = it.split("=", limit = 2)
             if (kv.size == 2) kv[0] to kv[1] else null
         }.toMap().toMutableMap()
+
+        // 关键修复：同时满足服务端校验 vod_d_id 或 vod_id（服务端报错提示为 vod_id 不能为空）
+        val vid = params["vod_d_id"] ?: params["vod_id"]
+        if (vid != null) {
+            params["vod_d_id"] = vid
+            params["vod_id"] = vid
+        }
+
+        // 挑选最高清晰度（如 1080）
         val bestResolution = resolutions
             .mapNotNull { it.toIntOrNull() }
             .maxOrNull()?.toString()
@@ -233,9 +267,24 @@ class GuaziProvider : MainAPI() {
             params["resolution"] = bestResolution
         }
 
-        val result = api.request(params, "/App/Resource/VurlDetail/showOne")
-        val playUrl = result?.get("url")?.asString ?: return false
-        if (playUrl.isBlank()) return false
+        // 请求播放直链
+        var result = api.request(params, "/App/Resource/VurlDetail/showOne")
+        var playUrl = result?.get("url")?.asString
+        if (playUrl.isNullOrBlank() && bestResolution != null) {
+            // 若显式覆盖 resolution 失败，回退原始 param 重试一次
+            val fallbackParams = cleanParamStr.split("&").mapNotNull {
+                val kv = it.split("=", limit = 2)
+                if (kv.size == 2) kv[0] to kv[1] else null
+            }.toMap().toMutableMap()
+            if (vid != null) {
+                fallbackParams["vod_d_id"] = vid
+                fallbackParams["vod_id"] = vid
+            }
+            result = api.request(fallbackParams, "/App/Resource/VurlDetail/showOne")
+            playUrl = result?.get("url")?.asString
+        }
+
+        if (playUrl.isNullOrBlank()) return false
 
         val quality = when (bestResolution) {
             "1080" -> Qualities.P1080.value
@@ -245,7 +294,6 @@ class GuaziProvider : MainAPI() {
         }
 
         // py 原版 playerContent 返回的固定 header，CDN 校验用
-        // 不走 M3u8Helper（其内部取 m3u8 时 header 不可控），直接发 ExtractorLink 让播放器处理
         val headers = mapOf(
             "User-Agent" to "Lavf/57.83.100",
             "Referer" to "http://WJiZxLXA2.com/"
