@@ -1,5 +1,7 @@
 package nxovaeng
 
+import com.lagradost.cloudstream3.Actor
+import com.lagradost.cloudstream3.ActorData
 import com.lagradost.cloudstream3.Episode
 import com.lagradost.cloudstream3.HomePageList
 import com.lagradost.cloudstream3.HomePageResponse
@@ -23,7 +25,7 @@ import com.lagradost.cloudstream3.utils.M3u8Helper
 import com.lagradost.cloudstream3.utils.Qualities
 import com.lagradost.cloudstream3.utils.newExtractorLink
 
-/** 瓜子影视（App 私有协议，移植自 cluntop/tvbox py/guazi.py） */
+/** 瓜子影视（App 私有协议，移植自 cluntop/tvbox py/guazi.py，基于 CatVodSpider 规范） */
 class GuaziProvider : MainAPI() {
     override var mainUrl = "https://apinew.uozvr.com"
     override var name = "瓜子影视"
@@ -57,10 +59,9 @@ class GuaziProvider : MainAPI() {
         val list = data?.getAsJsonArray("list")?.mapNotNull { item ->
             val obj = item.asJsonObject
             val vodId = obj.get("vod_id")?.asString ?: return@mapNotNull null
-            val continu = obj.get("vod_continu")?.asInt ?: 0
+            val continu = obj.get("vod_continu")?.asString?.toIntOrNull() ?: 0
             val name = obj.get("vod_name")?.asString ?: ""
             val pic = obj.get("vod_pic")?.asString ?: ""
-            val remarks = if (continu == 0) "电影" else "更新至${continu}集"
             // id 拼 continu，load 时拆分（沿用 py 版格式）
             val id = "$vodId/$continu"
             if (request.data == "1") {
@@ -76,7 +77,7 @@ class GuaziProvider : MainAPI() {
 
         return newHomePageResponse(
             listOf(HomePageList(request.name, list)),
-            hasNext = true
+            hasNext = list.size >= 30
         )
     }
 
@@ -88,27 +89,43 @@ class GuaziProvider : MainAPI() {
         return data?.getAsJsonArray("list")?.mapNotNull { item ->
             val obj = item.asJsonObject
             val vodId = obj.get("vod_id")?.asString ?: return@mapNotNull null
-            val continu = obj.get("vod_continu")?.asInt ?: 0
+            val continu = obj.get("vod_continu")?.asString?.toIntOrNull() ?: 0
             val name = obj.get("vod_name")?.asString ?: ""
             val pic = obj.get("vod_pic")?.asString ?: ""
-            newMovieSearchResponse(name, "$vodId/$continu", TvType.Movie) {
-                this.posterUrl = pic
+            val tid = obj.get("t_id")?.asString ?: ""
+            val id = "$vodId/$continu"
+
+            val type = when (tid) {
+                "1" -> TvType.Movie
+                "4" -> TvType.Anime
+                else -> if (continu == 0) TvType.Movie else TvType.TvSeries
+            }
+
+            if (type == TvType.Movie) {
+                newMovieSearchResponse(name, id, TvType.Movie) {
+                    this.posterUrl = pic
+                }
+            } else {
+                newTvSeriesSearchResponse(name, id, type) {
+                    this.posterUrl = pic
+                }
             }
         } ?: emptyList()
     }
 
     override suspend fun load(url: String): LoadResponse {
         val vodId = url.substringBefore("/")
+        val urlContinu = url.substringAfter("/", "0").toIntOrNull() ?: 0
         val t = (System.currentTimeMillis() / 1000).toString()
         val auth = api.authParams()
 
         // 1. 详情
         val qdata = api.request(
             mapOf(
-                "token_id" to auth["token_id"]!!,
+                "token_id" to (auth["token_id"] ?: ""),
                 "vod_id" to vodId,
                 "mobile_time" to t,
-                "token" to auth["token"]!!
+                "token" to (auth["token"] ?: "")
             ),
             "/App/IndexPlay/playInfo"
         )
@@ -122,12 +139,24 @@ class GuaziProvider : MainAPI() {
             ?: throw Exception("获取详情失败")
         val name = vod.get("vod_name")?.asString ?: ""
         val pic = vod.get("vod_pic")?.asString
-        val year = vod.get("vod_year")?.asInt
+        // 修复：服务端返回格式如 "2026-10-13"，直接 asInt 会导致 NumberFormatException 崩溃
+        val year = vod.get("vod_year")?.asString?.substringBefore("-")?.toIntOrNull()
         val plot = vod.get("vod_use_content")?.asString?.trim()
+        val actorStr = vod.get("vod_actor")?.asString
+        val actors = actorStr?.split(",")?.mapNotNull {
+            val a = it.trim()
+            if (a.isNotEmpty()) ActorData(Actor(a)) else null
+        } ?: emptyList()
+        val area = vod.get("vod_area")?.asString?.trim()
+        val tags = listOfNotNull(area?.takeIf { it.isNotEmpty() })
+        val tid = vod.get("t_id")?.asString ?: ""
 
         // 解析播放列表：每集 data = "param||res1@res2"（py 版格式）
         val episodes = mutableListOf<Episode>()
-        jdata?.getAsJsonArray("list")?.forEachIndexed { index, item ->
+        val listArray = jdata?.getAsJsonArray("list")
+        val isSingleEpisode = listArray?.size() == 1
+
+        listArray?.forEachIndexed { index, item ->
             val playMap = item.asJsonObject.getAsJsonObject("play") ?: return@forEachIndexed
             val names = mutableListOf<String>()
             val params = mutableListOf<String>()
@@ -139,9 +168,7 @@ class GuaziProvider : MainAPI() {
                 }
             }
             if (params.isNotEmpty()) {
-                val playName =
-                    if (jdata.getAsJsonArray("list").size() == 1) name
-                    else (index + 1).toString()
+                val playName = if (isSingleEpisode) name else (index + 1).toString()
                 // data 格式：param||res1@res2，loadLinks 时解析
                 val data = "${params.last()}||${names.joinToString("@")}"
                 episodes.add(newEpisode(data) {
@@ -151,17 +178,28 @@ class GuaziProvider : MainAPI() {
             }
         }
 
-        return if (episodes.size <= 1) {
+        val isMovie = (tid == "1" || (urlContinu == 0 && episodes.size <= 1))
+        val tvType = when (tid) {
+            "1" -> TvType.Movie
+            "4" -> TvType.Anime
+            else -> if (isMovie) TvType.Movie else TvType.TvSeries
+        }
+
+        return if (isMovie) {
             newMovieLoadResponse(name, url, TvType.Movie, episodes.firstOrNull()?.data ?: "") {
                 this.posterUrl = pic
                 this.year = year
                 this.plot = plot
+                this.actors = actors
+                this.tags = tags
             }
         } else {
-            newTvSeriesLoadResponse(name, url, TvType.TvSeries, episodes) {
+            newTvSeriesLoadResponse(name, url, tvType, episodes) {
                 this.posterUrl = pic
                 this.year = year
                 this.plot = plot
+                this.actors = actors
+                this.tags = tags
             }
         }
     }
@@ -195,6 +233,13 @@ class GuaziProvider : MainAPI() {
         val playUrl = result?.get("url")?.asString ?: return false
         if (playUrl.isBlank()) return false
 
+        val quality = when (bestResolution) {
+            "1080" -> Qualities.P1080.value
+            "720" -> Qualities.P720.value
+            "480" -> Qualities.P480.value
+            else -> Qualities.Unknown.value
+        }
+
         // py 原版 playerContent 返回的固定 header，CDN 校验用
         // 不走 M3u8Helper（其内部取 m3u8 时 header 不可控），直接发 ExtractorLink 让播放器处理
         val headers = mapOf(
@@ -205,7 +250,7 @@ class GuaziProvider : MainAPI() {
             newExtractorLink(name, name, playUrl) {
                 this.referer = "http://WJiZxLXA2.com/"
                 this.headers = headers
-                this.quality = Qualities.Unknown.value
+                this.quality = quality
                 this.type = if (playUrl.contains(".m3u8")) ExtractorLinkType.M3U8
                             else ExtractorLinkType.VIDEO
             }

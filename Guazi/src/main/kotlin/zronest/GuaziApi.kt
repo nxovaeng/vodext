@@ -3,6 +3,8 @@ package nxovaeng
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import com.lagradost.cloudstream3.app
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import okhttp3.FormBody
 import kotlin.random.Random
 
@@ -64,6 +66,7 @@ t5lYKfpe8k83ZA==
     @Volatile private var tokenId: String = ""
     @Volatile private var authed = false
     @Volatile private var registered = false
+    private val authMutex = Mutex()
 
     /** 供业务参数使用（ensureToken 后调用） */
     suspend fun authParams(): Map<String, String> {
@@ -71,7 +74,7 @@ t5lYKfpe8k83ZA==
         return mapOf("token" to token, "token_id" to tokenId)
     }
 
-    private fun headers(): Map<String, String> = mapOf(
+    private fun headers(targetHost: String = host): Map<String, String> = mapOf(
         "User-Agent" to "Lavf/57.83.100",
         "code" to "GZ0369",
         "deviceId" to deviceId,
@@ -82,33 +85,44 @@ t5lYKfpe8k83ZA==
         "PackageName" to "com.ae06aebdbb.y286327f5a.ofe849883320260517",
         "Ver" to "3.0.3.2",
         "api-ver" to "3.0.3.2",
-        "Referer" to host
+        "Referer" to targetHost
     )
 
-    /** 确保 token 有效（懒加载） */
+    /** 确保 token 有效（懒加载，加 Mutex 防止并发重复认证） */
     private suspend fun ensureToken() {
         if (authed && token.isNotEmpty() && tokenId.isNotEmpty()) return
-        synchronized(this) {
+        authMutex.withLock {
             if (authed && token.isNotEmpty() && tokenId.isNotEmpty()) return
-        }
-        // 先尝试注册，失败则尝试登录
-        val signResult = if (registered) {
-            authRequest("/App/Authentication/Device/signIn",
-                mapOf("new_key" to deviceKey, "old_key" to DEVICE_OLD_KEY))
-        } else {
-            authRequest("/App/Authentication/Device/signUp",
-                mapOf("new_key" to deviceKey, "old_key" to DEVICE_OLD_KEY,
-                    "phone_type" to 1, "code" to ""))
-        }
-        if (signResult != null) {
-            applyAuth(signResult)
-            registered = true
-        }
-        val refreshResult = authRequest(
-            "/App/Authentication/Authenticator/refresh", emptyMap())
-        if (refreshResult != null) {
-            applyAuth(refreshResult)
-            authed = true
+
+            // 先尝试注册，失败则尝试登录
+            val signResult = if (registered) {
+                authRequest(
+                    "/App/Authentication/Device/signIn",
+                    mapOf("new_key" to deviceKey, "old_key" to DEVICE_OLD_KEY)
+                )
+            } else {
+                authRequest(
+                    "/App/Authentication/Device/signUp",
+                    mapOf(
+                        "new_key" to deviceKey,
+                        "old_key" to DEVICE_OLD_KEY,
+                        "phone_type" to 1,
+                        "code" to ""
+                    )
+                )
+            }
+            if (signResult != null) {
+                applyAuth(signResult)
+                registered = true
+            }
+            val refreshResult = authRequest(
+                "/App/Authentication/Authenticator/refresh",
+                emptyMap()
+            )
+            if (refreshResult != null) {
+                applyAuth(refreshResult)
+                authed = true
+            }
         }
     }
 
@@ -121,9 +135,18 @@ t5lYKfpe8k83ZA==
         }
     }
 
-    /** 认证类请求（不触发 ensureToken，避免递归） */
+    /** 认证类请求（带多 host 轮询重试） */
     private suspend fun authRequest(path: String, params: Map<String, Any>): JsonObject? {
-        return sendEncryptedRequest(params, path, isAuth = true)
+        for (i in HOSTS.indices) {
+            val idx = (hostIndex + i) % HOSTS.size
+            val currentHost = HOSTS[idx]
+            val result = sendEncryptedRequest(params, path, isAuth = true, targetHost = currentHost)
+            if (result != null) {
+                hostIndex = idx
+                return result
+            }
+        }
+        return null
     }
 
     /**
@@ -133,9 +156,13 @@ t5lYKfpe8k83ZA==
     suspend fun request(params: Map<String, Any>, path: String): JsonObject? {
         repeat(2) { attempt ->
             for (i in HOSTS.indices) {
-                hostIndex = (hostIndex + i) % HOSTS.size
-                val result = sendEncryptedRequest(params, path, isAuth = false)
-                if (result != null) return result
+                val idx = (hostIndex + i) % HOSTS.size
+                val currentHost = HOSTS[idx]
+                val result = sendEncryptedRequest(params, path, isAuth = false, targetHost = currentHost)
+                if (result != null) {
+                    hostIndex = idx
+                    return result
+                }
             }
             // 全部 host 失败，尝试重新认证
             if (attempt == 0) {
@@ -149,7 +176,8 @@ t5lYKfpe8k83ZA==
     private suspend fun sendEncryptedRequest(
         params: Map<String, Any>,
         path: String,
-        isAuth: Boolean
+        isAuth: Boolean,
+        targetHost: String = host
     ): JsonObject? {
         return try {
             if (!isAuth) ensureToken()
@@ -184,7 +212,7 @@ t5lYKfpe8k83ZA==
                 .add("ad_version", "1")
                 .build()
 
-            val resp = app.post(host + path, headers = headers(), requestBody = form)
+            val resp = app.post(targetHost + path, headers = headers(targetHost), requestBody = form)
             val respJson = JsonParser.parseString(resp.text).asJsonObject
 
             if (respJson.has("code") && respJson.get("code").asInt != 200) {
