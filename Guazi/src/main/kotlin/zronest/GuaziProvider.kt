@@ -65,11 +65,11 @@ class GuaziProvider : MainAPI() {
             // id 拼 continu，load 时拆分（沿用 py 版格式）
             val id = "$vodId/$continu"
             if (request.data == "1") {
-                newMovieSearchResponse(name, id, TvType.Movie) {
+                newMovieSearchResponse(name, id, TvType.Movie, fix = false) {
                     this.posterUrl = pic
                 }
             } else {
-                newTvSeriesSearchResponse(name, id, TvType.TvSeries) {
+                newTvSeriesSearchResponse(name, id, TvType.TvSeries, fix = false) {
                     this.posterUrl = pic
                 }
             }
@@ -102,11 +102,11 @@ class GuaziProvider : MainAPI() {
             }
 
             if (type == TvType.Movie) {
-                newMovieSearchResponse(name, id, TvType.Movie) {
+                newMovieSearchResponse(name, id, TvType.Movie, fix = false) {
                     this.posterUrl = pic
                 }
             } else {
-                newTvSeriesSearchResponse(name, id, type) {
+                newTvSeriesSearchResponse(name, id, type, fix = false) {
                     this.posterUrl = pic
                 }
             }
@@ -114,8 +114,12 @@ class GuaziProvider : MainAPI() {
     }
 
     override suspend fun load(url: String): LoadResponse {
-        val vodId = url.substringBefore("/")
-        val urlContinu = url.substringAfter("/", "0").toIntOrNull() ?: 0
+        // 兼容 "155204/0" 以及被 Cloudstream fixUrl 处理过的 "https://apinew.uozvr.com/155204/0"
+        val cleanPath = if (url.contains("://")) url.substringAfter("://").substringAfter("/") else url
+        val segments = cleanPath.trim('/').split("/")
+        val vodId = segments.firstOrNull { it.isNotEmpty() && it.all(Char::isDigit) }
+            ?: segments.firstOrNull() ?: url.substringBefore("/")
+        val urlContinu = segments.getOrNull(1)?.toIntOrNull() ?: 0
         val t = (System.currentTimeMillis() / 1000).toString()
         val auth = api.authParams()
 

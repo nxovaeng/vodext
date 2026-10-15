@@ -9,8 +9,24 @@ import javax.crypto.spec.IvParameterSpec
 import javax.crypto.spec.SecretKeySpec
 import java.util.Base64
 
-/** 瓜子影视加解密工具（移植自 guazi.py，与 Java 版行为一致） */
+/** 瓜子影视加解密工具（移植自 guazi.py，兼容 Android 与 Java 运行环境） */
 object GuaziCrypto {
+
+    private fun decodeBase64(str: String): ByteArray {
+        return try {
+            android.util.Base64.decode(str, android.util.Base64.DEFAULT)
+        } catch (_: Throwable) {
+            java.util.Base64.getDecoder().decode(str)
+        }
+    }
+
+    private fun encodeBase64(bytes: ByteArray): String {
+        return try {
+            android.util.Base64.encodeToString(bytes, android.util.Base64.NO_WRAP)
+        } catch (_: Throwable) {
+            java.util.Base64.getEncoder().encodeToString(bytes)
+        }
+    }
 
     /** AES-CBC 加密，返回大写 hex（对应 Python 的 encrypted.hex().upper()） */
     fun aesEncrypt(text: String, key: String, iv: String): String {
@@ -23,7 +39,7 @@ object GuaziCrypto {
             )
             cipher.doFinal(text.toByteArray(Charsets.UTF_8))
                 .joinToString("") { "%02X".format(it) }
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             ""
         }
     }
@@ -39,7 +55,7 @@ object GuaziCrypto {
             )
             val bytes = hexText.chunked(2).map { it.toInt(16).toByte() }.toByteArray()
             String(cipher.doFinal(bytes), Charsets.UTF_8)
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             null
         }
     }
@@ -47,15 +63,13 @@ object GuaziCrypto {
     /** RSA 公钥加密（PKCS1v1.5），返回 base64 */
     fun rsaEncrypt(text: String, publicKeyBase64: String): String {
         return try {
-            val keyBytes = Base64.getDecoder().decode(publicKeyBase64)
+            val keyBytes = decodeBase64(publicKeyBase64)
             val key = KeyFactory.getInstance("RSA")
                 .generatePublic(X509EncodedKeySpec(keyBytes))
             val cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding")
             cipher.init(Cipher.ENCRYPT_MODE, key)
-            Base64.getEncoder().encodeToString(
-                cipher.doFinal(text.toByteArray(Charsets.UTF_8))
-            )
-        } catch (e: Exception) {
+            encodeBase64(cipher.doFinal(text.toByteArray(Charsets.UTF_8)))
+        } catch (e: Throwable) {
             ""
         }
     }
@@ -77,24 +91,28 @@ object GuaziCrypto {
                 .replace("-----BEGIN RSA PRIVATE KEY-----", "")
                 .replace("-----END RSA PRIVATE KEY-----", "")
                 .replace("\\s".toRegex(), "")
-            val keyBytes = Base64.getDecoder().decode(pem)
+            val keyBytes = decodeBase64(pem)
             val key = KeyFactory.getInstance("RSA")
                 .generatePrivate(PKCS8EncodedKeySpec(keyBytes))
             val cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding")
             cipher.init(Cipher.DECRYPT_MODE, key)
             String(
-                cipher.doFinal(Base64.getDecoder().decode(base64Text)),
+                cipher.doFinal(decodeBase64(base64Text)),
                 Charsets.UTF_8
             )
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             null
         }
     }
 
     /** MD5 大写 hex（与 Java 版一致） */
     fun md5Upper(text: String): String {
-        val digest = MessageDigest.getInstance("MD5")
-        return digest.digest(text.toByteArray(Charsets.UTF_8))
-            .joinToString("") { "%02X".format(it) }
+        return try {
+            val digest = MessageDigest.getInstance("MD5")
+            digest.digest(text.toByteArray(Charsets.UTF_8))
+                .joinToString("") { "%02X".format(it) }
+        } catch (e: Throwable) {
+            ""
+        }
     }
 }

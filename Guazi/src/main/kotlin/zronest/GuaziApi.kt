@@ -135,9 +135,10 @@ t5lYKfpe8k83ZA==
         }
     }
 
-    /** 认证类请求（带多 host 轮询重试） */
+    /** 认证类请求（最多尝试 3 个 host） */
     private suspend fun authRequest(path: String, params: Map<String, Any>): JsonObject? {
-        for (i in HOSTS.indices) {
+        val maxTry = minOf(3, HOSTS.size)
+        for (i in 0 until maxTry) {
             val idx = (hostIndex + i) % HOSTS.size
             val currentHost = HOSTS[idx]
             val result = sendEncryptedRequest(params, path, isAuth = true, targetHost = currentHost)
@@ -151,11 +152,12 @@ t5lYKfpe8k83ZA==
 
     /**
      * 发送加密请求，返回解密后的 JsonObject。
-     * 失败时轮询切换 host，最多遍历全部 host。
+     * 轮询尝试最多 3 个 host，避免长达数分钟超时等待。
      */
     suspend fun request(params: Map<String, Any>, path: String): JsonObject? {
-        repeat(2) { attempt ->
-            for (i in HOSTS.indices) {
+        val maxTry = minOf(3, HOSTS.size)
+        for (attempt in 0 until 2) {
+            for (i in 0 until maxTry) {
                 val idx = (hostIndex + i) % HOSTS.size
                 val currentHost = HOSTS[idx]
                 val result = sendEncryptedRequest(params, path, isAuth = false, targetHost = currentHost)
@@ -164,10 +166,10 @@ t5lYKfpe8k83ZA==
                     return result
                 }
             }
-            // 全部 host 失败，尝试重新认证
+            // 失败时尝试重新认证一次
             if (attempt == 0) {
                 authed = false
-                try { ensureToken() } catch (_: Exception) {}
+                try { ensureToken() } catch (_: Throwable) {}
             }
         }
         return null
@@ -212,7 +214,7 @@ t5lYKfpe8k83ZA==
                 .add("ad_version", "1")
                 .build()
 
-            val resp = app.post(targetHost + path, headers = headers(targetHost), requestBody = form)
+            val resp = app.post(targetHost + path, headers = headers(targetHost), requestBody = form, timeout = 10L)
             val respJson = JsonParser.parseString(resp.text).asJsonObject
 
             if (respJson.has("code") && respJson.get("code").asInt != 200) {
