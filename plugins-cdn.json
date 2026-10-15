@@ -1,0 +1,117 @@
+[
+    {
+        "iconUrl": "https://vod.zrocf.qzz.io/static/fflogo.png",
+        "jarFileSize": 296354,
+        "fileHash": "sha256-578ac95fc6c00f1c542045eb426094d9be32d9ec3c7b8163ec046835d4b97e6a",
+        "apiVersion": 1,
+        "repositoryUrl": "https://github.com/nxovaeng/vodext",
+        "fileSize": 60283,
+        "status": 1,
+        "language": "zh",
+        "authors": [
+            "nxovaeng"
+        ],
+        "tvTypes": [
+            "Movie",
+            "TvSeries",
+            "AnimeMovie",
+            "Anime"
+        ],
+        "version": 9,
+        "internalName": "ApiCMS",
+        "jarUrl": "https://vod.zrocf.qzz.io/ApiCMS.jar",
+        "description": "TvSeries Anime and Movies",
+        "url": "https://vod.zrocf.qzz.io/ApiCMS.cs3",
+        "name": "ApiCMS",
+        "jarHash": "sha256-6aab9a99c19e72e1d094628bfbef09c274c05b9c51e8e81716f1d4887d961175"
+    },
+    {
+        "iconUrl": "https://vod.zrocf.qzz.io/static/long.png",
+        "jarFileSize": 325510,
+        "fileHash": "sha256-e2ef69d5c27ca6b1fe5a4d6f70ed42f97a824f701978371d1c02238b34f80ef0",
+        "apiVersion": 1,
+        "repositoryUrl": "https://github.com/nxovaeng/vodext",
+        "fileSize": 62387,
+        "status": 1,
+        "language": "zh",
+        "authors": [
+            "Phisher98"
+        ],
+        "tvTypes": [
+            "Anime"
+        ],
+        "version": 14,
+        "internalName": "Donghuastream",
+        "jarUrl": "https://vod.zrocf.qzz.io/Donghuastream.jar",
+        "description": "\u52a8\u6f2b\u5408\u96c6\uff1aDonghuastream / SeaTV / Animekhor / Donghuaword",
+        "url": "https://vod.zrocf.qzz.io/Donghuastream.cs3",
+        "name": "Donghuastream",
+        "jarHash": "sha256-c7b2a0462a8db9cc21c4fbc75fbb1ac2ef3f29ce0805af25b9f9f4bd932f3141"
+    },
+    {
+        "jarFileSize": 112694,
+        "fileHash": "sha256-08c32ac6798bbff214bd9ee5abaaac1eadee2bb974c3e040e6f0217a86ef9d69",
+        "apiVersion": 1,
+        "repositoryUrl": "https://github.com/nxovaeng/vodext",
+        "fileSize": 33690,
+        "status": 3,
+        "language": "zh",
+        "authors": [
+            "nxovaeng"
+        ],
+        "tvTypes": [
+            "Movie",
+            "TvSeries",
+            "Anime"
+        ],
+        "version": 1,
+        "internalName": "Guazi",
+        "jarUrl": "https://vod.zrocf.qzz.io/Guazi.jar",
+        "description": "\u74dc\u5b50\u5f71\u89c6 (App\u79c1\u6709\u534f\u8bae)",
+        "url": "https://vod.zrocf.qzz.io/Guazi.cs3",
+        "name": "Guazi",
+        "jarHash": "sha256-66d8fe6ac44cf690a86028941c84d6667c3be2a811477ca6989802b695bf3ad9"
+    },
+    {
+        "iconUrl": "https://vod.zrocf.qzz.io/static/tvlogo.png",
+        "fileHash": "sha256-4f504358ccfd71ba5ece86e4e328e6f71eecae5d38146263ec70c8ef2da5bf7d",
+        "apiVersion": 1,
+        "repositoryUrl": "https://github.com/nxovaeng/vodext",
+        "fileSize": 24721,
+        "status": 1,
+        "language": "zh",
+        "authors": [
+            "nxovaeng"
+        ],
+        "tvTypes": [
+            "Live"
+        ],
+        "version": 1,
+        "internalName": "IPTV",
+        "description": "\u4e2d\u56fdIPTV\u76f4\u64ad\u6e90 - \u652f\u6301\u592e\u89c6\u3001\u536b\u89c6\u7b49\u9891\u9053",
+        "url": "https://vod.zrocf.qzz.io/IPTV.cs3",
+        "name": "IPTV"
+    },
+    {
+        "iconUrl": "https://vod.zrocf.qzz.io/static/netflix.png",
+        "fileHash": "sha256-821530d6bc7ec9c727802c5e8820c166720f52d4272863687a5d5ee943238ee5",
+        "apiVersion": 1,
+        "repositoryUrl": "https://github.com/nxovaeng/vodext",
+        "fileSize": 49176,
+        "status": 1,
+        "authors": [
+            "megix"
+        ],
+        "tvTypes": [
+            "Movie",
+            "TvSeries",
+            "AsianDrama",
+            "Anime"
+        ],
+        "version": 34,
+        "internalName": "NetfixMirror",
+        "description": "Netflix, PrimeVideo, JioHotstar(Hotstar, Disney, Paramount, HBO, Peacock) Content in Multiple Languages",
+        "url": "https://vod.zrocf.qzz.io/NetfixMirror.cs3",
+        "name": "NetfixMirror"
+    }
+]
