@@ -199,7 +199,8 @@ class GuaziProvider : MainAPI() {
             M3u8Helper.generateM3u8(
                 name,
                 playUrl,
-                mainUrl,
+                // py 原版 playerContent 返回的固定 Referer，CDN 校验用
+                "http://WJiZxLXA2.com/",
             ).forEach(callback)
             true
         } else {
