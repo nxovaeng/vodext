@@ -99,7 +99,16 @@ jobs:
       # JitPack 上的 com.github.recloudstream:gradle:master-SNAPSHOT 是 292 字节空包（2026-10-06 构建坏包），
       # configuration 阶段 apply 插件即崩。这里从源码构建并 publishToMavenLocal，
       # buildscript 的 mavenLocal()（排第一）会优先命中本地产物，不再走 JitPack。
+      # commit 已锁死，产物不变，用 actions/cache 缓存 ~/.m2 命中后跳过构建（省 1~2 分钟）。
+      - name: Cache recloudstream/gradle build
+        id: gradle-plugin-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository/com/github/recloudstream
+          key: recloudstream-gradle-32895aedb6
+
       - name: Build recloudstream/gradle from source
+        if: steps.gradle-plugin-cache.outputs.cache-hit != 'true'
         run: |
           git clone https://github.com/recloudstream/gradle /tmp/recloudstream-gradle
           cd /tmp/recloudstream-gradle
