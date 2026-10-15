@@ -195,23 +195,21 @@ class GuaziProvider : MainAPI() {
         val playUrl = result?.get("url")?.asString ?: return false
         if (playUrl.isBlank()) return false
 
-        return if (playUrl.contains(".m3u8")) {
-            M3u8Helper.generateM3u8(
-                name,
-                playUrl,
-                // py 原版 playerContent 返回的固定 Referer，CDN 校验用
-                "http://WJiZxLXA2.com/",
-            ).forEach(callback)
-            true
-        } else {
-            callback(
-                newExtractorLink(name, name, playUrl) {
-                    this.referer = mainUrl
-                    this.quality = Qualities.Unknown.value
-                    this.type = ExtractorLinkType.VIDEO
-                }
-            )
-            true
-        }
+        // py 原版 playerContent 返回的固定 header，CDN 校验用
+        // 不走 M3u8Helper（其内部取 m3u8 时 header 不可控），直接发 ExtractorLink 让播放器处理
+        val headers = mapOf(
+            "User-Agent" to "Lavf/57.83.100",
+            "Referer" to "http://WJiZxLXA2.com/"
+        )
+        callback(
+            newExtractorLink(name, name, playUrl) {
+                this.referer = "http://WJiZxLXA2.com/"
+                this.headers = headers
+                this.quality = Qualities.Unknown.value
+                this.type = if (playUrl.contains(".m3u8")) ExtractorLinkType.M3U8
+                            else ExtractorLinkType.VIDEO
+            }
+        )
+        return true
     }
 }
