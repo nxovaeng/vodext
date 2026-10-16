@@ -23,12 +23,12 @@ data class VodSite(
         val mainUrl: String,
         /** 上游分组：同组只查一个代表站，减少首页请求数 */
         val group: String = name,
-        /** 电影分类ID（无则 null，该站不参与电影栏） */
-        val movieId: Int? = null,
-        /** 电视剧分类ID */
-        val tvId: Int? = null,
-        /** 动漫分类ID */
-        val animeId: Int? = null,
+        /** 电影栏分类ID列表（动作片等细分类；空则不参与） */
+        val movieIds: List<Int> = emptyList(),
+        /** 电视剧栏分类ID列表（国产剧/内地剧） */
+        val tvIds: List<Int> = emptyList(),
+        /** 动漫栏分类ID列表（国产动漫/中国动漫等） */
+        val animeIds: List<Int> = emptyList(),
 )
 
 /**
@@ -52,31 +52,46 @@ class VodAggregatorProvider : BaseVodProvider() {
     companion object {
         // 分类ID取自各站 ?ac=list 的 class 字典（2026-10-16 实测）；
         // group 按上游归组：同组站点首页只查代表站（每组第一个）
+        // 首页三栏用细分类（国产剧/动作片/国产动漫系），大分类（电影/电视剧）数据太杂
         val sites =
                 listOf(
-                        VodSite("暴风", "https://bfzyapi.com", "baofeng"),
-                        VodSite("iKun", "https://ikunzyapi.com", "ikun", movieId = 1, animeId = 4, tvId = 23),
-                        VodSite("极速", "https://jszyapi.com", "jisu", movieId = 2, tvId = 1, animeId = 17),
-                        VodSite("茅台", "https://maotaizy.com", "maotai", movieId = 1, animeId = 4, tvId = 13),
-                        VodSite("魔都", "https://www.mdzyapi.com", "modu", movieId = 7, tvId = 26),
-                        VodSite("非凡", "https://api.ffzyapi.com", "feifan"),
-                        VodSite("索尼", "https://suoniapi.com", "suoni", movieId = 1, tvId = 2, animeId = 4),
+                        VodSite("暴风", "https://bfzyapi.com", "baofeng",
+                                movieIds = listOf(21), tvIds = listOf(31), animeIds = listOf(40)),
+                        VodSite("iKun", "https://ikunzyapi.com", "ikun",
+                                movieIds = listOf(6), tvIds = listOf(23), animeIds = listOf(4, 35)),
+                        VodSite("极速", "https://jszyapi.com", "jisu",
+                                movieIds = listOf(9), tvIds = listOf(20), animeIds = listOf(17, 24)),
+                        VodSite("茅台", "https://maotaizy.com", "maotai",
+                                movieIds = listOf(6), tvIds = listOf(13), animeIds = listOf(4, 30)),
+                        VodSite("魔都", "https://www.mdzyapi.com", "modu",
+                                movieIds = listOf(10), tvIds = listOf(26), animeIds = listOf(1)),
+                        VodSite("非凡", "https://api.ffzyapi.com", "feifan",
+                                movieIds = listOf(6), tvIds = listOf(13), animeIds = listOf(29)),
+                        VodSite("索尼", "https://suoniapi.com", "suoni",
+                                movieIds = listOf(6), tvIds = listOf(13), animeIds = listOf(4, 29)),
                         // 魔都采集与魔都同上游（class 映射完全相同），首页不重复查
-                        VodSite("魔都采集", "https://caiji.moduapi.cc", "modu", movieId = 7, tvId = 26),
+                        VodSite("魔都采集", "https://caiji.moduapi.cc", "modu",
+                                movieIds = listOf(10), tvIds = listOf(26), animeIds = listOf(1)),
                         // 金鹰与极速同模板（class 映射完全相同），首页不重复查
-                        VodSite("金鹰", "https://jyzyapi.com", "jisu", movieId = 2, tvId = 1, animeId = 17),
-                        VodSite("樱花", "https://m3u8.apiyhzy.com", "yinghua", movieId = 1, animeId = 4, tvId = 13),
-                        VodSite("红牛", "https://hongniuzy2.com", "hongniu", movieId = 1, animeId = 4, tvId = 12),
-                        VodSite("U酷", "https://api.ukuapi88.com", "uku", movieId = 1, tvId = 2, animeId = 4),
-                        VodSite("光速", "https://api.guangsuapi.com", "guangsu", movieId = 1, tvId = 2, animeId = 4),
-                        VodSite("速播", "https://subocj.com", "subo", movieId = 1, tvId = 2, animeId = 3),
+                        VodSite("金鹰", "https://jyzyapi.com", "jisu",
+                                movieIds = listOf(9), tvIds = listOf(20), animeIds = listOf(17, 24)),
+                        VodSite("樱花", "https://m3u8.apiyhzy.com", "yinghua",
+                                movieIds = listOf(6), tvIds = listOf(13), animeIds = listOf(4, 30)),
+                        VodSite("红牛", "https://hongniuzy2.com", "hongniu",
+                                movieIds = listOf(5), tvIds = listOf(12), animeIds = listOf(4, 36)),
+                        VodSite("U酷", "https://api.ukuapi88.com", "uku",
+                                movieIds = listOf(6), tvIds = listOf(13), animeIds = listOf(4)),
+                        VodSite("光速", "https://api.guangsuapi.com", "guangsu",
+                                movieIds = listOf(6), animeIds = listOf(4, 41)),
+                        VodSite("速播", "https://subocj.com", "subo",
+                                movieIds = listOf(6), animeIds = listOf(3, 24)),
                 )
         private val siteMap = sites.associateBy { it.name }
 
         /** 首页每栏按上游分组取代表站（每组第一个有该分类的站点） */
-        private fun repSites(getId: (VodSite) -> Int?): List<VodSite> =
+        private fun repSites(getIds: (VodSite) -> List<Int>): List<VodSite> =
                 sites.groupBy { it.group }
-                        .mapNotNull { (_, g) -> g.firstOrNull { getId(it) != null } }
+                        .mapNotNull { (_, g) -> g.firstOrNull { getIds(it).isNotEmpty() } }
 
         /** data 标签里 "站点@线路" 的分隔符 */
         const val SITE_SEP = "@"
@@ -92,23 +107,23 @@ class VodAggregatorProvider : BaseVodProvider() {
     }
 
     override val mainPage = mainPageOf(
-            "movie" to "聚合电影",
-            "tv" to "聚合电视剧",
-            "anime" to "聚合动漫",
+            "movie" to "动作电影",
+            "tv" to "国产剧集",
+            "anime" to "国漫",
     )
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
-        // 按栏取对应分类ID，每栏按上游分组只查代表站
-        val getId: (VodSite) -> Int? = when (request.data) {
-            "movie" -> { it.movieId }
-            "tv" -> { it.tvId }
-            "anime" -> { it.animeId }
-            else -> { _ -> null }
+        // 按栏取对应分类ID列表，每栏按上游分组只查代表站；多ID并行查后合并
+        val getIds: (VodSite) -> List<Int> = when (request.data) {
+            "movie" -> { it.movieIds }
+            "tv" -> { it.tvIds }
+            "anime" -> { it.animeIds }
+            else -> { _ -> emptyList() }
         }
         val items = supervisorScope {
-            repSites(getId).map { site ->
-                async {
-                    listSite(site.mainUrl, page, getId(site)).map { site to it }
+            repSites(getIds).flatMap { site ->
+                getIds(site).map { typeId ->
+                    async { listSite(site.mainUrl, page, typeId).map { site to it } }
                 }
             }.awaitAll().flatten()
         }
