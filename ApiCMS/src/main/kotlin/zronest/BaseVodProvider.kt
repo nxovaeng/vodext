@@ -184,11 +184,13 @@ abstract class BaseVodProvider : MainAPI() {
         }
     }
 
-    protected suspend fun listSite(siteUrl: String, page: Int): List<VideoItem> {
+    protected suspend fun listSite(siteUrl: String, page: Int, typeId: Int? = null): List<VideoItem> {
         return try {
-            app.get("$siteUrl/api.php/provide/vod/?ac=detail&pg=$page")
-                    .parsed<VideoDetail>()
-                    .list
+            val url = if (typeId != null)
+                "$siteUrl/api.php/provide/vod/?ac=detail&t=$typeId&pg=$page"
+            else
+                "$siteUrl/api.php/provide/vod/?ac=detail&pg=$page"
+            app.get(url).parsed<VideoDetail>().list
         } catch (_: Exception) {
             emptyList()
         }
