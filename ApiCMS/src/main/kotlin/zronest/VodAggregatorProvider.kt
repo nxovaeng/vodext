@@ -114,11 +114,13 @@ class VodAggregatorProvider : BaseVodProvider() {
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
         // 按栏取对应分类ID列表，每栏按上游分组只查代表站；多ID并行查后合并
-        val getIds: (VodSite) -> List<Int> = when (request.data) {
-            "movie" -> { it.movieIds }
-            "tv" -> { it.tvIds }
-            "anime" -> { it.animeIds }
-            else -> { _ -> emptyList() }
+        val getIds: (VodSite) -> List<Int> = { site ->
+            when (request.data) {
+                "movie" -> site.movieIds
+                "tv" -> site.tvIds
+                "anime" -> site.animeIds
+                else -> emptyList()
+            }
         }
         val items = supervisorScope {
             repSites(getIds).flatMap { site ->
