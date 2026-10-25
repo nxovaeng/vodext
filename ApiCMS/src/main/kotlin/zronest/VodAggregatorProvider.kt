@@ -33,6 +33,7 @@ data class VodSite(
 
 /**
  * 聚合多个苹果CMS采集站为一个 Provider。
+ * 支持根据站点上游分组继承派生不同梯队的聚合 Provider（如主流聚合、综合聚合）。
  *
  * - 搜索/首页：各站并行请求，按归一化剧名合并为一部，url 存 {"站点名": vod_id} 的 JSON
  *   （newTvSeriesSearchResponse 用 fix=false，避免 fixUrl 破坏 JSON）。
@@ -41,7 +42,9 @@ data class VodSite(
  *   loadLinks 拆分后各站即成为不同的播放源。
  * - referer：sourceReferer 按 "站点@" 前缀取对应站点的 mainUrl。
  */
-class VodAggregatorProvider : BaseVodProvider() {
+open class VodAggregatorProvider(
+        protected open val sites: List<VodSite> = fastSites
+) : BaseVodProvider() {
 
     override var name = "聚合采集"
     override var mainUrl = "https://bfzyapi.com" // 占位；实际 referer 按源解析
@@ -50,48 +53,35 @@ class VodAggregatorProvider : BaseVodProvider() {
     override val supportedTypes = setOf(TvType.Movie, TvType.TvSeries, TvType.Anime)
 
     companion object {
-        // 分类ID取自各站 ?ac=list 的 class 字典（2026-10-16 实测）；
-        // group 按上游归组：同组站点首页只查代表站（每组第一个）
-        // 首页三栏用细分类（国产剧/动作片/国产动漫系），大分类（电影/电视剧）数据太杂
-        val sites =
-                listOf(
-                        VodSite("暴风", "https://bfzyapi.com", "baofeng",
-                                movieIds = listOf(21), tvIds = listOf(31), animeIds = listOf(40)),
-                        VodSite("iKun", "https://ikunzyapi.com", "ikun",
-                                movieIds = listOf(6), tvIds = listOf(23), animeIds = listOf(4, 35)),
-                        VodSite("极速", "https://jszyapi.com", "jisu",
-                                movieIds = listOf(9), tvIds = listOf(20), animeIds = listOf(17, 24)),
-                        VodSite("茅台", "https://maotaizy.com", "maotai",
-                                movieIds = listOf(6), tvIds = listOf(13), animeIds = listOf(4, 30)),
-                        VodSite("魔都", "https://www.mdzyapi.com", "modu",
-                                movieIds = listOf(10), tvIds = listOf(26), animeIds = listOf(1)),
-                        VodSite("非凡", "https://api.ffzyapi.com", "feifan",
-                                movieIds = listOf(6), tvIds = listOf(13), animeIds = listOf(29)),
-                        VodSite("索尼", "https://suoniapi.com", "suoni",
-                                movieIds = listOf(6), tvIds = listOf(13), animeIds = listOf(4, 29)),
-                        // 魔都采集与魔都同上游（class 映射完全相同），首页不重复查
-                        VodSite("魔都采集", "https://caiji.moduapi.cc", "modu",
-                                movieIds = listOf(10), tvIds = listOf(26), animeIds = listOf(1)),
-                        // 金鹰与极速同模板（class 映射完全相同），首页不重复查
-                        VodSite("金鹰", "https://jyzyapi.com", "jisu",
-                                movieIds = listOf(9), tvIds = listOf(20), animeIds = listOf(17, 24)),
-                        VodSite("樱花", "https://m3u8.apiyhzy.com", "yinghua",
-                                movieIds = listOf(6), tvIds = listOf(13), animeIds = listOf(4, 30)),
-                        VodSite("红牛", "https://hongniuzy2.com", "hongniu",
-                                movieIds = listOf(5), tvIds = listOf(12), animeIds = listOf(4, 36)),
-                        VodSite("U酷", "https://api.ukuapi88.com", "uku",
-                                movieIds = listOf(6), tvIds = listOf(13), animeIds = listOf(4)),
-                        VodSite("光速", "https://api.guangsuapi.com", "guangsu",
-                                movieIds = listOf(6), animeIds = listOf(4, 41)),
-                        VodSite("速播", "https://subocj.com", "subo",
-                                movieIds = listOf(6), animeIds = listOf(3, 24)),
-                )
-        private val siteMap = sites.associateBy { it.name }
+        // 主流/秒播梯队：三大顶级独立上游，响应极快，自建云切片，无冗余无死链
+        val fastSites = listOf(
+                VodSite("极速", "https://jszyapi.com", "jisu",
+                        movieIds = listOf(9, 12, 35), tvIds = listOf(20), animeIds = listOf(24)),
+                VodSite("暴风", "https://bfzyapi.com", "baofeng",
+                        movieIds = listOf(21, 24), tvIds = listOf(31), animeIds = listOf(40)),
+                VodSite("非凡", "https://api.ffzyapi.com", "feifan",
+                        movieIds = listOf(6, 9), tvIds = listOf(13), animeIds = listOf(29)),
+        )
 
-        /** 首页每栏按上游分组取代表站（每组第一个有该分类的站点） */
-        private fun repSites(getIds: (VodSite) -> List<Int>): List<VodSite> =
-                sites.groupBy { it.group }
-                        .mapNotNull { (_, g) -> g.firstOrNull { getIds(it).isNotEmpty() } }
+        // 综合/互补梯队：四大特色独立切片库，补充魔都高清动漫、冷门片源、欧美港台
+        val generalSites = listOf(
+                VodSite("魔都采集", "https://caiji.moduapi.cc", "modu",
+                        movieIds = listOf(10, 13, 21), tvIds = listOf(26), animeIds = listOf(1)),
+                VodSite("红牛", "https://hongniuzy2.com", "hongniu",
+                        movieIds = listOf(5, 8, 49), tvIds = listOf(12), animeIds = listOf(36)),
+                VodSite("U酷", "https://api.ukuapi88.com", "uku",
+                        movieIds = listOf(6, 9, 34), tvIds = listOf(13), animeIds = listOf(4, 20)),
+                VodSite("光速", "https://api.guangsuapi.com", "guangsu",
+                        movieIds = listOf(6, 9, 50), tvIds = listOf(13), animeIds = listOf(41)),
+        )
+
+        // 全部已知站点（含兼容映射与备用站）
+        val allSites = fastSites + generalSites + listOf(
+                VodSite("魔都", "https://www.mdzyapi.com", "modu"),
+                VodSite("金鹰", "https://jyzyapi.com", "jisu"),
+                VodSite("速播", "https://subocj.com", "subo"),
+        )
+        val allSiteMap = allSites.associateBy { it.name }
 
         /** data 标签里 "站点@线路" 的分隔符 */
         const val SITE_SEP = "@"
@@ -101,15 +91,22 @@ class VodAggregatorProvider : BaseVodProvider() {
                 name.lowercase().replace(Regex("[\\s\\p{P}\\p{S}]"), "")
     }
 
+    protected val siteMap by lazy { (allSiteMap + sites.associateBy { it.name }) }
+
+    /** 首页每栏按上游分组取代表站（每组第一个有该分类的站点） */
+    protected fun repSites(getIds: (VodSite) -> List<Int>): List<VodSite> =
+            sites.groupBy { it.group }
+                    .mapNotNull { (_, g) -> g.firstOrNull { getIds(it).isNotEmpty() } }
+
     override fun sourceReferer(lineName: String): String {
         val siteName = lineName.substringBefore(SITE_SEP)
         return siteMap[siteName]?.mainUrl ?: super.sourceReferer(lineName)
     }
 
     override val mainPage = mainPageOf(
-            "movie" to "动作电影",
+            "movie" to "热播电影",
             "tv" to "国产剧集",
-            "anime" to "国漫",
+            "anime" to "热门国漫",
     )
 
     override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
@@ -272,4 +269,14 @@ class VodAggregatorProvider : BaseVodProvider() {
         // 复用首站的元数据（标题/海报/简介/演员等）
         return firstItem.toLoadResponse(url, episodes)
     }
+}
+
+/** 主流聚合：三大顶级独立上游（极速、暴风、非凡），秒播低延迟 */
+class FastVodAggregatorProvider : VodAggregatorProvider(fastSites) {
+    override var name = "主流聚合"
+}
+
+/** 综合聚合：四大特色互补上游（魔都采集、红牛、U酷、光速），片源更全 */
+class GeneralVodAggregatorProvider : VodAggregatorProvider(generalSites) {
+    override var name = "综合聚合"
 }

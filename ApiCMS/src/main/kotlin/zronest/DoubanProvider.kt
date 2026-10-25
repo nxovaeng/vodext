@@ -57,8 +57,8 @@ class DoubanProvider : MainAPI() {
     }
 
     override suspend fun search(query: String): List<SearchResponse> {
-        // 豆瓣站内搜索同样走聚合：直接搜标题
-        return VodAggregatorProvider().search(query)
+        // 豆瓣站内搜索走主流聚合
+        return FastVodAggregatorProvider().search(query)
     }
 
     /**
@@ -68,13 +68,20 @@ class DoubanProvider : MainAPI() {
     override suspend fun load(url: String): LoadResponse {
         val subject = tryParseJson<DoubanSubject>(url) ?: throw ErrorLoadingException("无效的豆瓣条目")
         val title = subject.title
-        val aggregator = VodAggregatorProvider()
-        val results = aggregator.search(title)
+        val fastAggregator = FastVodAggregatorProvider()
+        var results = fastAggregator.search(title)
+        // 主流源未精确匹配到时，补充综合源查找
+        if (results.none { it.name == title }) {
+            val generalResults = GeneralVodAggregatorProvider().search(title)
+            if (generalResults.isNotEmpty()) {
+                results = results + generalResults
+            }
+        }
         // 优先精确匹配标题，否则取第一个
         val target = results.firstOrNull { it.name == title } ?: results.firstOrNull()
                 ?: throw ErrorLoadingException("聚合站未找到《$title》")
         // 委托给聚合站加载详情（多源多集）
-        return aggregator.load(target.url)
+        return fastAggregator.load(target.url)
     }
 
     override suspend fun loadLinks(
@@ -84,7 +91,7 @@ class DoubanProvider : MainAPI() {
             callback: (ExtractorLink) -> Unit
     ): Boolean {
         // load() 已委托给聚合站，这里同样委托
-        return VodAggregatorProvider().loadLinks(data, isCasting, subtitleCallback, callback)
+        return FastVodAggregatorProvider().loadLinks(data, isCasting, subtitleCallback, callback)
     }
 
     private fun FrodoItem.toSearchResponse(): SearchResponse? {
