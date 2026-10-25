@@ -344,14 +344,14 @@ class DonghuaAggregatorProvider : MainAPI() {
             // 每集的 data 为多站、多线路的数据拼合串（例如 "Donghuastream$url#Animekhor$url#SeaTV@线路$data"）
             val combinedData = matching.joinToString("#") { it.third }
 
-            newEpisode(combinedData, fix = false) {
+            newEpisode(combinedData, fix = false, initializer = {
                 this.name = if (epName.startsWith("EP", ignoreCase = true) || epName.startsWith("Episode", ignoreCase = true)) {
                     "第 $num 集"
                 } else {
                     epName
                 }
                 this.episode = num
-            }
+            })
         }.sortedBy { it.episode ?: Int.MAX_VALUE }
 
         return newTvSeriesLoadResponse(title.ifEmpty { "国漫详情" }, url, TvType.Anime, episodes) {
@@ -375,58 +375,19 @@ class DonghuaAggregatorProvider : MainAPI() {
                             part.startsWith("$SITE_DHS$") -> {
                                 val epUrl = part.substringAfter("$SITE_DHS$").trim()
                                 if (epUrl.isNotEmpty()) {
-                                    Donghuastream().loadLinks(epUrl, isCasting, subtitleCallback) { link ->
-                                        callback(
-                                            newExtractorLink(
-                                                link.source,
-                                                "$SITE_DHS · ${link.name}",
-                                                link.url,
-                                                link.type
-                                            ) {
-                                                this.referer = link.referer
-                                                this.quality = link.quality
-                                                this.headers = link.headers
-                                            }
-                                        )
-                                    }
+                                    Donghuastream().loadLinks(epUrl, isCasting, subtitleCallback, callback)
                                 }
                             }
                             part.startsWith("$SITE_AK$") -> {
                                 val epUrl = part.substringAfter("$SITE_AK$").trim()
                                 if (epUrl.isNotEmpty()) {
-                                    Animekhor().loadLinks(epUrl, isCasting, subtitleCallback) { link ->
-                                        callback(
-                                            newExtractorLink(
-                                                link.source,
-                                                "$SITE_AK · ${link.name}",
-                                                link.url,
-                                                link.type
-                                            ) {
-                                                this.referer = link.referer
-                                                this.quality = link.quality
-                                                this.headers = link.headers
-                                            }
-                                        )
-                                    }
+                                    Animekhor().loadLinks(epUrl, isCasting, subtitleCallback, callback)
                                 }
                             }
                             part.startsWith("$SITE_SEATV@") -> {
                                 val lineAndData = part.substringAfter("$SITE_SEATV@").trim()
                                 if (lineAndData.isNotEmpty()) {
-                                    SeaTV().loadLinks(lineAndData, isCasting, subtitleCallback) { link ->
-                                        callback(
-                                            newExtractorLink(
-                                                link.source,
-                                                "$SITE_SEATV · ${link.name}",
-                                                link.url,
-                                                link.type
-                                            ) {
-                                                this.referer = link.referer
-                                                this.quality = link.quality
-                                                this.headers = link.headers
-                                            }
-                                        )
-                                    }
+                                    SeaTV().loadLinks(lineAndData, isCasting, subtitleCallback, callback)
                                 }
                             }
                         }

@@ -41,7 +41,7 @@ class AdFilterInterceptor : Interceptor {
         }
 
         try {
-            val originalBody = response.body?.string() ?: return response
+            val originalBody = response.body.string()
 
             if (DEBUG) {
                 Log.d(TAG, "Processing m3u8: $url")
@@ -62,7 +62,7 @@ class AdFilterInterceptor : Interceptor {
 
             // 返回清洗后的内容
             return response.newBuilder()
-                    .body(cleanedBody.toResponseBody(response.body?.contentType()))
+                    .body(cleanedBody.toResponseBody(response.body.contentType()))
                     .build()
         } catch (e: Exception) {
             Log.e(TAG, "Error filtering m3u8: ${e.message}")
