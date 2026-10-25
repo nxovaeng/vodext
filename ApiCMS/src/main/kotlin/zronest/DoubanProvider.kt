@@ -89,7 +89,11 @@ class DoubanProvider : MainAPI() {
 
     private fun FrodoItem.toSearchResponse(): SearchResponse? {
         if (title.isBlank()) return null
-        val picUrl = pic?.normal?.takeIf { it.isNotBlank() } ?: return null
+        val rawPic = pic?.large?.takeIf { it.isNotBlank() }
+                ?: pic?.normal?.takeIf { it.isNotBlank() }
+                ?: cover_url?.takeIf { it.isNotBlank() }
+                ?: return null
+        val picUrl = rawPic.replace("http://", "https://")
         val tvType = when {
             type.contains("movie") -> TvType.Movie
             else -> TvType.TvSeries
@@ -98,6 +102,7 @@ class DoubanProvider : MainAPI() {
         val data = DoubanSubject(title = title, id = id).toJson()
         return newMovieSearchResponse(title, data, tvType) {
             this.posterUrl = picUrl
+            this.posterHeaders = POSTER_HEADERS
         }
     }
 
@@ -107,6 +112,9 @@ class DoubanProvider : MainAPI() {
         const val API_KEY = "0ac44ae016490db2204ce0a042db2916"
         const val USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36 MicroMessenger/7.0.9.501 NetType/WIFI MiniProgramEnv/Windows WindowsWechat"
         const val REFERER = "https://servicewechat.com/wx2f9b06c1de1ccfca/84/page-frame.html"
+        val POSTER_HEADERS = mapOf(
+                "Referer" to "https://movie.douban.com/",
+        )
     }
 }
 
@@ -131,12 +139,14 @@ private data class FrodoItem(
         val title: String = "",
         val type: String = "",
         val pic: FrodoPic? = null,
+        val cover_url: String? = null,
         val rating: FrodoRating? = null,
         val card_subtitle: String = "",
 )
 
 private data class FrodoPic(
-        val normal: String = "",
+        val large: String? = null,
+        val normal: String? = null,
 )
 
 private data class FrodoRating(
