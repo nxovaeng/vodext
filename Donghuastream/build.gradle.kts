@@ -1,12 +1,12 @@
 // use an integer for version numbers
-version = 14
+version = 15
 
 cloudstream {
     // All of these properties are optional, you can safely remove them
 
-    description = "动漫合集：Donghuastream / SeaTV / Animekhor / Donghuaword"
+    description = "国漫2K聚合：Donghuastream / Animekhor / SeaTV"
     language = "zh"
-    authors = listOf("Phisher98")
+    authors = listOf("nxovaeng")
 
     /** Status int as the following: 0: Down 1: Ok 2: Slow 3: Beta only */
     status = 1 // will be 3 if unspecified

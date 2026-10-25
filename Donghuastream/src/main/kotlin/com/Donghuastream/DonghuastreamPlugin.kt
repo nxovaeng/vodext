@@ -7,15 +7,18 @@ import com.lagradost.cloudstream3.extractors.EmturbovidExtractor
 import com.lagradost.cloudstream3.extractors.Geodailymotion
 import com.lagradost.cloudstream3.extractors.Mp4Upload
 
-/** 动漫插件：合并 Animekhor + Donghuastream（4 个站点） */
+/** 动漫插件：国漫 2K/4K 聚合（Donghuastream + Animekhor + SeaTV） */
 @CloudstreamPlugin
 class DonghuastreamPlugin : BasePlugin() {
     override fun load() {
-        // Providers
-        registerMainAPI(Donghuastream())   // donghuastream.org
-        registerMainAPI(SeaTV())           // donghuafun.com
-        registerMainAPI(Animekhor())       // animekhor.org
-        registerMainAPI(Donghuaword())     // donghuaworld.com
+        // 主聚合 Provider（多源聚合，支持 1440p / 2K / 4K，从播放列表标题解析集数）
+        registerMainAPI(DonghuaAggregatorProvider())
+
+        // 单站点 Provider（备用，如需在列表展示可取消注释）
+        // registerMainAPI(Donghuastream())   // donghuastream.org
+        // registerMainAPI(SeaTV())           // donghuafun.com
+        // registerMainAPI(Animekhor())       // animekhor.org
+        // 注意：donghuaworld.com 增加了 Cloudflare 验证盾，已移除
 
         // Donghuastream 系 extractors
         registerExtractorAPI(Vtbe())
