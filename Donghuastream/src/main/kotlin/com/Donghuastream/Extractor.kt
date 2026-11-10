@@ -156,7 +156,17 @@ open class PlayStreamplay : ExtractorApi() {
                             "user-agent" to
                                     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
                     )
-            M3u8Helper.generateM3u8(name, m3u8Url, mainUrl, headers = headers).forEach(callback)
+            try {
+                M3u8Helper.generateM3u8(name, m3u8Url, mainUrl, headers = headers).forEach(callback)
+            } catch (_: Exception) {
+                callback(
+                    newExtractorLink(name, name, m3u8Url, ExtractorLinkType.M3U8) {
+                        this.referer = mainUrl
+                        this.quality = Qualities.P1080.value
+                        this.headers = headers
+                    }
+                )
+            }
         }
 
         response.tracks.forEach { subtitle ->
@@ -238,52 +248,133 @@ open class Rumble : ExtractorApi() {
             subtitleCallback: (SubtitleFile) -> Unit,
             callback: (ExtractorLink) -> Unit
     ) {
-        val response = app.get(url, referer = referer ?: "$mainUrl/")
-        val document = response.document
+        val rumbleHeaders = mapOf(
+            "Referer" to "https://rumble.com/",
+            "Origin" to "https://rumble.com"
+        )
+        // 支持传入 embed URL（如 https://rumble.com/embed/v7ed06s）或普通 URL
+        val embedUrl = if (url.contains("/embed/")) {
+            url
+        } else {
+            val videoId = url.substringAfterLast("/").substringBefore("?").substringBefore(".html")
+            "https://rumble.com/embed/$videoId"
+        }
 
-        val playerScript = document.selectFirst("script:containsData(jwplayer)")?.data()
-            ?: return
+        val response = try {
+            app.get(embedUrl, referer = "https://rumble.com/", headers = rumbleHeaders)
+        } catch (_: Exception) {
+            try {
+                app.get(url, referer = referer ?: "https://rumble.com/", headers = rumbleHeaders)
+            } catch (_: Exception) {
+                return
+            }
+        }
+        val html = response.text
+        val unescaped = html.replace("\\/", "/")
 
-        // Extract sources (mp4 or m3u8)
-        val sourceRegex = """"file"\s*:\s*"(https:[^"]+\.(?:mp4|m3u8)[^"]*)"""".toRegex()
-        val sources = sourceRegex.findAll(playerScript)
+        // 1. 提取所有 HLS m3u8 (现代 Rumble embed 在 p.f 中包含 master m3u8: https://rumble.com/hls-vod/.../playlist.m3u8)
+        val hlsUrls = Regex("""https?://[^"\s\\]*?/hls-vod/[^"\s\\]*?\.m3u8""")
+            .findAll(unescaped)
+            .map { it.value }
+            .distinct()
+            .toList()
 
-        for ((index, source) in sources.withIndex()) {
-            val fileUrl = source.groupValues[1].replace("\\/", "/")
-            if (fileUrl.contains(".mp4")) {
-                callback.invoke(
+        var hasFoundHls = false
+        for (hlsUrl in hlsUrls) {
+            hasFoundHls = true
+            try {
+                M3u8Helper.generateM3u8(
+                    name,
+                    hlsUrl,
+                    "https://rumble.com/",
+                    headers = rumbleHeaders
+                ).forEach(callback)
+            } catch (_: Exception) {
+                callback(
                     newExtractorLink(
                         name,
-                        "$name Video Server ${index + 1}",
-                        url = fileUrl,
-                        INFER_TYPE
+                        name,
+                        hlsUrl,
+                        ExtractorLinkType.M3U8
                     ) {
-                        this.referer = ""
-                        this.quality = getQualityFromName("")
+                        this.referer = "https://rumble.com/"
+                        this.quality = Qualities.P1080.value
+                        this.headers = rumbleHeaders
                     }
                 )
-            } else if (fileUrl.endsWith(".m3u8")) {
-                M3u8Helper.generateM3u8(name, fileUrl, mainUrl).forEach(callback)
-            } else {
-                val fallback = "${mainUrl}/hls-vod/${
-                    url.substringAfter("/embed/v").substringBefore("/")
-                }/playlist.m3u8?u=0&b=0"
-                M3u8Helper.generateM3u8(name, fallback, mainUrl).forEach(callback)
             }
         }
 
-        // Extract subtitle tracks
-        val trackRegex =
-            """"file"\s*:\s*"(https:[^"]+\.vtt[^"]*)"\s*,\s*"label"\s*:\s*"([^"]+)"""".toRegex()
-        val tracks = trackRegex.findAll(playerScript)
+        // 2. 如果未扫到 HLS，根据 embedId 构造回退 playlist.m3u8
+        if (!hasFoundHls) {
+            val embedId = url.substringAfter("/embed/").substringBefore("/").substringBefore("?").ifEmpty {
+                url.substringAfterLast("/").substringBefore("?").substringBefore(".html")
+            }
+            if (embedId.isNotEmpty()) {
+                val fallbackHls = "https://rumble.com/hls-vod/$embedId/playlist.m3u8"
+                try {
+                    M3u8Helper.generateM3u8(
+                        name,
+                        fallbackHls,
+                        "https://rumble.com/",
+                        headers = rumbleHeaders
+                    ).forEach(callback)
+                } catch (_: Exception) {
+                    callback(
+                        newExtractorLink(
+                            name,
+                            name,
+                            fallbackHls,
+                            ExtractorLinkType.M3U8
+                        ) {
+                            this.referer = "https://rumble.com/"
+                            this.quality = Qualities.P1080.value
+                            this.headers = rumbleHeaders
+                        }
+                    )
+                }
+            }
+        }
 
-        for (track in tracks) {
-            val fileUrl = track.groupValues[1].replace("\\/", "/")
-            val label = track.groupValues[2]
+        // 3. 提取直接 MP4 视频
+        val mp4Urls = Regex("""https?://[^"\s\\]*?\.mp4""")
+            .findAll(unescaped)
+            .map { it.value }
+            .filter { !it.contains("timeline") && !it.contains("preview") && !it.endsWith(".Faa.mp4") }
+            .distinct()
+            .toList()
 
-            subtitleCallback.invoke(
-                newSubtitleFile(label, fileUrl)
+        for ((index, mp4Url) in mp4Urls.withIndex()) {
+            callback(
+                newExtractorLink(
+                    name,
+                    "$name MP4 ${index + 1}",
+                    mp4Url,
+                    INFER_TYPE
+                ) {
+                    this.referer = "https://rumble.com/"
+                    this.quality = Qualities.Unknown.value
+                    this.headers = rumbleHeaders
+                }
             )
+        }
+
+        // 4. 提取字幕 tracks
+        val subMatches = Regex(""""language"\s*:\s*"([^"]+)"\s*,\s*"path"\s*:\s*"(https:[^"]+?\.vtt)"""")
+            .findAll(unescaped)
+        for (m in subMatches) {
+            val label = m.groupValues[1]
+            val vttUrl = m.groupValues[2]
+            subtitleCallback(newSubtitleFile(label, vttUrl))
+        }
+
+        // 兼容旧版 jwplayer 格式字幕
+        val jwTracks = Regex(""""file"\s*:\s*"(https:[^"]+\.vtt[^"]*)"\s*,\s*"label"\s*:\s*"([^"]+)"""")
+            .findAll(unescaped)
+        for (m in jwTracks) {
+            val vttUrl = m.groupValues[1]
+            val label = m.groupValues[2]
+            subtitleCallback(newSubtitleFile(label, vttUrl))
         }
     }
 }

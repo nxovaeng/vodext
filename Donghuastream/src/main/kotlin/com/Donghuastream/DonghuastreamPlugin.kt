@@ -6,8 +6,9 @@ import com.lagradost.cloudstream3.extractors.Dailymotion
 import com.lagradost.cloudstream3.extractors.EmturbovidExtractor
 import com.lagradost.cloudstream3.extractors.Geodailymotion
 import com.lagradost.cloudstream3.extractors.Mp4Upload
+import com.lagradost.cloudstream3.extractors.OkRu
 
-/** 动漫插件：国漫 2K/4K 聚合（Donghuastream + Animekhor + SeaTV） */
+/** 动漫插件：国漫 2K/4K 聚合（Donghuastream + SeaTV） */
 @CloudstreamPlugin
 class DonghuastreamPlugin : BasePlugin() {
     override fun load() {
@@ -17,8 +18,7 @@ class DonghuastreamPlugin : BasePlugin() {
         // 单站点 Provider（备用，如需在列表展示可取消注释）
         // registerMainAPI(Donghuastream())   // donghuastream.org
         // registerMainAPI(SeaTV())           // donghuafun.com
-        // registerMainAPI(Animekhor())       // animekhor.org
-        // 注意：donghuaworld.com 增加了 Cloudflare 验证盾，已移除
+        // 注意：animekhor.org 与 donghuaworld.com 增加了 Cloudflare 验证盾，已移除
 
         // Donghuastream 系 extractors
         registerExtractorAPI(Vtbe())
@@ -28,19 +28,12 @@ class DonghuastreamPlugin : BasePlugin() {
         registerExtractorAPI(Ultrahd())
         registerExtractorAPI(PlayStreamplay())
 
-        // Animekhor 系 extractors
-        registerExtractorAPI(embedwish())
-        registerExtractorAPI(Filelions())
-        registerExtractorAPI(VidHidePro5())
-        registerExtractorAPI(Swhoi())
-        registerExtractorAPI(PlayerDonghuaworld())
-        registerExtractorAPI(P2pstream())
-
         // 共用 / 上游 extractors
         registerExtractorAPI(Rumble())
         registerExtractorAPI(Dailymotion())
         registerExtractorAPI(Geodailymotion())
         registerExtractorAPI(EmturbovidExtractor())
         registerExtractorAPI(Mp4Upload())
+        registerExtractorAPI(OkRu())
     }
 }

@@ -106,20 +106,29 @@ open class Donghuastream : MainAPI() {
         val tvtag = if (type.contains("Movie")) TvType.Movie else TvType.TvSeries
         return if (tvtag == TvType.TvSeries) {
             val Eppage = document.selectFirst(".eplister li > a")?.attr("href") ?: ""
-            val doc = app.get(Eppage).document
+            val doc = if (Eppage.isNotEmpty()) {
+                try { app.get(Eppage).document } catch (_: Exception) { document }
+            } else {
+                document
+            }
+            val episodeElements = doc.select("div.episodelist > ul > li").ifEmpty {
+                doc.select("div.listupd .bsx, div.eplister li")
+            }
             val episodes =
-                    doc.select("div.episodelist > ul > li").mapNotNull { info ->
-                        val href1 = info.select("a").attr("href")
+                    episodeElements.mapNotNull { info ->
+                        val a = info.selectFirst("a") ?: return@mapNotNull null
+                        val href1 = a.attr("href")
                         if (href1.isEmpty()) return@mapNotNull null
-                        val spanText = info.select("a span").text()
-                        val linkTitle = info.select("a").attr("title").ifEmpty { spanText }
-                        // 从 "Eps 13 ..." 或 "Episode 13" 提取真实集号；
-                        // 旧的 substringAfter("-") 切出来的是标题后半段，toIntOrNull 全是 null
+                        val spanText = a.select("span").text()
+                        val linkTitle = a.attr("title").ifEmpty { spanText }
+                        // 从 "Eps 13 ..." 或 "Episode 13" 或 URL 中提取真实集号
                         val epNum = Regex("""(?:Eps|Episode)\s*0*(\d+)""", RegexOption.IGNORE_CASE)
                             .find(spanText)?.groupValues?.get(1)?.toIntOrNull()
                             ?: Regex("""(?:Eps|Episode)\s*0*(\d+)""", RegexOption.IGNORE_CASE)
                                 .find(linkTitle)?.groupValues?.get(1)?.toIntOrNull()
-                        val posterr = info.selectFirst("a img")?.attr("data-src") ?: ""
+                            ?: Regex("""(?:-episode-|-ep-|-eps-)0*(\d+)""", RegexOption.IGNORE_CASE)
+                                .find(href1)?.groupValues?.get(1)?.toIntOrNull()
+                        val posterr = info.selectFirst("a img")?.let { it.attr("data-src").ifEmpty { it.attr("src") } } ?: ""
                         newEpisode(href1) {
                             this.name = linkTitle.ifEmpty { "Episode ${epNum ?: ""}".trim() }
                             this.episode = epNum
@@ -195,20 +204,18 @@ open class Donghuastream : MainAPI() {
                     val iframeUrl =
                             Jsoup.parse(decodedHtml)
                                     .selectFirst("iframe")
-                                    ?.attr("src")
+                                    ?.let {
+                                        it.attr("data-litespeed-src").ifEmpty {
+                                            it.attr("src").takeIf { s -> s != "about:blank" } ?: it.attr("data-src")
+                                        }
+                                    }
                                     ?.let(::httpsify)
                     if (iframeUrl.isNullOrEmpty()) return@launch
                     when {
                         "vidmoly" in iframeUrl -> {
                             val cleanedUrl =
                                     "http:" + iframeUrl.substringAfter("=\"").substringBefore("\"")
-                            loadExtractor(cleanedUrl, referer = iframeUrl, subtitleCallback) { link
-                                ->
-                                // Filter for quality >= 720p or unknown
-                                if (link.quality >= 720 || link.quality <= 0) {
-                                    callback(link)
-                                }
-                            }
+                            loadExtractor(cleanedUrl, referer = iframeUrl, subtitleCallback, callback)
                         }
                         iframeUrl.endsWith(".mp4") -> {
                             callback(
@@ -219,15 +226,23 @@ open class Donghuastream : MainAPI() {
                             )
                         }
                         else -> {
-                            loadExtractor(iframeUrl, referer = iframeUrl, subtitleCallback) { link
-                                ->
-                                // Filter for quality >= 720p or unknown
-                                if (link.quality >= 720 || link.quality <= 0) {
-                                    callback(link)
-                                }
-                            }
+                            val ref = if (iframeUrl.contains("rumble.com")) "https://rumble.com/" else iframeUrl
+                            loadExtractor(iframeUrl, referer = ref, subtitleCallback, callback)
                         }
                     }
+                }
+            }
+
+            // 备用：部分页面默认播放器直接在 #pembed iframe 中渲染
+            val pembedSrc = html.selectFirst("#pembed iframe")?.let {
+                it.attr("data-litespeed-src").ifEmpty {
+                    it.attr("src").takeIf { s -> s != "about:blank" } ?: it.attr("data-src")
+                }
+            }?.let(::httpsify)
+            if (!pembedSrc.isNullOrEmpty()) {
+                launch {
+                    val ref = if (pembedSrc.contains("rumble.com")) "https://rumble.com/" else pembedSrc
+                    loadExtractor(pembedSrc, referer = ref, subtitleCallback, callback)
                 }
             }
         }

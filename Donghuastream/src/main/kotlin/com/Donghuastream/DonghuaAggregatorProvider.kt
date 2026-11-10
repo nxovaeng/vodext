@@ -3,6 +3,7 @@ package com.Donghuastream
 import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.utils.*
 import com.lagradost.cloudstream3.utils.StringUtils.encodeUrl
+import kotlin.random.Random
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -12,7 +13,7 @@ import org.json.JSONObject
 
 /**
  * 国漫 2K/4K 聚合 Provider。
- * 整合 Donghuastream (donghuastream.org)、Animekhor (animekhor.org) 和 SeaTV (donghuafun.com) 三大源。
+ * 整合 Donghuastream (donghuastream.org) 和 SeaTV (donghuafun.com) 两大源（Animekhor 因 Cloudflare 盾已移除）。
  *
  * - 首页/搜索：并行向各站请求，按归一化剧名（去除季数、括号、标点等）合并为同一条目，
  *   url 存 {"站点名": url/id} 的 JSON（fix = false）。
@@ -36,7 +37,6 @@ class DonghuaAggregatorProvider : MainAPI() {
 
     companion object {
         const val SITE_DHS = "Donghuastream"
-        const val SITE_AK = "Animekhor"
         const val SITE_SEATV = "SeaTV"
 
         /**
@@ -101,25 +101,6 @@ class DonghuaAggregatorProvider : MainAPI() {
                 }
             }
 
-            val akDeferred = async {
-                try {
-                    val statusParam = if (order == "popular") "" else "ongoing"
-                    val url = "https://animekhor.org/anime/?status=$statusParam&type=&order=$order&page=$page"
-                    val doc = app.get(url).document
-                    doc.select("div.listupd > article").mapNotNull { article ->
-                        val a = article.selectFirst(".bsx > a") ?: return@mapNotNull null
-                        val title = a.attr("title").ifEmpty { article.selectFirst("h2")?.text() ?: "" }.trim()
-                        val href = a.attr("href").trim()
-                        val poster = article.selectFirst("img")?.let { it.attr("data-src").ifEmpty { it.attr("src") } } ?: ""
-                        if (title.isNotEmpty() && href.isNotEmpty()) {
-                            AnimeEntry(title, poster, SITE_AK, href)
-                        } else null
-                    }
-                } catch (_: Exception) {
-                    emptyList()
-                }
-            }
-
             val seaTvDeferred = async {
                 try {
                     val url = "https://donghuafun.com/api.php/provide/vod/at/json?ac=videolist&pg=$page"
@@ -139,7 +120,7 @@ class DonghuaAggregatorProvider : MainAPI() {
                 }
             }
 
-            awaitAll(dhsDeferred, akDeferred, seaTvDeferred).flatten()
+            awaitAll(dhsDeferred, seaTvDeferred).flatten()
         }
 
         val merged = mergeEntries(items).map { it.toSearchResponse() }
@@ -165,23 +146,6 @@ class DonghuaAggregatorProvider : MainAPI() {
                 }
             }
 
-            val akDeferred = async {
-                try {
-                    val doc = app.get("https://animekhor.org/page/1/?s=${query.encodeUrl()}").document
-                    doc.select("div.listupd > article").mapNotNull { article ->
-                        val a = article.selectFirst(".bsx > a") ?: return@mapNotNull null
-                        val title = a.attr("title").ifEmpty { article.selectFirst("h2")?.text() ?: "" }.trim()
-                        val href = a.attr("href").trim()
-                        val poster = article.selectFirst("img")?.let { it.attr("data-src").ifEmpty { it.attr("src") } } ?: ""
-                        if (title.isNotEmpty() && href.isNotEmpty()) {
-                            AnimeEntry(title, poster, SITE_AK, href)
-                        } else null
-                    }
-                } catch (_: Exception) {
-                    emptyList()
-                }
-            }
-
             val seaTvDeferred = async {
                 try {
                     SeaTV().search(query).map { sr ->
@@ -192,7 +156,7 @@ class DonghuaAggregatorProvider : MainAPI() {
                 }
             }
 
-            awaitAll(dhsDeferred, akDeferred, seaTvDeferred).flatten()
+            awaitAll(dhsDeferred, seaTvDeferred).flatten()
         }
 
         return mergeEntries(items).map { it.toSearchResponse() }
@@ -250,42 +214,34 @@ class DonghuaAggregatorProvider : MainAPI() {
                 val dhsUrl = siteMap[SITE_DHS] ?: return@async emptyList<Triple<Int, String, String>>()
                 try {
                     val doc = app.get(dhsUrl).document
-                    if (title.isEmpty()) title = doc.selectFirst("h1.entry-title")?.text()?.trim() ?: ""
+                    if (title.isEmpty()) title = doc.selectFirst("h1.entry-title, .releases h1")?.text()?.trim() ?: ""
                     if (poster.isNullOrEmpty()) poster = doc.selectFirst("meta[property=og:image]")?.attr("content")
                     if (plot.isNullOrEmpty()) plot = doc.selectFirst("div.entry-content")?.text()?.trim()
 
-                    // 直接从番剧主页的 .eplister 提取所有集数（无需二次请求 Eppage）
-                    doc.select("div.eplister li").mapNotNull { li ->
-                        val a = li.selectFirst("a") ?: return@mapNotNull null
+                    val result = mutableListOf<Triple<Int, String, String>>()
+
+                    // 1. 番剧详情页的 .eplister li
+                    doc.select("div.eplister li").forEach { li ->
+                        val a = li.selectFirst("a") ?: return@forEach
                         val epHref = a.attr("href").trim()
-                        if (epHref.isEmpty()) return@mapNotNull null
+                        if (epHref.isEmpty()) return@forEach
                         val numText = li.selectFirst(".epl-num")?.text()?.trim() ?: ""
                         val titleText = li.selectFirst(".epl-title")?.text()?.trim() ?: a.attr("title").trim()
-                        val epNum = extractEpNum(numText, titleText, epHref) ?: return@mapNotNull null
-                        Triple(epNum, titleText.ifEmpty { "Episode $epNum" }, "$SITE_DHS$$epHref")
+                        val epNum = extractEpNum(numText, titleText, epHref) ?: return@forEach
+                        result.add(Triple(epNum, titleText.ifEmpty { "Episode $epNum" }, "$SITE_DHS$$epHref"))
                     }
-                } catch (_: Exception) {
-                    emptyList()
-                }
-            }
 
-            val akDeferred = async {
-                val akUrl = siteMap[SITE_AK] ?: return@async emptyList<Triple<Int, String, String>>()
-                try {
-                    val doc = app.get(akUrl).document
-                    if (title.isEmpty()) title = doc.selectFirst("h1.entry-title")?.text()?.trim() ?: ""
-                    if (poster.isNullOrEmpty()) poster = doc.selectFirst("meta[property=og:image]")?.attr("content")
-                    if (plot.isNullOrEmpty()) plot = doc.selectFirst("div.entry-content")?.text()?.trim()
-
-                    doc.select("div.eplister li").mapNotNull { li ->
-                        val a = li.selectFirst("a") ?: return@mapNotNull null
-                        val epHref = a.attr("href").trim()
-                        if (epHref.isEmpty()) return@mapNotNull null
-                        val numText = li.selectFirst(".epl-num")?.text()?.trim() ?: ""
-                        val titleText = li.selectFirst(".epl-title")?.text()?.trim() ?: a.attr("title").trim()
-                        val epNum = extractEpNum(numText, titleText, epHref) ?: return@mapNotNull null
-                        Triple(epNum, titleText.ifEmpty { "Episode $epNum" }, "$SITE_AK$$epHref")
+                    // 2. 列表页 / 分类页结构：div.listupd .bsx a 或 div.episodelist li a
+                    if (result.isEmpty()) {
+                        doc.select("div.listupd .bsx a, div.episodelist li a").forEach { a ->
+                            val epHref = a.attr("href").trim()
+                            if (epHref.isEmpty()) return@forEach
+                            val titleText = a.attr("title").ifEmpty { a.text() }.trim()
+                            val epNum = extractEpNum(titleText, epHref) ?: return@forEach
+                            result.add(Triple(epNum, titleText.ifEmpty { "Episode $epNum" }, "$SITE_DHS$$epHref"))
+                        }
                     }
+                    result
                 } catch (_: Exception) {
                     emptyList()
                 }
@@ -331,7 +287,7 @@ class DonghuaAggregatorProvider : MainAPI() {
                 }
             }
 
-            awaitAll(dhsDeferred, akDeferred, seaTvDeferred).flatten()
+            awaitAll(dhsDeferred, seaTvDeferred).flatten()
         }
 
         if (siteEpisodes.isEmpty()) throw ErrorLoadingException("未找到可播放剧集")
@@ -341,10 +297,11 @@ class DonghuaAggregatorProvider : MainAPI() {
         val episodes = allNums.map { num ->
             val matching = siteEpisodes.filter { it.first == num }
             val epName = matching.firstOrNull()?.second ?: "第 $num 集"
-            // 每集的 data 为多站、多线路的数据拼合串（例如 "Donghuastream$url#Animekhor$url#SeaTV@线路$data"）
+            // 每集的 data 为多站、多线路的数据拼合串（例如 "Donghuastream$url#SeaTV@线路$data"）
             val combinedData = matching.joinToString("#") { it.third }
+            val dataWithNonce = if (combinedData.isNotEmpty()) "$combinedData#_nonce=${Random.nextLong()}" else combinedData
 
-            newEpisode(combinedData, fix = false, initializer = {
+            newEpisode(dataWithNonce, fix = false, initializer = {
                 this.name = if (epName.startsWith("EP", ignoreCase = true) || epName.startsWith("Episode", ignoreCase = true)) {
                     "第 $num 集"
                 } else {
@@ -369,6 +326,7 @@ class DonghuaAggregatorProvider : MainAPI() {
     ): Boolean {
         coroutineScope {
             data.split("#").forEach { part ->
+                if (!part.contains("$")) return@forEach
                 launch {
                     try {
                         when {
@@ -376,12 +334,6 @@ class DonghuaAggregatorProvider : MainAPI() {
                                 val epUrl = part.substringAfter("$SITE_DHS$").trim()
                                 if (epUrl.isNotEmpty()) {
                                     Donghuastream().loadLinks(epUrl, isCasting, subtitleCallback, callback)
-                                }
-                            }
-                            part.startsWith("$SITE_AK$") -> {
-                                val epUrl = part.substringAfter("$SITE_AK$").trim()
-                                if (epUrl.isNotEmpty()) {
-                                    Animekhor().loadLinks(epUrl, isCasting, subtitleCallback, callback)
                                 }
                             }
                             part.startsWith("$SITE_SEATV@") -> {

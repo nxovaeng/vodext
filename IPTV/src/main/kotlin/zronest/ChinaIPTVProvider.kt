@@ -5,9 +5,9 @@ import com.lagradost.cloudstream3.utils.ExtractorLink
 import com.lagradost.cloudstream3.utils.M3u8Helper
 import com.lagradost.cloudstream3.utils.newExtractorLink
 
-/** 中国IPTV直播源提供者 数据源: https://github.com/vbskycn/iptv (自动更新，支持IPv4/IPv6) */
+/** 中国IPTV直播源提供者 数据源: https://github.com/cluntop/tvbox */
 class ChinaIPTVProvider : MainAPI() {
-    override var mainUrl = "https://live.zbds.top"
+    override var mainUrl = "https://clun.top"
     override var name = "中国IPTV"
     override var lang = "zh"
     override val hasMainPage = true
@@ -15,7 +15,7 @@ class ChinaIPTVProvider : MainAPI() {
     override val supportedTypes = setOf(TvType.Live)
 
     // M3U 播放列表 URL
-    private val playlistUrl = "$mainUrl/tv/iptv4.m3u"
+    private val playlistUrl = "$mainUrl/lib/iptv.m3u"
 
     override val mainPage =
             mainPageOf(

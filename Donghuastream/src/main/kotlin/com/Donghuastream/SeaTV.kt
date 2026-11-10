@@ -2,9 +2,12 @@ package com.Donghuastream
 
 import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.utils.ExtractorLink
+import com.lagradost.cloudstream3.utils.ExtractorLinkType
 import com.lagradost.cloudstream3.utils.M3u8Helper
+import com.lagradost.cloudstream3.utils.Qualities
 import com.lagradost.cloudstream3.utils.StringUtils.encodeUrl
 import com.lagradost.cloudstream3.utils.loadExtractor
+import com.lagradost.cloudstream3.utils.newExtractorLink
 import kotlin.random.Random
 import org.json.JSONObject
 
@@ -178,40 +181,73 @@ open class SeaTV : MainAPI() {
         // data 为 "线路名$数据#..."，拆分后每条线路即一个播放源
         data.split("#").forEach { part ->
             try {
+                if (!part.contains("$")) return@forEach
                 val lineName = part.substringBefore("$").trim()
                 val rawData = part.substringAfter("$").trim()
                 if (lineName.isEmpty() || rawData.isEmpty()) return@forEach
 
                 when {
-                    // dailymotion 线路：rawData 是视频 ID；
-                    // 防御性地去掉旧构建 fixUrl 可能加上的 url 前缀
+                    // dailymotion 线路：rawData 是视频 ID
                     lineName.contains("dailymotion", ignoreCase = true) -> {
                         val videoId = rawData.substringAfterLast("/").trim()
                         if (videoId.isNotEmpty()) {
-                            loadExtractor(
-                                "https://www.dailymotion.com/video/$videoId",
-                                referer = mainUrl,
-                                subtitleCallback, callback
-                            )
+                            try {
+                                loadExtractor(
+                                    "https://geo.dailymotion.com/player/x1l1ry.html?video=$videoId",
+                                    referer = "https://donghuafun.com/",
+                                    subtitleCallback, callback
+                                )
+                            } catch (_: Exception) {}
+                            try {
+                                loadExtractor(
+                                    "https://www.dailymotion.com/video/$videoId",
+                                    referer = "https://donghuafun.com/",
+                                    subtitleCallback, callback
+                                )
+                            } catch (_: Exception) {}
                         }
                     }
                     // 直接 URL（rumble m3u8 等），保持完整
                     rawData.startsWith("http") -> {
                         if (rawData.contains(".m3u8")) {
-                            // source 传 provider 名（播放器靠它找回 provider 取拦截器）
-                            M3u8Helper.generateM3u8(
-                                name, rawData, mainUrl,
-                                name = "$name · $lineName"
-                            ).forEach(callback)
+                            val isRumble = rawData.contains("rumble.com")
+                            val rumbleRef = if (isRumble) "https://rumble.com/" else mainUrl
+                            val rumbleHeaders = if (isRumble) {
+                                mapOf("Referer" to "https://rumble.com/", "Origin" to "https://rumble.com")
+                            } else {
+                                emptyMap()
+                            }
+                            try {
+                                M3u8Helper.generateM3u8(
+                                    name, rawData, rumbleRef,
+                                    headers = rumbleHeaders,
+                                    name = "$name · $lineName"
+                                ).forEach(callback)
+                            } catch (_: Exception) {
+                                callback(
+                                    newExtractorLink(
+                                        name,
+                                        "$name · $lineName",
+                                        rawData,
+                                        ExtractorLinkType.M3U8
+                                    ) {
+                                        this.referer = rumbleRef
+                                        this.quality = Qualities.P1080.value
+                                        this.headers = rumbleHeaders
+                                    }
+                                )
+                            }
                         } else {
                             loadExtractor(rawData, referer = mainUrl, subtitleCallback, callback)
                         }
                     }
-                    // rumble 视频 ID
+                    // rumble 视频 ID（如 v7ed06s）
                     lineName.contains("rumble", ignoreCase = true) -> {
+                        val videoId = rawData.trim()
+                        val embedUrl = if (videoId.startsWith("http")) videoId else "https://rumble.com/embed/$videoId"
                         loadExtractor(
-                            "https://rumble.com/$rawData",
-                            referer = mainUrl,
+                            embedUrl,
+                            referer = "https://rumble.com/",
                             subtitleCallback, callback
                         )
                     }
