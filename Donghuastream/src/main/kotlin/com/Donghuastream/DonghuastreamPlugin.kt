@@ -6,7 +6,6 @@ import com.lagradost.cloudstream3.extractors.Dailymotion
 import com.lagradost.cloudstream3.extractors.EmturbovidExtractor
 import com.lagradost.cloudstream3.extractors.Geodailymotion
 import com.lagradost.cloudstream3.extractors.Mp4Upload
-import com.lagradost.cloudstream3.extractors.OkRu
 
 /** 动漫插件：国漫 2K/4K 聚合（Donghuastream + SeaTV） */
 @CloudstreamPlugin

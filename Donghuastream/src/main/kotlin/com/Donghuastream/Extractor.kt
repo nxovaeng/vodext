@@ -13,6 +13,7 @@ import com.lagradost.cloudstream3.newSubtitleFile
 import com.lagradost.cloudstream3.utils.ExtractorApi
 import com.lagradost.cloudstream3.utils.ExtractorLink
 import com.lagradost.cloudstream3.utils.ExtractorLinkType
+import org.json.JSONObject
 import com.lagradost.cloudstream3.utils.INFER_TYPE
 import com.lagradost.cloudstream3.utils.JsUnpacker
 import com.lagradost.cloudstream3.utils.M3u8Helper
@@ -376,5 +377,87 @@ open class Rumble : ExtractorApi() {
             val label = m.groupValues[2]
             subtitleCallback(newSubtitleFile(label, vttUrl))
         }
+    }
+}
+
+open class OkRu : ExtractorApi() {
+    override var name = "OkRu"
+    override var mainUrl = "https://ok.ru"
+    override val requiresReferer = false
+
+    override suspend fun getUrl(
+        url: String,
+        referer: String?,
+        subtitleCallback: (SubtitleFile) -> Unit,
+        callback: (ExtractorLink) -> Unit
+    ) {
+        val embedUrl = if (url.startsWith("//")) "https:$url" else url
+        val response = try {
+            app.get(embedUrl, referer = referer ?: "$mainUrl/")
+        } catch (_: Exception) {
+            return
+        }
+        val document = response.document
+        val dataOptions = document.selectFirst("div[data-options]")?.attr("data-options") ?: return
+        try {
+            val json = JSONObject(dataOptions)
+            val flashvars = json.optJSONObject("flashvars") ?: return
+            val metadata = flashvars.optJSONObject("metadata")
+                ?: flashvars.optString("metadata").takeIf { it.isNotBlank() }?.let { JSONObject(it) }
+                ?: return
+
+            // 1. 提取 HLS m3u8
+            val hls = metadata.optString("hlsManifestUrl")
+            if (hls.isNotBlank()) {
+                try {
+                    M3u8Helper.generateM3u8(name, hls, mainUrl).forEach(callback)
+                } catch (_: Exception) {
+                    callback(
+                        newExtractorLink(
+                            name,
+                            name,
+                            hls,
+                            ExtractorLinkType.M3U8
+                        ) {
+                            this.referer = mainUrl
+                            this.quality = Qualities.P1080.value
+                        }
+                    )
+                }
+            }
+
+            // 2. 提取不同清晰度直接 MP4 视频 (ultra/quad/full/hd/sd/low 等)
+            val videos = metadata.optJSONArray("videos")
+            if (videos != null) {
+                for (i in 0 until videos.length()) {
+                    val vid = videos.getJSONObject(i)
+                    val qualityName = vid.optString("name")
+                    val vidUrl = vid.optString("url")
+                    if (vidUrl.isNotBlank()) {
+                        val quality = when (qualityName.lowercase()) {
+                            "ultra", "quad" -> Qualities.P2160.value
+                            "full" -> Qualities.P1080.value
+                            "hd" -> Qualities.P720.value
+                            "sd" -> Qualities.P480.value
+                            "low" -> Qualities.P360.value
+                            "lowest" -> Qualities.P240.value
+                            "mobile" -> Qualities.P144.value
+                            else -> Qualities.Unknown.value
+                        }
+                        callback(
+                            newExtractorLink(
+                                name,
+                                "$name $qualityName",
+                                vidUrl,
+                                INFER_TYPE
+                            ) {
+                                this.referer = mainUrl
+                                this.quality = quality
+                            }
+                        )
+                    }
+                }
+            }
+        } catch (_: Exception) {}
     }
 }
