@@ -600,7 +600,7 @@ open class ChinaIPTVProvider : MainAPI() {
     }
 
     /** 发射直播流 Link（优先使用 M3u8Helper 解析多码率，失败时降级直连） */
-    private fun emitStreamLink(sourceName: String, url: String, callback: (ExtractorLink) -> Unit) {
+    private suspend fun emitStreamLink(sourceName: String, url: String, callback: (ExtractorLink) -> Unit) {
         if (url.isBlank()) return
         val cleanUrl = url.substringBefore("$").trim()
         val displayName = "$name · $sourceName"
