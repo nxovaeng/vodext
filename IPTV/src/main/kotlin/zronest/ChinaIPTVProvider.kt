@@ -10,8 +10,9 @@ import kotlinx.coroutines.coroutineScope
 import org.json.JSONObject
 
 /**
- * 中国IPTV直播源提供者（整合 CCTV 官方稳定流、CNTV 实时 EPG 节目单与多线路切换）
- * 数据源: 官方 CDN 直连 + https://github.com/cluntop/tvbox
+ * 中国IPTV直播源提供者
+ * 采用剧集（TvSeries）模式直连播放，消除多余交互层；
+ * 同频道支持多线路自由切换，整合 CCTV 官方稳定流与实时 EPG。
  */
 open class ChinaIPTVProvider : MainAPI() {
     override var mainUrl = "https://clun.top"
@@ -19,7 +20,7 @@ open class ChinaIPTVProvider : MainAPI() {
     override var lang = "zh"
     override val hasMainPage = true
     override val hasDownloadSupport = false
-    override val supportedTypes = setOf(TvType.Live, TvType.TvSeries)
+    override val supportedTypes = setOf(TvType.TvSeries)
 
     private val playlistUrl = "$mainUrl/lib/iptv.m3u"
 
@@ -102,9 +103,29 @@ open class ChinaIPTVProvider : MainAPI() {
         )
     }
 
-    /** 央视官方持久直连纯净源 (免加密、高清晰度、低延迟) */
-    private fun getOfficialCCTVChannels(): List<Channel> {
+    /** 内置高稳定性备用基础频道（防止在线列表临时不可用时无频道可播） */
+    private fun getBuiltinChannels(): List<Channel> {
         return listOf(
+            // 4K 基础频道
+            Channel(
+                id = "东方卫视4K",
+                name = "东方卫视4K",
+                group = "4K",
+                logo = "https://live.fanmingming.com/tv/东方卫视.png",
+                sources = mutableListOf(
+                    ChannelSource("线路 1 (IPv4)", "https://bp-resource-dfl.bestv.cn/148/3/video.m3u8")
+                )
+            ),
+            Channel(
+                id = "CCTV4K",
+                name = "CCTV-4K 超高清",
+                group = "4K",
+                logo = "https://live.fanmingming.com/tv/CCTV4K.png",
+                sources = mutableListOf(
+                    ChannelSource("线路 1 (IPv4)", "http://198.204.240.250:82/live/cctv4k.m3u8")
+                )
+            ),
+            // CCTV 1-17 官方持久免加密直播源
             Channel(
                 id = "cctv1",
                 cctvId = "cctv1",
@@ -292,11 +313,30 @@ open class ChinaIPTVProvider : MainAPI() {
                     ChannelSource("官方稳定 (IPv4)", "http://74.91.26.218:82/live/cctv17hd.m3u8"),
                     ChannelSource("官方备用 (IPv4)", "http://63.141.230.178:82/gslb/zbdq5.m3u8?id=cctv17hd")
                 )
+            ),
+            // 卫视基础频道
+            Channel(
+                id = "湖南卫视",
+                name = "湖南卫视",
+                group = "卫视",
+                logo = "https://live.fanmingming.com/tv/湖南卫视.png",
+                sources = mutableListOf(
+                    ChannelSource("线路 1 (IPv4)", "http://120.40.39.246:352/newlive/live/hls/15/live.m3u8")
+                )
+            ),
+            Channel(
+                id = "浙江卫视",
+                name = "浙江卫视",
+                group = "卫视",
+                logo = "https://live.fanmingming.com/tv/浙江卫视.png",
+                sources = mutableListOf(
+                    ChannelSource("线路 1 (IPv4)", "http://120.40.39.246:352/newlive/live/hls/16/live.m3u8")
+                )
             )
         )
     }
 
-    /** 格式化 M3U 线路标签为友好名称（如：线路 1 (IPv4)） */
+    /** 格式化 M3U 线路标签为友好名称 */
     private fun formatSourceTag(tag: String, lineIndex: Int): String {
         if (tag.isBlank()) return "线路 ${lineIndex + 1}"
         val sub = Regex("""『(.*?)』""").find(tag)?.groupValues?.get(1)?.trim() ?: ""
@@ -319,11 +359,10 @@ open class ChinaIPTVProvider : MainAPI() {
             return cachedChannels!!
         }
 
-        // 以 Map 聚合频道，key 为规范化后的唯一标识
         val channelMap = LinkedHashMap<String, Channel>()
 
-        // 1. 先植入 CCTV 官方持久免加密直播源作为基底
-        getOfficialCCTVChannels().forEach { official ->
+        // 1. 预先植入官方/稳定基础源作为基底
+        getBuiltinChannels().forEach { official ->
             channelMap[official.id] = official
         }
 
@@ -347,10 +386,11 @@ open class ChinaIPTVProvider : MainAPI() {
                     currentLogo = logoMatch?.groupValues?.get(1)?.trim() ?: ""
                 } else if (trimmed.isNotEmpty() && !trimmed.startsWith("#") && currentName.isNotEmpty()) {
                     val rawUrl = trimmed
+                    // 剥离 $ 后的标签获得纯净直播流 URL
                     val cleanUrl = rawUrl.substringBefore("$").trim()
                     val tag = if (rawUrl.contains("$")) rawUrl.substringAfter("$").trim() else ""
 
-                    if (cleanUrl.isNotBlank()) {
+                    if (cleanUrl.isNotBlank() && cleanUrl.startsWith("http")) {
                         // 规范化频道名称
                         val cctvKey = currentName.uppercase().replace(" ", "").replace("-", "")
                         val cctvInfo = CCTV_MAP[cctvKey]
@@ -375,7 +415,7 @@ open class ChinaIPTVProvider : MainAPI() {
                             )
                         }
 
-                        // 如果该直播流尚未添加，则聚合进当前频道的多线路列表
+                        // 聚合线路（去重）
                         if (channel.sources.none { it.url == cleanUrl }) {
                             val lineName = formatSourceTag(tag, channel.sources.size)
                             channel.sources.add(ChannelSource(lineName, cleanUrl))
@@ -385,7 +425,7 @@ open class ChinaIPTVProvider : MainAPI() {
                 }
             }
         } catch (_: Exception) {
-            // 在线源获取失败时保留内置官方源
+            // 在线源获取失败时平滑降级使用内置源
         }
 
         val result = channelMap.values.toList()
@@ -403,7 +443,7 @@ open class ChinaIPTVProvider : MainAPI() {
         }
         return try {
             val epgUrl = "https://api.cntv.cn/epg/epginfo?c=$cctvId"
-            val json = app.get(epgUrl, headers = mapOf("User-Agent" to USER_AGENT), timeout = 1500L).text
+            val json = app.get(epgUrl, headers = mapOf("User-Agent" to USER_AGENT), timeout = 1000L).text
             val isLive = JSONObject(json).optJSONObject(cctvId)?.optString("isLive")?.trim()
             if (!isLive.isNullOrEmpty() && isLive != "None") {
                 epgCache[cctvId] = Pair(isLive, now)
@@ -456,7 +496,7 @@ open class ChinaIPTVProvider : MainAPI() {
                 val isGeneral = listOf("电影", "音乐", "体育", "少儿", "纪录", "新闻", "财经", "购物")
                     .any { tag -> it.group.contains(tag) }
                 isGeneral && !it.name.startsWith("CCTV") && !it.name.contains("卫视")
-            }.take(80) // 限制特色专区数量以保证主页流畅
+            }.take(80)
 
             else -> channels
         }
@@ -467,18 +507,19 @@ open class ChinaIPTVProvider : MainAPI() {
         val allChannels = parseM3U()
         val channels = filterChannelsByCategory(allChannels, request.data)
 
-        // 针对央视频道并发查询 EPG 正在播放节目单（带超时保护）
+        // 主页采用 TvSeries 模式返回，点击直接播放
         val searchResponses = coroutineScope {
             channels.map { channel ->
                 async {
                     var displayName = channel.name
-                    if (channel.cctvId != null) {
+                    // 仅对主 CCTV 频道快速拉取 EPG
+                    if (channel.cctvId != null && CCTV_ORDER.contains(channel.name)) {
                         val epg = getChannelEpg(channel.cctvId)
                         if (!epg.isNullOrEmpty()) {
                             displayName = "${channel.name} · $epg"
                         }
                     }
-                    newMovieSearchResponse(displayName, "channel:${channel.id}", TvType.Live) {
+                    newTvSeriesSearchResponse(displayName, "channel:${channel.id}", TvType.TvSeries) {
                         this.posterUrl = channel.logo.ifEmpty { DEFAULT_LOGO }
                     }
                 }
@@ -496,7 +537,7 @@ open class ChinaIPTVProvider : MainAPI() {
         return channels.filter {
             it.name.contains(query, ignoreCase = true) || it.id.contains(query, ignoreCase = true)
         }.map { channel ->
-            newMovieSearchResponse(channel.name, "channel:${channel.id}", TvType.Live) {
+            newTvSeriesSearchResponse(channel.name, "channel:${channel.id}", TvType.TvSeries) {
                 this.posterUrl = channel.logo.ifEmpty { DEFAULT_LOGO }
             }
         }
@@ -515,13 +556,12 @@ open class ChinaIPTVProvider : MainAPI() {
                 name = "直播频道",
                 group = "其他",
                 logo = DEFAULT_LOGO,
-                sources = mutableListOf(ChannelSource("默认线路", url))
+                sources = mutableListOf(ChannelSource("默认线路", url.substringBefore("$").trim()))
             )
 
-        // 将该频道的多个源组织为多线路（支持在播放器选集及线路随时切换）
+        // 按照剧集模式：每个 Episode 直接对应一条纯净 streamUrl，点击卡片直接起播
         val episodes = currentChannel.sources.mapIndexed { index, source ->
-            val episodeData = "${currentChannel.id}__SEP__${index}__SEP__${source.url}"
-            newEpisode(episodeData) {
+            newEpisode(source.url) {
                 this.name = source.name.ifEmpty { "线路 ${index + 1}" }
                 this.episode = index + 1
                 this.posterUrl = currentChannel.logo.ifEmpty { DEFAULT_LOGO }
@@ -530,15 +570,15 @@ open class ChinaIPTVProvider : MainAPI() {
 
         val epgInfo = currentChannel.cctvId?.let { getChannelEpg(it) }
         val plotText = buildString {
-            append("📺 分组: ${currentChannel.group.ifEmpty { "直播频道" }}")
+            append("📺 频道: ${currentChannel.name}")
             if (!epgInfo.isNullOrEmpty()) {
                 append("\n🔴 正在播放: $epgInfo")
             }
-            append("\n\n⚡ 可用线路: 共 ${currentChannel.sources.size} 条")
-            append("\n💡 点击下方线路即可播放；播放过程中亦可在播放器内点击【选集】或【线路】随时换源！")
+            append("\n⚡ 可用线路: 共 ${currentChannel.sources.size} 条")
+            append("\n💡 采用剧集模式直连播放；播放中可在播放器内点击【选集】或【线路】快速切换线路！")
         }
 
-        return newTvSeriesLoadResponse(currentChannel.name, "channel:${currentChannel.id}", TvType.Live, episodes) {
+        return newTvSeriesLoadResponse(currentChannel.name, "channel:${currentChannel.id}", TvType.TvSeries, episodes) {
             this.posterUrl = currentChannel.logo.ifEmpty { DEFAULT_LOGO }
             this.plot = plotText
         }
@@ -550,80 +590,64 @@ open class ChinaIPTVProvider : MainAPI() {
         subtitleCallback: (SubtitleFile) -> Unit,
         callback: (ExtractorLink) -> Unit
     ): Boolean {
-        val channels = parseM3U()
+        // 提取纯净 URL，去除任何附加标记或拼接字符
+        val cleanUrl = if (data.contains("__SEP__")) {
+            data.substringAfterLast("__SEP__").substringBefore("$").trim()
+        } else {
+            data.substringBefore("$").trim()
+        }
 
-        // 1. 解析 channelId__SEP__selectedIndex__SEP__selectedUrl
-        if (data.contains("__SEP__")) {
-            val parts = data.split("__SEP__")
-            val channelId = parts.getOrNull(0) ?: ""
-            val selectedIndex = parts.getOrNull(1)?.toIntOrNull() ?: 0
-            val selectedUrl = parts.getOrNull(2) ?: ""
+        if (cleanUrl.isBlank() || !cleanUrl.startsWith("http")) return false
 
-            val channel = channels.find { it.id.equals(channelId, ignoreCase = true) }
-            if (channel != null && channel.sources.isNotEmpty()) {
-                // 优先发射当前选中的线路
-                val primarySource = channel.sources.getOrNull(selectedIndex)
-                    ?: ChannelSource("线路 ${selectedIndex + 1}", selectedUrl)
-                emitStreamLink(primarySource.name, primarySource.url, callback)
+        // 1. 发射当前选中线路
+        emitStreamLink(this.name, cleanUrl, callback)
 
-                // 发射该频道的其余备用线路供播放器源选择列表切换
-                channel.sources.forEachIndexed { idx, src ->
-                    if (idx != selectedIndex && src.url.isNotBlank()) {
-                        emitStreamLink(src.name, src.url, callback)
+        // 2. 从内存已缓存的频道列表中提取同频道的其余备用线路（免网络请求，0延迟注入播放器线路菜单）
+        cachedChannels?.find { ch -> ch.sources.any { it.url == cleanUrl } }?.let { channel ->
+            channel.sources.forEach { other ->
+                val otherUrl = other.url.substringBefore("$").trim()
+                if (otherUrl != cleanUrl && otherUrl.isNotBlank()) {
+                    try {
+                        callback(
+                            newExtractorLink(
+                                source = this.name,
+                                name = "${this.name} · ${other.name}",
+                                url = otherUrl,
+                                type = if (otherUrl.contains(".m3u8")) ExtractorLinkType.M3U8 else ExtractorLinkType.VIDEO
+                            ) {
+                                this.referer = ""
+                            }
+                        )
+                    } catch (_: Exception) {
                     }
                 }
-                return true
             }
-        }
-
-        // 2. 尝试从全量频道中反向匹配包含此 URL 的频道
-        val matchedChannel = channels.find { ch -> ch.sources.any { it.url == data } }
-        if (matchedChannel != null) {
-            val selectedSrc = matchedChannel.sources.find { it.url == data }
-            if (selectedSrc != null) {
-                emitStreamLink(selectedSrc.name, selectedSrc.url, callback)
-            }
-            matchedChannel.sources.forEach { src ->
-                if (src.url != data && src.url.isNotBlank()) {
-                    emitStreamLink(src.name, src.url, callback)
-                }
-            }
-            return true
-        }
-
-        // 3. Fallback: 直接发射传入的播放流
-        if (data.isNotBlank()) {
-            emitStreamLink("默认线路", data, callback)
         }
 
         return true
     }
 
-    /** 发射直播流 Link（优先使用 M3u8Helper 解析多码率，失败时降级直连） */
+    /** 发射直播流 Link（优先 M3u8Helper 解析，失败时优雅降级为直接 ExtractorLink） */
     private suspend fun emitStreamLink(sourceName: String, url: String, callback: (ExtractorLink) -> Unit) {
         if (url.isBlank()) return
         val cleanUrl = url.substringBefore("$").trim()
-        val displayName = "$name · $sourceName"
 
         if (cleanUrl.contains(".m3u8")) {
             try {
                 M3u8Helper.generateM3u8(
                     source = name,
                     streamUrl = cleanUrl,
-                    referer = mainUrl,
-                    headers = mapOf("User-Agent" to USER_AGENT),
-                    name = displayName
+                    referer = ""
                 ).forEach(callback)
             } catch (_: Exception) {
                 callback(
                     newExtractorLink(
                         source = name,
-                        name = displayName,
+                        name = sourceName,
                         url = cleanUrl,
                         type = ExtractorLinkType.M3U8
                     ) {
-                        this.referer = mainUrl
-                        this.headers = mapOf("User-Agent" to USER_AGENT)
+                        this.referer = ""
                     }
                 )
             }
@@ -631,12 +655,11 @@ open class ChinaIPTVProvider : MainAPI() {
             callback(
                 newExtractorLink(
                     source = name,
-                    name = displayName,
+                    name = sourceName,
                     url = cleanUrl,
                     type = ExtractorLinkType.VIDEO
                 ) {
-                    this.referer = mainUrl
-                    this.headers = mapOf("User-Agent" to USER_AGENT)
+                    this.referer = ""
                 }
             )
         }
