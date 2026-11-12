@@ -177,7 +177,8 @@ class GuaziProvider : MainAPI() {
         val isSingleEpisode = listArray?.size() == 1
 
         listArray?.forEachIndexed { index, item ->
-            val playMap = item.asJsonObject.getAsJsonObject("play") ?: return@forEachIndexed
+            val itemObj = item.asJsonObject
+            val playMap = itemObj.getAsJsonObject("play") ?: return@forEachIndexed
             val names = mutableListOf<String>()
             val params = mutableListOf<String>()
             for ((k, v) in playMap.entrySet()) {
@@ -188,7 +189,16 @@ class GuaziProvider : MainAPI() {
                 }
             }
             if (params.isNotEmpty()) {
-                val playName = if (isSingleEpisode) name else (index + 1).toString()
+                // 若有特殊分集名则保留，普通集数不填 name（交由 CloudStream 按 episode 自动格式化，避免拼接成 1.1 / 2.2 / 3.3）
+                val rawTitle = itemObj.get("title")?.asString
+                    ?: itemObj.get("name")?.asString
+                    ?: itemObj.get("part")?.asString
+                    ?: itemObj.get("vod_part")?.asString
+                val customTitle = rawTitle?.trim()?.takeIf {
+                    it.isNotEmpty() && it != (index + 1).toString()
+                }
+
+                val playName = if (isSingleEpisode) name else customTitle
                 // data 格式：param||res1@res2，loadLinks 时解析（fix = false 禁止 CloudStream 自动拼主域名）
                 val data = "${params.last()}||${names.joinToString("@")}"
                 episodes.add(newEpisode(data, fix = false, initializer = {
