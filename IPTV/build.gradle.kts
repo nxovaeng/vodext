@@ -1,12 +1,12 @@
 // use an integer for version numbers
-version = 3
+version = 4
 
 
 cloudstream {
     language = "zh"
     // All of these properties are optional, you can safely remove them
 
-    description = "中国IPTV直播源 - 剧集模式极速起播，支持同频道多源切换与实时EPG"
+    description = "中国IPTV直播源 - 直连极速起播，支持同频道多源切换与实时EPG"
     authors = listOf("nxovaeng")
 
     /**
@@ -18,7 +18,9 @@ cloudstream {
      * */
     status = 1 // will be 3 if unspecified
     tvTypes = listOf(
-        "TvSeries",
+        "Live",
+        "Movie",
+        "TvSeries"
     )
 
     iconUrl = "https://vod.zrocf.qzz.io/static/tvlogo.png"
