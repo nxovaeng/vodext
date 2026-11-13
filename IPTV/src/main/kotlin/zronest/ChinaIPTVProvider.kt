@@ -625,14 +625,11 @@ open class ChinaIPTVProvider : MainAPI() {
         val allChannels = parseM3U()
 
         // 优先在频道全部线路中查找匹配，其次按名称或 ID 匹配，兼容历史缓存的 channel:xxx 格式
-        val currentChannel = allChannels.find { ch ->
-            ch.sources.any { it.url.substringBefore("$").trim() == cleanUrl }
-        } ?: if (cleanUrl.contains("channel:")) {
-            val chId = cleanUrl.substringAfter("channel:").trim()
-            allChannels.find { it.id.equals(chId, ignoreCase = true) }
-        } else null
-        ?: allChannels.find { ch ->
-            ch.id.equals(cleanUrl, ignoreCase = true) || ch.name.equals(cleanUrl, ignoreCase = true)
+        val currentChannel = allChannels.firstOrNull { ch ->
+            ch.sources.any { it.url.substringBefore("$").trim() == cleanUrl } ||
+            (cleanUrl.contains("channel:") && ch.id.equals(cleanUrl.substringAfter("channel:").trim(), ignoreCase = true)) ||
+            ch.id.equals(cleanUrl, ignoreCase = true) ||
+            ch.name.equals(cleanUrl, ignoreCase = true)
         } ?: Channel(
             id = cleanUrl,
             name = "直播频道",
@@ -680,12 +677,12 @@ open class ChinaIPTVProvider : MainAPI() {
         if (cleanUrl.isBlank()) return false
 
         val allChannels = parseM3U()
-        val currentChannel = allChannels.find { ch ->
-            ch.sources.any { it.url.substringBefore("$").trim() == cleanUrl }
-        } ?: if (cleanUrl.contains("channel:")) {
-            val chId = cleanUrl.substringAfter("channel:").trim()
-            allChannels.find { it.id.equals(chId, ignoreCase = true) }
-        } else null
+        val currentChannel = allChannels.firstOrNull { ch ->
+            ch.sources.any { it.url.substringBefore("$").trim() == cleanUrl } ||
+            (cleanUrl.contains("channel:") && ch.id.equals(cleanUrl.substringAfter("channel:").trim(), ignoreCase = true)) ||
+            ch.id.equals(cleanUrl, ignoreCase = true) ||
+            ch.name.equals(cleanUrl, ignoreCase = true)
+        }
 
         val targetUrl = if (cleanUrl.startsWith("http") && !cleanUrl.contains("channel:")) {
             cleanUrl
