@@ -318,24 +318,6 @@ open class ChinaIPTVProvider : MainAPI() {
                 )
             ),
             // 卫视基础频道
-            Channel(
-                id = "湖南卫视",
-                name = "湖南卫视",
-                group = "卫视",
-                logo = "https://live.fanmingming.com/tv/湖南卫视.png",
-                sources = mutableListOf(
-                    ChannelSource("线路 1 (IPv4)", "http://120.40.39.246:352/newlive/live/hls/15/live.m3u8")
-                )
-            ),
-            Channel(
-                id = "浙江卫视",
-                name = "浙江卫视",
-                group = "卫视",
-                logo = "https://live.fanmingming.com/tv/浙江卫视.png",
-                sources = mutableListOf(
-                    ChannelSource("线路 1 (IPv4)", "http://120.40.39.246:352/newlive/live/hls/16/live.m3u8")
-                )
-            )
         )
     }
 
@@ -574,7 +556,6 @@ open class ChinaIPTVProvider : MainAPI() {
         val allChannels = parseM3U()
         val channels = filterChannelsByCategory(allChannels, request.data)
 
-        // 频道卡片以真实直播流地址为 url，点击直接调用 load 极速起播
         val searchResponses = coroutineScope {
             channels.mapNotNull { channel ->
                 val streamUrl = channel.primaryUrl
@@ -619,7 +600,6 @@ open class ChinaIPTVProvider : MainAPI() {
         }
     }
 
-    /** 点击频道直接返回 Movie/Live 播放响应，直连播放器，绝不跳转“剧集列表”中间页 */
     override suspend fun load(url: String): LoadResponse {
         val cleanUrl = url.substringBefore("$").trim()
         val allChannels = parseM3U()
@@ -684,82 +664,67 @@ open class ChinaIPTVProvider : MainAPI() {
             ch.name.equals(cleanUrl, ignoreCase = true)
         }
 
-        val targetUrl = if (cleanUrl.startsWith("http") && !cleanUrl.contains("channel:")) {
-            cleanUrl
-        } else {
-            currentChannel?.primaryUrl ?: cleanUrl
-        }
-
-        if (targetUrl.isBlank() || !targetUrl.startsWith("http")) return false
-
-        // 1. 发射当前选中主线路
-        val currentSourceName = currentChannel?.sources?.find {
-            it.url.substringBefore("$").trim() == targetUrl
-        }?.name ?: "默认线路"
-
-        emitStreamLink(currentSourceName, targetUrl, callback)
-
-        // 2. 从内存已缓存的频道列表中提取同频道的其余备用线路（免网络开销，直接以 ExtractorLink 注入播放器线路菜单）
-        currentChannel?.sources?.forEach { src ->
-            val otherUrl = src.url.substringBefore("$").trim()
-            if (otherUrl != targetUrl && otherUrl.isNotBlank() && otherUrl.startsWith("http")) {
-                try {
-                    callback(
-                        newExtractorLink(
-                            source = this.name,
-                            name = "${this.name} · ${src.name}",
-                            url = otherUrl,
-                            type = if (otherUrl.contains(".m3u8", ignoreCase = true)) ExtractorLinkType.M3U8 else ExtractorLinkType.VIDEO
-                        ) {
-                            this.referer = ""
-                        }
-                    )
-                } catch (_: Exception) {
-                }
+        // 收集该频道全部线路，当前线路优先排首位
+        val sources: List<ChannelSource> = if (currentChannel != null) {
+            val targetSrc = currentChannel.sources.firstOrNull {
+                it.url.substringBefore("$").trim() == cleanUrl
             }
+            if (targetSrc != null) {
+                listOf(targetSrc) + currentChannel.sources.filter { it !== targetSrc }
+            } else {
+                currentChannel.sources.toList()
+            }
+        } else if (cleanUrl.startsWith("http")) {
+            listOf(ChannelSource("默认线路", cleanUrl))
+        } else return false
+
+        if (sources.isEmpty()) return false
+
+        // 对所有线路并发探活：m3u8 经 M3u8Helper 解析验证，非 m3u8 做 HEAD 检测
+        // 通过验证的按发现顺序回调，坏链静默丢弃
+        coroutineScope {
+            sources.map { src ->
+                async {
+                    val srcUrl = src.url.substringBefore("$").trim()
+                    if (srcUrl.isBlank() || !srcUrl.startsWith("http")) return@async
+                    val linkName = "${this@ChinaIPTVProvider.name} · ${src.name}"
+                    val isM3u8 = srcUrl.contains(".m3u8", ignoreCase = true)
+
+                    if (isM3u8) {
+                        // M3u8Helper 内部会请求并解析，失败/空列表表示坏链
+                        try {
+                            val links = M3u8Helper.generateM3u8(
+                                source = name,
+                                streamUrl = srcUrl,
+                                referer = "",
+                                name = linkName
+                            )
+                            links.forEach(callback)
+                        } catch (_: Exception) {
+                            // 坏链，丢弃
+                        }
+                    } else {
+                        // 非 m3u8：做 HEAD 检测，通过则注入
+                        try {
+                            val resp = app.head(srcUrl, headers = mapOf("User-Agent" to USER_AGENT), timeout = 4000L)
+                            if (resp.isSuccessful) {
+                                callback(
+                                    newExtractorLink(
+                                        source = name,
+                                        name = linkName,
+                                        url = srcUrl,
+                                        type = ExtractorLinkType.VIDEO
+                                    ) { this.referer = "" }
+                                )
+                            }
+                        } catch (_: Exception) {
+                            // 坏链，丢弃
+                        }
+                    }
+                }
+            }.forEach { it.await() }
         }
 
         return true
-    }
-
-    /** 发射直播流 Link（优先 M3u8Helper 解析，若无多码率或解析失败则保底以 ExtractorLink 直连发射） */
-    private suspend fun emitStreamLink(sourceName: String, url: String, callback: (ExtractorLink) -> Unit) {
-        if (url.isBlank()) return
-        val cleanUrl = url.substringBefore("$").trim()
-        val isM3u8 = cleanUrl.contains(".m3u8", ignoreCase = true)
-        val linkName = "${this.name} · $sourceName"
-
-        var emitted = false
-        if (isM3u8) {
-            try {
-                val links = M3u8Helper.generateM3u8(
-                    source = name,
-                    streamUrl = cleanUrl,
-                    referer = "",
-                    name = linkName
-                )
-                if (links.isNotEmpty()) {
-                    links.forEach(callback)
-                    emitted = true
-                }
-            } catch (_: Exception) {
-            }
-        }
-
-        if (!emitted) {
-            try {
-                callback(
-                    newExtractorLink(
-                        source = name,
-                        name = linkName,
-                        url = cleanUrl,
-                        type = if (isM3u8) ExtractorLinkType.M3U8 else ExtractorLinkType.VIDEO
-                    ) {
-                        this.referer = ""
-                    }
-                )
-            } catch (_: Exception) {
-            }
-        }
     }
 }
